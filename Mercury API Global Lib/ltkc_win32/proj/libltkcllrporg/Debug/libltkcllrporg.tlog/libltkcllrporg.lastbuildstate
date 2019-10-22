@@ -1,0 +1,2 @@
+#TargetFrameworkVersion=v4.0:PlatformToolSet=v141:EnableManagedIncrementalBuild=false:VCToolArchitecture=Native32Bit:WindowsTargetPlatformVersion=8.1
+Debug|Win32|E:\MercuryAPI-1.31.3.36\mercuryapi-1.31.3.36\c\src\api\ltkc_win32\proj\|
