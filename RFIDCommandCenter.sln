@@ -5,6 +5,10 @@ VisualStudioVersion = 15.0.28307.779
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RFIDCommandCenter", "RFIDCommandCenter\RFIDCommandCenter.vcxproj", "{DEA20FCA-A0E9-4C2D-9AD0-5EDACA232ECC}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RFIDDeviceController", "RFIDDeviceController\RFIDDeviceController.vcxproj", "{A2993B16-7AE7-4C55-B77E-0B48321E990B}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RFIDSharedLib", "RFIDSharedLib\RFIDSharedLib.vcxproj", "{37F55A91-C729-4BA0-83FF-EA72CC507DC0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -21,6 +25,22 @@ Global
 		{DEA20FCA-A0E9-4C2D-9AD0-5EDACA232ECC}.Release|x64.Build.0 = Release|x64
 		{DEA20FCA-A0E9-4C2D-9AD0-5EDACA232ECC}.Release|x86.ActiveCfg = Release|Win32
 		{DEA20FCA-A0E9-4C2D-9AD0-5EDACA232ECC}.Release|x86.Build.0 = Release|Win32
+		{A2993B16-7AE7-4C55-B77E-0B48321E990B}.Debug|x64.ActiveCfg = Debug|x64
+		{A2993B16-7AE7-4C55-B77E-0B48321E990B}.Debug|x64.Build.0 = Debug|x64
+		{A2993B16-7AE7-4C55-B77E-0B48321E990B}.Debug|x86.ActiveCfg = Debug|Win32
+		{A2993B16-7AE7-4C55-B77E-0B48321E990B}.Debug|x86.Build.0 = Debug|Win32
+		{A2993B16-7AE7-4C55-B77E-0B48321E990B}.Release|x64.ActiveCfg = Release|x64
+		{A2993B16-7AE7-4C55-B77E-0B48321E990B}.Release|x64.Build.0 = Release|x64
+		{A2993B16-7AE7-4C55-B77E-0B48321E990B}.Release|x86.ActiveCfg = Release|Win32
+		{A2993B16-7AE7-4C55-B77E-0B48321E990B}.Release|x86.Build.0 = Release|Win32
+		{37F55A91-C729-4BA0-83FF-EA72CC507DC0}.Debug|x64.ActiveCfg = Debug|x64
+		{37F55A91-C729-4BA0-83FF-EA72CC507DC0}.Debug|x64.Build.0 = Debug|x64
+		{37F55A91-C729-4BA0-83FF-EA72CC507DC0}.Debug|x86.ActiveCfg = Debug|Win32
+		{37F55A91-C729-4BA0-83FF-EA72CC507DC0}.Debug|x86.Build.0 = Debug|Win32
+		{37F55A91-C729-4BA0-83FF-EA72CC507DC0}.Release|x64.ActiveCfg = Release|x64
+		{37F55A91-C729-4BA0-83FF-EA72CC507DC0}.Release|x64.Build.0 = Release|x64
+		{37F55A91-C729-4BA0-83FF-EA72CC507DC0}.Release|x86.ActiveCfg = Release|Win32
+		{37F55A91-C729-4BA0-83FF-EA72CC507DC0}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
