@@ -12,109 +12,78 @@
 	Helps convert the ThingMagic Region to a human readable format or from a human readable format to
 	a ThingMagic region
 */
+
 class RegionHelper
 {
 public:
-	static std::string const & getRegionName(TMR_Region region);
-	static TMR_Region getRegionFromName(std::string const & name);
-};
-
-class RFIDAntenna
-{
-private:
-	TMR_Reader * reader;
-
-public:
-	enum AntennaState
+	static std::string const & getRegionName(TMR_Region region)
 	{
-		OFF,
-		ON
-	};
-	mutable uint8_t antennaPort;
-	mutable bool isPortOkay; //Corresponds to TMR_PARAM_ANTENNA_CHECKPORT
-	mutable uint32_t antennaReadPower;
-	mutable uint32_t antennaWritePower;
-	bool setAntennaReadPower(uint32_t pwr);
-	bool setAntennaWritePower(uint32_t pwr);
-	bool disableAntenna();
-	bool enableAntenna();
-
+		switch (region)
+		{
+		case TMR_Region::TMR_REGION_AR:
+		case TMR_Region::TMR_REGION_AU:
+		case TMR_Region::TMR_REGION_BD:
+		case TMR_Region::TMR_REGION_EU:
+		case TMR_Region::TMR_REGION_EU2:
+		case TMR_Region::TMR_REGION_EU3:
+		case TMR_Region::TMR_REGION_EU4:
+		case TMR_Region::TMR_REGION_HK:
+		case TMR_Region::TMR_REGION_ID:
+		case TMR_Region::TMR_REGION_IN:
+		case TMR_Region::TMR_REGION_IS:
+		case TMR_Region::TMR_REGION_JP:
+		case TMR_Region::TMR_REGION_JP2:
+		case TMR_Region::TMR_REGION_JP3:
+		case TMR_Region::TMR_REGION_KR:
+		case TMR_Region::TMR_REGION_KR2:
+		case TMR_Region::TMR_REGION_MO:
+		case TMR_Region::TMR_REGION_MY:
+		case TMR_Region::TMR_REGION_NA:
+		case TMR_Region::TMR_REGION_NA2:
+		case TMR_Region::TMR_REGION_NONE:
+		case TMR_Region::TMR_REGION_NZ:
+		case TMR_Region::TMR_REGION_OPEN:
+		case TMR_Region::TMR_REGION_OPEN_EXTENDED:
+		case TMR_Region::TMR_REGION_PH:
+		case TMR_Region::TMR_REGION_PRC:
+		case TMR_Region::TMR_REGION_PRC2:
+		case TMR_Region::TMR_REGION_RU:
+		case TMR_Region::TMR_REGION_SG:
+		case TMR_Region::TMR_REGION_TH:
+		case TMR_Region::TMR_REGION_TW:
+		case TMR_Region::TMR_REGION_VN:
+			break;
+		}
+	}
+	static TMR_Region getRegionFromName(char const * name)
+	{
+		return TMR_Region::TMR_REGION_NONE;
+	}
 };
 
-class RFIDReader
+class ITagInfo
 {
-private:
-	mutable TMR_Reader reader;
-	std::list<RFIDAntenna *> antennas;
-
 public:
-	mutable uint32_t commandTimeout;
-	mutable uint32_t transportTimeout;
-	mutable uint32_t baudRate;
-	mutable TMR_Region currentRegion;
-	const std::string uriConnectionString;
-	const std::string softwareVersion;
-	const std::string model;
-	const std::string hardwareVersion;
-	const std::string readerSerialNumber;
-
-	RFIDReader(std::string const & uri);
-	bool setCommandTimeout(uint32_t timeoutMs);
-	bool setTransportTimeout(uint32_t timeoutMs);
-	int getTotalAntennas() const;			
-	RFIDAntenna * getAntenna(int index) const;
-	int getReaderTemperature()const;	
-	bool isTagProtocolSupported(TMR_TagProtocol protocol)const;
-	bool setCurrentRegion(TMR_Region region);
-	bool isRegionSupported(TMR_Region region);
-	bool setBaudRate(uint32_t newBaud);
-	bool setReaderPowerMode(TMR_SR_PowerMode mode);
-	bool saveCurrentConfig();
-	bool setGen2Password(uint32_t value);
-	bool setGen2BlockWrite(bool enable, bool useFallback);
-	bool setGen2BackscatterLinkFreq(uint32_t freqkHz);
-	bool setGen2TagEncoding(TMR_GEN2_TagEncoding encoding);
-	bool setGen2Session(TMR_GEN2_Session session);
-	bool setGen2Target(TMR_GEN2_Target target);
-	bool setGen2Tari(TMR_GEN2_Tari tari);
-	bool setGen2WriteReplayTimeout(uint32_t timeoutMs);
-	bool setGen2WriteEarly(bool writeEarly);
+	enum TagType
+	{
+		GEN2
+	};
+	virtual void * getTagData() = 0;
+	virtual int getTagDataSize() = 0;
 
 };
+
+class TagInfo : protected ITagInfo
+{
+public:
+
+};
+
+
+
+
 
 int main()
 {
-	TMR_Reader reader, * pReader;
-	TMR_Status readerStatus;
-	TMR_Region readerRegion;
-	pReader = &reader;
-	readerStatus = TMR_create(pReader, "tmr:///COM5");
-	if (readerStatus != TMR_SUCCESS)
-	{
-		std::cout << "Failed to create the reader\n";
-		return -1;
-	}
-	readerStatus = TMR_connect(pReader);
-	if (readerStatus != TMR_SUCCESS)
-	{
-		std::cout << "Failed to connect to reader\n";
-		return -1;
-	}
-	readerStatus = TMR_paramGet(pReader, TMR_PARAM_REGION_ID, (void*)&readerRegion);
-	if (readerStatus != TMR_SUCCESS)
-	{
-		std::cout << "Failed to get reader region\n";
-		return -1;
-		
-	}
-	std::cout << "Current Region: " << readerRegion << '\n';
-	int8_t temp;
-	readerStatus = TMR_paramGet(pReader, TMR_PARAM_RADIO_TEMPERATURE, (void*)&temp);
-	if (readerStatus != TMR_SUCCESS)
-	{
-		std::cout << "Failed to get reader radio temperature\n";
-		return -1;
-	}
-	std::cout << "Current Temperature: " << std::to_string(temp) << " *C\n";
 	return 0;
 }
