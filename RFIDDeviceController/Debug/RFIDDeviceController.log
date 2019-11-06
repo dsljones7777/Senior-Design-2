@@ -1,6 +1,2 @@
-﻿  DefaultSettings.cpp
-  DeviceSettings.cpp
-  RFIDDeviceController.cpp
-  Generating Code...
-     Creating library C:\Users\mrdav\source\repos\RFIDCommandCenter\Debug\RFIDDeviceController.lib and object C:\Users\mrdav\source\repos\RFIDCommandCenter\Debug\RFIDDeviceController.exp
-  RFIDDeviceController.vcxproj -> C:\Users\mrdav\source\repos\RFIDCommandCenter\Debug\RFIDDeviceController.exe
+﻿  RFIDDeviceController.cpp
+  RFIDDeviceController.vcxproj -> C:\Users\David Jones\Documents\GitHub\Senior-Design-2\Debug\RFIDDeviceController.exe

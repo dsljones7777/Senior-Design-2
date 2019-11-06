@@ -11,7 +11,7 @@ namespace Identification
 			DefaultReaderDeviceSettings()
 			{
 				regionToUse = TMR_REGION_NA;
-				uriConnectionString = "tmr:///COM5";
+				uriConnectionString = "tmr:///COM4";
 				defaultReadPower = 3000;
 				defaultWritePower = 250;
 				defaultBaudRate = 921600;

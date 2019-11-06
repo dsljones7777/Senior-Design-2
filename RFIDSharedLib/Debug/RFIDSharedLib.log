@@ -1,0 +1,6 @@
+﻿  stdafx.cpp
+  AssemblyInfo.cpp
+  RFIDSharedLib.cpp
+  Generating Code...
+  AssemblyInfo.obj : MSIL module encountered; incremental linking is disabled for MSIL; performing full link
+  RFIDSharedLib.vcxproj -> C:\Users\David Jones\Documents\GitHub\Senior-Design-2\Debug\RFIDSharedLib.dll
