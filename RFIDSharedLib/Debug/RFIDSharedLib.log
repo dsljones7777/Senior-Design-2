@@ -1,6 +1,1 @@
-﻿  stdafx.cpp
-  AssemblyInfo.cpp
-  RFIDSharedLib.cpp
-  Generating Code...
-  AssemblyInfo.obj : MSIL module encountered; incremental linking is disabled for MSIL; performing full link
-  RFIDSharedLib.vcxproj -> C:\Users\David Jones\Documents\GitHub\Senior-Design-2\Debug\RFIDSharedLib.dll
+﻿C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\VC\VCTargets\Microsoft.Cpp.WindowsSDK.targets(46,5): error MSB8036: The Windows SDK version 10.0.17763.0 was not found. Install the required version of Windows SDK or change the SDK version in the project property pages or by right-clicking the solution and selecting "Retarget solution".
