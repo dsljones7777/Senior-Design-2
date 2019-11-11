@@ -1,0 +1,12 @@
+C:\GitSandbox\SrDesignV1\Senior-Design-2\RFIDCommandCenter\bin\Debug\RFIDCommandCenter.exe.config
+C:\GitSandbox\SrDesignV1\Senior-Design-2\RFIDCommandCenter\bin\Debug\RFIDCommandCenter.exe
+C:\GitSandbox\SrDesignV1\Senior-Design-2\RFIDCommandCenter\bin\Debug\RFIDCommandCenter.pdb
+C:\GitSandbox\SrDesignV1\Senior-Design-2\RFIDCommandCenter\bin\Debug\EntityFramework.dll
+C:\GitSandbox\SrDesignV1\Senior-Design-2\RFIDCommandCenter\bin\Debug\EntityFramework.SqlServer.dll
+C:\GitSandbox\SrDesignV1\Senior-Design-2\RFIDCommandCenter\bin\Debug\EntityFramework.xml
+C:\GitSandbox\SrDesignV1\Senior-Design-2\RFIDCommandCenter\bin\Debug\EntityFramework.SqlServer.xml
+C:\GitSandbox\SrDesignV1\Senior-Design-2\RFIDCommandCenter\obj\Debug\RFIDCommandCenter.csprojAssemblyReference.cache
+C:\GitSandbox\SrDesignV1\Senior-Design-2\RFIDCommandCenter\obj\Debug\RFIDCommandCenter.csproj.CoreCompileInputs.cache
+C:\GitSandbox\SrDesignV1\Senior-Design-2\RFIDCommandCenter\obj\Debug\RFIDCommandCenter.csproj.CopyComplete
+C:\GitSandbox\SrDesignV1\Senior-Design-2\RFIDCommandCenter\obj\Debug\RFIDCommandCenter.exe
+C:\GitSandbox\SrDesignV1\Senior-Design-2\RFIDCommandCenter\obj\Debug\RFIDCommandCenter.pdb

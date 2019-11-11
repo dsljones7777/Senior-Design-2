@@ -9,7 +9,11 @@ namespace RFIDCommandCenter
     {
         static void Main(string[] args)
         {
-
+            using (var context = new DataContext())
+            {
+                var location = context.Locations.Where(x => x.ID == 1).ToList();
+                var test = location;
+            }
 
         }
     }
