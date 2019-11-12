@@ -55,8 +55,11 @@
   <ItemGroup>
     <Compile Include="Context\DataContext.cs" />
     <Compile Include="Logic\GetSystemUserByUsername.cs" />
+    <Compile Include="Logic\GetTagByTagNumber.cs" />
     <Compile Include="Logic\SaveSystemUser.cs" />
+    <Compile Include="Logic\SaveTag.cs" />
     <Compile Include="Models\Location.cs" />
+    <Compile Include="Models\TagLocationBridge.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Models\SystemUser.cs" />
