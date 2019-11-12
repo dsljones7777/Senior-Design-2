@@ -54,8 +54,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Context\DataContext.cs" />
+    <Compile Include="Logic\DeleteSystemUser.cs" />
+    <Compile Include="Logic\DeleteTag.cs" />
+    <Compile Include="Logic\GetLocationsById.cs" />
     <Compile Include="Logic\GetSystemUserByUsername.cs" />
     <Compile Include="Logic\GetTagByTagNumber.cs" />
+    <Compile Include="Logic\GetTagIdsByLocationId.cs" />
     <Compile Include="Logic\SaveSystemUser.cs" />
     <Compile Include="Logic\SaveTag.cs" />
     <Compile Include="Models\Location.cs" />

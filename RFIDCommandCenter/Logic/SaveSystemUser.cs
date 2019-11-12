@@ -14,7 +14,7 @@ namespace RFIDCommandCenter.Logic
             if (systemUser != null)
                 throw new ApplicationException("A system user with that Username already exists.");
 
-            context.SystemUsers.Add(new SystemUser { Username = userName, Pass = pass, UserRole = userRole });
+            context.SystemUsers.Add(new SystemUser { Username = userName, Pass = pass, UserRole = userRole, Active = true });
             context.SaveChanges();
         }
     }

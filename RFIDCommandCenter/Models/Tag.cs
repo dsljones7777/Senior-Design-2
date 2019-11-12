@@ -22,5 +22,8 @@ namespace RFIDCommandCenter
         public int? LastLocation { get; set; }
 
         public bool? InLocation { get; set; }
+
+        [Required]
+        public bool Active { get; set; }
     }
 }

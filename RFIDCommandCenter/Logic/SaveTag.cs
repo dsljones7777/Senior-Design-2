@@ -19,7 +19,8 @@ namespace RFIDCommandCenter.Logic
                 TagNumber = tagNumber,
                 Name = name,
                 LastLocation = lastLocation,
-                InLocation = inLocation
+                InLocation = inLocation,
+                Active = true
             };
 
             context.Tags.Add(tageEntity);
