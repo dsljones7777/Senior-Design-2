@@ -9,7 +9,7 @@ namespace RFIDCommandCenter.Logic
     {
         public void Execute(string username, DataContext context)
         {
-            var userToDelete = context.SystemUsers.SingleOrDefault(s => string.Equals(username, s, StringComparison.InvariantCultureIgnoreCase));
+            var userToDelete = context.SystemUsers.SingleOrDefault(s => string.Equals(username, s.Username, StringComparison.InvariantCultureIgnoreCase));
 
             if (userToDelete == null)
                 throw new ApplicationException("There is no system user with that username");
