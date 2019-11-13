@@ -26,8 +26,12 @@ namespace Identification
 		public:
 			DefaultClientSettings()
 			{
-				hostConnectionString = "127.0.0.1:30563";
+				hostConnectionString = "127.0.0.1 30563";
 				networkTickRate = 1000;
+				readTickRate = 200;
+				tagRememberanceTime = 10000;
+				tagLeaveTime = 1000;
+				lockByDefault = true;
 			}
 		};
 

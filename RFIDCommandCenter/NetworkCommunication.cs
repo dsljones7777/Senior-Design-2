@@ -27,8 +27,8 @@ namespace RFIDCommandCenter
     enum DeviceNetworkCommands
     {
         UNLOCK = 1,
-        LOCK = 2,
-        START = 3,
+        START = 2,
+        LOCK = 3,
         UPDATE = 4,
         STOP = 5,
         TAG_ARRIVE = 6,
@@ -37,7 +37,9 @@ namespace RFIDCommandCenter
         TAG_PRESENT_TOO_LONG = 9,
         GET_DEVICE_TICK_COUNT = 10,
         RESET_DEVICE_TICK_COUNT = 11,
-        WRITE_TAG = 12
+        WRITE_TAG = 12,
+        ALIVE = 13,
+        PING
     }
 
     enum UINetworkCommands
@@ -48,12 +50,14 @@ namespace RFIDCommandCenter
         DELETE_SYSTEM_USER = 4,
         GET_LOCATION_LIST=5,
         SAVE_LOCATION =6,
-        DELETE_LOCATION =7
+        DELETE_LOCATION =7,
+        PING_DEVICE,
+        SETUP_DEVICE
     }
 
     class Client
     {
-        byte[] networkCache;
+        byte[] networkCache = new byte[NetworkCode.HEADER_SIZE + NetworkCode.MAX_PAYLOAD_SIZE];
         protected Socket clientSocket;
         protected NetworkCommunication netCommObject;
         bool receivePacket(NetworkCode data,int waitTimeUs)
