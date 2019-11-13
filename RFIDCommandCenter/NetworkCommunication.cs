@@ -7,6 +7,16 @@ using System.Text;
 
 namespace RFIDCommandCenter
 {
+    class NetworkCode
+    {
+        internal const int MAX_PAYLOAD_SIZE = 112;
+        internal const int HEADER_SIZE = 16;
+
+        public int command;
+        public int payloadSize;
+        public ulong tickTime;
+        public byte[] payload = new byte[MAX_PAYLOAD_SIZE];
+    }
 
     enum ClientType
     {
@@ -14,19 +24,81 @@ namespace RFIDCommandCenter
         CLIENT_RFID_DEVICE = 2
     };
 
+    enum DeviceNetworkCommands
+    {
+        UNLOCK = 1,
+        LOCK = 2,
+        START = 3,
+        UPDATE = 4,
+        STOP = 5,
+        TAG_ARRIVE = 6,
+        TAG_LEAVE = 7,
+        OBJECT_PRESENT = 8,
+        TAG_PRESENT_TOO_LONG = 9,
+        GET_DEVICE_TICK_COUNT = 10,
+        RESET_DEVICE_TICK_COUNT = 11,
+        WRITE_TAG = 12
+    }
+
+    enum UINetworkCommands
+    {
+        SAVE_TAG =1,
+        DELETE_TAG = 2,
+        SAVE_SYSTEM_USER = 3,
+        DELETE_SYSTEM_USER = 4,
+        GET_LOCATION_LIST=5,
+        SAVE_LOCATION =6,
+        DELETE_LOCATION =7
+    }
+
     class Client
     {
+        byte[] networkCache;
         protected Socket clientSocket;
-
-        protected Client(Socket who)
+        protected NetworkCommunication netCommObject;
+        bool receivePacket(NetworkCode data,int waitTimeUs)
         {
+            if (!clientSocket.Poll(waitTimeUs, SelectMode.SelectRead))
+                return false;
+            int ttlBytesRecv = netCommObject.readFrom(clientSocket,networkCache);
+            if (ttlBytesRecv < NetworkCode.HEADER_SIZE)
+                throw new RFIDCommandCenterException("The specified network packet was too small", null);
+            data.command = BitConverter.ToInt32(networkCache, 0);
+            data.payloadSize = BitConverter.ToInt32(networkCache, 4);
+            data.tickTime = BitConverter.ToUInt64(networkCache, 8);
+            //Verify payload size and remaining bytes are equivalent
+            if (ttlBytesRecv - NetworkCode.HEADER_SIZE != data.payloadSize)
+                throw new RFIDCommandCenterException("The specified network packet size is incorrect", null);
+            if(data.payloadSize > 0)
+                Array.Copy(networkCache, 16, data.payload, 0, data.payloadSize);
+            return true;
+        }
+        bool sendPacket(NetworkCode data, int timeoutUs)
+        {
+            if (!clientSocket.Poll(timeoutUs, SelectMode.SelectWrite))
+                return false;
+            BitConverter.GetBytes(data.command).CopyTo(networkCache, 0);
+            BitConverter.GetBytes(data.payloadSize).CopyTo(networkCache, 4);
+            BitConverter.GetBytes(data.tickTime).CopyTo(networkCache, 8);
+            if (data.payloadSize != 0)
+                Array.Copy(data.payload, 0, networkCache, 16, data.payloadSize);
+            int totalPacketSize = NetworkCode.HEADER_SIZE + data.payloadSize;
+            if (netCommObject.writeTo(clientSocket,networkCache, totalPacketSize) != totalPacketSize)
+                return false;
+            return true;
+        }
 
+        protected Client(Socket who,NetworkCommunication netObject)
+        {
+            clientSocket = who;
+            netCommObject = netObject;
         }
     }
 
     class RFIDDeviceClient : Client
     {
-        public RFIDDeviceClient(Socket who) : base (who)
+
+        public RFIDDeviceClient(Socket who,NetworkCommunication comObj) : base (who,comObj)
         {
 
         }
@@ -34,11 +106,12 @@ namespace RFIDCommandCenter
 
     class RFIDUIClient : Client
     {
-        public RFIDUIClient(Socket who) : base (who)
+        public RFIDUIClient(Socket who,NetworkCommunication comObj) : base (who,comObj)
         {
 
         }
     }
+
     class RFIDCommandCenterException : Exception
     {
         public readonly Exception realException;
@@ -47,19 +120,20 @@ namespace RFIDCommandCenter
             realException = inner;
         }
     }
+
     class SecureNetworkCommunication : NetworkCommunication
     {
-        protected override int readFrom(Socket who, byte[] buffer, int size, int offset = 0)
+        internal override int readFrom(Socket who, byte[] buffer, int size = 0)
         {
-
-            return base.readFrom(who, buffer, size, offset);
+            return base.readFrom(who, buffer, size);
         }
 
-        protected override int writeTo(Socket who, byte[] buffer, int size, int offset = 0)
+        internal override int writeTo(Socket who, byte[] buffer, int size)
         {
-            return base.writeTo(who, buffer, size, offset);
+            return base.writeTo(who, buffer, size);
         }
     }
+
     class NetworkCommunication
     {
         const int BACKLOG_CONNECTION_AMOUNT = 5;
@@ -125,10 +199,10 @@ namespace RFIDCommandCenter
             switch(type)
             {
                 case (int)ClientType.CLIENT_RFID_DEVICE:
-                    returnval = new RFIDDeviceClient(acceptedSocket);
+                    returnval = new RFIDDeviceClient(acceptedSocket,this);
                     break;
                 case (int)ClientType.CLIENT_UI_APP:
-                    returnval = new RFIDUIClient(acceptedSocket);
+                    returnval = new RFIDUIClient(acceptedSocket,this);
                     break;
                 default:
                     throw new RFIDCommandCenterException("The client initialization packet is invalid", null);
@@ -136,14 +210,17 @@ namespace RFIDCommandCenter
             return returnval;
         }
 
-        protected virtual int readFrom(Socket who, byte[] buffer,int size, int offset = 0)
+        internal virtual int readFrom(Socket who, byte[] buffer,int size = 0)
         {
-            return who.Receive(buffer, offset, size, SocketFlags.None);
+            if (size == 0)
+                return who.Receive(buffer);
+            else
+                return who.Receive(buffer,0, size, SocketFlags.None);
         }
 
-        protected virtual int writeTo(Socket who, byte[] buffer,int size, int offset =0)
+        internal virtual int writeTo(Socket who, byte[] buffer,int size)
         {
-            return who.Send(buffer, offset, size, SocketFlags.None);
+           return who.Send(buffer, 0, size, SocketFlags.None);
         }
     }
 }
