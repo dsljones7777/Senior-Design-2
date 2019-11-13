@@ -8,3 +8,4 @@
 /.vs/RFIDCommandCenter/v15/Solution.VC.db-wal
 .vs/
 RFIDCommandCenter/obj/Debug/RFIDCommandCenter.csprojAssemblyReference.cache
+*.cache
