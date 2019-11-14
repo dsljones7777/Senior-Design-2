@@ -18,6 +18,7 @@ namespace Identification
 				defaultCommandTimeout = 0;
 				defaultTransportTimeout = 0;
 				powerMode = TMR_SR_PowerMode::TMR_SR_POWER_MODE_FULL;
+				
 			}
 		};
 
@@ -26,8 +27,13 @@ namespace Identification
 		public:
 			DefaultClientSettings()
 			{
-				hostConnectionString = "127.0.0.1:30563";
+				hostConnectionString = "127.0.0.1 30563";
 				networkTickRate = 1000;
+				readTickRate = 200;
+				tagRememberanceTime = 10000;
+				tagLeaveTime = 1000;
+				lockByDefault = true;
+				retriesBeforeReconnect = 25;
 			}
 		};
 

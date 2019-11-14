@@ -66,6 +66,7 @@
     <Compile Include="Logic\SaveTag.cs" />
     <Compile Include="Models\Location.cs" />
     <Compile Include="Models\TagLocationBridge.cs" />
+    <Compile Include="NetworkCommunication.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Models\SystemUser.cs" />
