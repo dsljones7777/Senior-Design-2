@@ -13,3 +13,5 @@ RFIDCommandCenter/obj/Debug/
 UIDemo/bin/Debug/
 UIDemo/obj/Debug/
 *.cache
+Debug/
+RFIDDeviceController/Debug/
