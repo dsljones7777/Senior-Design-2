@@ -19,7 +19,7 @@ bool Identification::Communication::WindowsClientToHostCommunication::connectTo(
 	char const * portStr = strchr(host, (int)' ');
 
 	//is port null or next character a null-terminator
-	if (!portStr || !*(++portStr) )
+	if (!portStr || !*(++portStr))
 		return false;
 	portStr++;
 	if (!GetAddrInfoA(host, portStr, &addrHint, &pAddr))
@@ -100,7 +100,6 @@ bool Identification::Communication::WindowsClientToHostCommunication::init()
 	
 	if(!WSAStartup(MAKEWORD(2, 2), &startupData))
 		return false;
-	
-
+	return true;
 }
 #endif

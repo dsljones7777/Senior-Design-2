@@ -18,6 +18,7 @@ namespace Identification
 				defaultCommandTimeout = 0;
 				defaultTransportTimeout = 0;
 				powerMode = TMR_SR_PowerMode::TMR_SR_POWER_MODE_FULL;
+				
 			}
 		};
 
@@ -32,6 +33,7 @@ namespace Identification
 				tagRememberanceTime = 10000;
 				tagLeaveTime = 1000;
 				lockByDefault = true;
+				retriesBeforeReconnect = 25;
 			}
 		};
 

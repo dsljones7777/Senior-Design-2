@@ -30,6 +30,8 @@ namespace Identification
 			int tagLeaveTime;
 
 			bool lockByDefault;
+
+			int retriesBeforeReconnect;
 		};
 
 		namespace RFID

@@ -20,6 +20,7 @@ namespace Identification
 			WRITE_TAG = 12,					//Write data to the tag (reduce power, read to ensure only one tag is present, write)
 			ALIVE = 13,						//Send dummy frame every time to live
 			PING = 14,						//Turn device light on/off for the default read timeout rate
+			DEVICE_ERROR=15
 		};
 
 		struct NetworkBytecode
@@ -42,25 +43,25 @@ namespace Identification
 
 		
 
-		struct UnlockParam : public NetworkBytecode
+		struct UnlockNetParam : public NetworkBytecode
 		{
 		};
 
-		struct StartParam : public NetworkBytecode
+		struct StartNetParam : public NetworkBytecode
 		{
 		public:
-			StartParam()
+			StartNetParam()
 			{
 				cmd = (uint32_t)RPCCommands::START;
 				payloadSize = 0;
 			}
 		};
 
-		struct LockParam : public NetworkBytecode
+		struct LockNetParam : public NetworkBytecode
 		{
 		};
 
-		struct UpdateParam : public NetworkBytecode
+		struct UpdateNetParam : public NetworkBytecode
 		{
 		public:
 			int readPower;
@@ -76,17 +77,17 @@ namespace Identification
 			bool lockByDefault;
 		};
 
-		struct StopParam : public NetworkBytecode
+		struct StopNetParam : public NetworkBytecode
 		{
 
 		};
 
-		struct ResetTickCountParam : public NetworkBytecode
+		struct ResetTickCountNetParam : public NetworkBytecode
 		{
 
 		};
 
-		struct WriteTagParam : public NetworkBytecode
+		struct WriteTagNetParam : public NetworkBytecode
 		{
 		public:
 			int numberOfTags;
@@ -96,53 +97,65 @@ namespace Identification
 			char epc[12];
 		};
 
-		struct TagArriveParam : public NetworkBytecode
+		struct TagArriveNetParam : public NetworkBytecode
 		{
 
 			char epc[12];
 		public:
-			TagArriveParam(char const * pEPC)
+			TagArriveNetParam(char const * pEPC)
 			{
 				cmd = (uint32_t)RPCCommands::TAG_ARRIVE;
-				payloadSize = sizeof(TagArriveParam) - sizeof(NetworkBytecode);
+				payloadSize = sizeof(TagArriveNetParam) - sizeof(NetworkBytecode);
 				for (int i = 0; i < 12; i++)
 					epc[i] = pEPC[i];
 			}
 		};
 
-		struct TagLeaveParam : public TagArriveParam
+		struct TagLeaveNetParam : public TagArriveNetParam
 		{
 		public:
-			TagLeaveParam(char const * pEPC) : TagArriveParam(pEPC)
+			TagLeaveNetParam(char const * pEPC) : TagArriveNetParam(pEPC)
 			{
 				cmd = (uint32_t)RPCCommands::TAG_LEAVE;
 			}
 		};
 
-		struct TagPresentTooLongParam : public TagArriveParam
+		struct TagPresentTooLongNetParam : public TagArriveNetParam
 		{
 			char epc[12];
 		public:
-			TagPresentTooLongParam(char * pEPC) : TagArriveParam(pEPC)
+			TagPresentTooLongNetParam(char * pEPC) : TagArriveNetParam(pEPC)
 			{
 				cmd = (uint32_t)RPCCommands::TAG_PRESENT_TOO_LONG;
 			}
 		};
 
-		struct AliveParam : public NetworkBytecode
+		struct AliveNetParam : public NetworkBytecode
 		{
 		public:
-			AliveParam()
+			AliveNetParam()
 			{
 				cmd = (uint32_t)RPCCommands::ALIVE;
-				payloadSize = sizeof(AliveParam) - sizeof(NetworkBytecode);
+				payloadSize = sizeof(AliveNetParam) - sizeof(NetworkBytecode);
 			}
 		};
 
-		struct PingParam : public NetworkBytecode
+		struct PingNetParam : public NetworkBytecode
 		{
 		public:
 			int totalTickTime;
+		};
+
+		struct DeviceErrorNetParam : public NetworkBytecode
+		{
+		public:
+			int errorCode;
+			DeviceErrorNetParam(int errCode)
+			{
+				cmd = (uint32_t)RPCCommands::DEVICE_ERROR;
+				payloadSize = sizeof(DeviceErrorNetParam) - sizeof(NetworkBytecode);
+				errorCode = errCode;
+			}
 		};
 	}
 }

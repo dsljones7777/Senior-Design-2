@@ -1,5 +1,6 @@
 #pragma once
 #include "IClientToHostCommunication.h"
+
 #ifdef _WIN32
 
 #include <WinSock2.h>
@@ -32,5 +33,3 @@ namespace Identification
 	}
 }
 #endif
-
-
