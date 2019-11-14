@@ -1,0 +1,6 @@
+C:\Users\mrdav\source\repos\RFIDCommandCenter\RFIDCommandCenter\bin\Debug\RFIDCommandCenter.exe
+C:\Users\mrdav\source\repos\RFIDCommandCenter\RFIDCommandCenter\bin\Debug\RFIDCommandCenter.pdb
+C:\Users\mrdav\source\repos\RFIDCommandCenter\RFIDCommandCenter\obj\Debug\RFIDCommandCenter.csprojAssemblyReference.cache
+C:\Users\mrdav\source\repos\RFIDCommandCenter\RFIDCommandCenter\obj\Debug\RFIDCommandCenter.csproj.CoreCompileInputs.cache
+C:\Users\mrdav\source\repos\RFIDCommandCenter\RFIDCommandCenter\obj\Debug\RFIDCommandCenter.exe
+C:\Users\mrdav\source\repos\RFIDCommandCenter\RFIDCommandCenter\obj\Debug\RFIDCommandCenter.pdb

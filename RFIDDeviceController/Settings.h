@@ -19,8 +19,19 @@ namespace Identification
 		{
 		public:
 			char const * hostConnectionString;
-			int networkTickRate;		//Corresponds to the read timeout. The host should receive messages at least this often. In ms
-			int tagRememberanceTime = 7000;  //How long to remember a tag for. If the tag arrive cmd occurs how long till a tag leave cmd  should occur
+			int networkTickRate;		//The host should receive messages at least this often. In ms
+			int readTickRate;			//How long the reader's read timeout is
+
+			//How long to remember a tag for. If the tag arrive cmd occurs how long till a tag leave cmd  should occur.
+			//If tag is present for longer than this then a TAG_PRESENT_TOO_LONG command is sent
+			int tagRememberanceTime;  
+
+			//How long a tag is considered having left
+			int tagLeaveTime;
+
+			bool lockByDefault;
+
+			int retriesBeforeReconnect;
 		};
 
 		namespace RFID
