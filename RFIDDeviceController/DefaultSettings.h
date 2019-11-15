@@ -11,7 +11,7 @@ namespace Identification
 			DefaultReaderDeviceSettings()
 			{
 				regionToUse = TMR_REGION_NA;
-				uriConnectionString = "tmr:///COM4";
+				uriConnectionString = "tmr:///COM5";
 				defaultReadPower = 3000;
 				defaultWritePower = 250;
 				defaultBaudRate = 921600;
@@ -27,7 +27,7 @@ namespace Identification
 		public:
 			DefaultClientSettings()
 			{
-				hostConnectionString = "127.0.0.1 30563";
+				hostConnectionString = "127.0.0.1 52437";
 				networkTickRate = 1000;
 				readTickRate = 200;
 				tagRememberanceTime = 10000;

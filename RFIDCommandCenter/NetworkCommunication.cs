@@ -60,7 +60,7 @@ namespace RFIDCommandCenter
         byte[] networkCache = new byte[NetworkCode.HEADER_SIZE + NetworkCode.MAX_PAYLOAD_SIZE];
         protected Socket clientSocket;
         protected NetworkCommunication netCommObject;
-        bool receivePacket(NetworkCode data,int waitTimeUs)
+        public bool receivePacket(NetworkCode data,int waitTimeUs)
         {
             if (!clientSocket.Poll(waitTimeUs, SelectMode.SelectRead))
                 return false;
@@ -77,7 +77,7 @@ namespace RFIDCommandCenter
                 Array.Copy(networkCache, 16, data.payload, 0, data.payloadSize);
             return true;
         }
-        bool sendPacket(NetworkCode data, int timeoutUs)
+        public bool sendPacket(NetworkCode data, int timeoutUs)
         {
             if (!clientSocket.Poll(timeoutUs, SelectMode.SelectWrite))
                 return false;
@@ -91,6 +91,18 @@ namespace RFIDCommandCenter
                 return false;
             return true;
         }
+        //public bool sendStream(byte[] data,int timeoutUs,int size)
+        //{
+
+        //}
+
+        //public int receiveStream(byte[]data,int waitTimeUs,int size)
+        //{
+        //    if (!clientSocket.Poll(waitTimeUs, SelectMode.SelectRead))
+        //        return 0;
+        //    int ttlBytesRecv = netCommObject.readFrom(clientSocket, data,size);
+
+        //}
 
         protected Client(Socket who,NetworkCommunication netObject)
         {
@@ -144,7 +156,7 @@ namespace RFIDCommandCenter
         bool hasStarted = false;
         Socket serverSocket;
 
-        static NetworkCommunication createNetworkCommunicationObject()
+        internal static NetworkCommunication createNetworkCommunicationObject()
         {
             return new SecureNetworkCommunication();
         }
@@ -158,10 +170,10 @@ namespace RFIDCommandCenter
         {
             if (hasStarted)
                 return;
-            IPHostEntry hostIPAddressEntries = Dns.GetHostEntry(Dns.GetHostName());
-            IPAddress hostIPAddress = hostIPAddressEntries.AddressList[0];
+            IPHostEntry hostIPAddressEntries = Dns.GetHostEntry("localhost");
+            IPAddress hostIPAddress = hostIPAddressEntries.AddressList[1];
             IPEndPoint hostEndpoint = new IPEndPoint(hostIPAddress, 52437);
-            serverSocket = new Socket(hostIPAddress.AddressFamily, SocketType.Stream, ProtocolType.IPv4);
+            serverSocket = new Socket(hostIPAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
             serverSocket.Bind(hostEndpoint);
             serverSocket.Listen(BACKLOG_CONNECTION_AMOUNT);
             hasStarted = true;
@@ -170,7 +182,7 @@ namespace RFIDCommandCenter
         public Client acceptPendingClient()
         {
             Socket acceptedSocket;
-            byte[] buffer = new byte[4];
+            byte[] buffer = new byte[NetworkCode.HEADER_SIZE];
             try
             {
                 acceptedSocket = serverSocket.Accept();
@@ -181,9 +193,11 @@ namespace RFIDCommandCenter
             }
             try
             {
+                
                 int bytesRead = readFrom(acceptedSocket, buffer, 4);
                 if (bytesRead != 4)
                     throw new RFIDCommandCenterException("Failed to read client initialization bytes (less than 4 bytes were read)", null);
+                
             }
             catch(Exception e)
             {
@@ -203,6 +217,7 @@ namespace RFIDCommandCenter
             switch(type)
             {
                 case (int)ClientType.CLIENT_RFID_DEVICE:
+                    acceptedSocket.Receive(buffer, NetworkCode.HEADER_SIZE - 4,SocketFlags.None);
                     returnval = new RFIDDeviceClient(acceptedSocket,this);
                     break;
                 case (int)ClientType.CLIENT_UI_APP:

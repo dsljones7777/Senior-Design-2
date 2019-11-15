@@ -47,6 +47,10 @@ protected:
 	static const int ERROR_LED_NUMBER = 1;
 	static const int PING_LED_NUMBER = 2;
 
+	void startReader()
+	{
+
+	}
 	void unlockDoor()
 	{
 
@@ -192,7 +196,6 @@ public:
 	int run()
 	{
 		//Create reader and get it ready
-		RFIDReader reader(nullptr);
 		if (!reader.initialize(settings.rdrSettings))
 			return -1;
 		
