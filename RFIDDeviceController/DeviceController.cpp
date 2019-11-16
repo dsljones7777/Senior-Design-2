@@ -46,7 +46,16 @@ void RFIDDeviceController::DeviceController::startReader()
 	{
 		if (settings.rdrSettings->uriConnectionString != nullptr)
 			break;
+		
 		this->sendDeviceError((int)ErrorCodes::DEVICE_FAILED_TO_CONNECT);
+		settings.rdrSettings->resetSettings();
+	} while (true);
+	//Create reader and get it ready
+	do
+	{
+		if (reader.initialize(settings.rdrSettings))
+			break;
+		sendDeviceError((int)ErrorCodes::DEVICE_FAILED_TO_START);
 	} while (true);
 }
 
@@ -67,6 +76,8 @@ bool RFIDDeviceController::DeviceController::startConnection(bool dueToFault)
 		return false;
 	sendStartToServer();
 	this->checkAndExecuteCommand((int)CommandCodes::START);
+
+
 
 	//TODO: Device Initialization 
 	//Tell the command center who we are
@@ -125,19 +136,22 @@ bool RFIDDeviceController::DeviceController::executeCommand(int expectedCommand)
 		case (int)CommandCodes::WRITE_TAG:
 			//write to a tag
 			break;
-		case (int)CommandCodes::WAIT:
-			//Pump alive messages
-#ifdef _WIN32
-			Sleep(settings.clientSettings->readTickRate);
-#else
-//TODO: ADD warning of missing wait/sleep function
-#endif
-			*(AliveNetParam*)&buffer = AliveNetParam();
-			buffer.tickTime = currentTick;
-			sendWithoutAssurance();
-			break;
+		case (int)CommandCodes::DEVICE_ERROR:
+			return handleDeviceError();
+
+		case(int)CommandCodes::START:
+			return true;
+
+		default:
+			return false;
 	}
 	return true;
+}
+
+bool RFIDDeviceController::DeviceController::handleDeviceError()
+{
+	DeviceErrorNetParam * errorHdlCmd = (DeviceErrorNetParam *)&buffer;
+	return  !errorHdlCmd->wait;
 }
 
 void RFIDDeviceController::DeviceController::checkAndExecuteCommand(int expectedCommand)
@@ -189,17 +203,7 @@ void RFIDDeviceController::DeviceController::sendStartToServer()
 {
 	*(StartNetParam *)&buffer = StartNetParam();
 	buffer.tickTime = currentTick;
-	while (true)
-	{
-		int retryCount;
-		for (retryCount = 0; retryCount < settings.clientSettings->retriesBeforeReconnect; retryCount++)
-			if (comm->write(&buffer))
-				break;
-		if (retryCount >= settings.clientSettings->retriesBeforeReconnect)
-			connectToCommandCenter(true);
-		else
-			break;
-	}
+	sendWithoutAssurance();
 }
 
 void RFIDDeviceController::DeviceController::sendTagArriveToServer(char const * epc)
@@ -230,11 +234,16 @@ void RFIDDeviceController::DeviceController::sendTagPresentTooLongToServer(char 
 	sendAndAssure();
 }
 
-void RFIDDeviceController::DeviceController::sendDeviceError(int errorCode)
+bool RFIDDeviceController::DeviceController::sendDeviceError(int errorCode)
 {
-	*(DeviceErrorNetParam *)&buffer = DeviceErrorNetParam(errorCode);
-	buffer.tickTime = currentTick;
-	sendAndAssure();
+	DeviceErrorNetParam * pErrorParam = (DeviceErrorNetParam *)&buffer;
+	*pErrorParam = DeviceErrorNetParam(errorCode);
+	pErrorParam->tickTime = currentTick;
+	sendWithoutAssurance();
+	checkAndExecuteCommand((int)CommandCodes::DEVICE_ERROR);
+	if (pErrorParam->abortOperation)
+		return false;
+	return true;
 }
 
 void RFIDDeviceController::DeviceController::sendAndAssure()
@@ -270,18 +279,18 @@ void RFIDDeviceController::DeviceController::sendWithoutAssurance()
 	resetTicksTillDead();
 }
 
-
 void RFIDDeviceController::DeviceController::updateTagsWithServer()
 {
+	//Reset all tags found last read value
+	for (int i = 0; i < REMEMBERANCE_TAG_BUFFER_SIZE; i++)
+		epcMemoryBuffer[i].foundDuringCurrentRead = false;
 	int totalTagsRead = TAG_BUFFER_SIZE, retryCount;
+
+	//Try to read, if error occurs determine whether to continue function or abort
 	if (!reader.readTags((char*)&epcBuffer, settings.clientSettings->readTickRate, totalTagsRead))
-	{
-		while (true)
-		{
-			*(DeviceErrorNetParam*)&buffer = DeviceErrorNetParam((int)ErrorCodes::DEVICE_FAILED_TO_READ);
-			sendAndAssure();
-		}
-	}
+		if (!sendDeviceError((int)ErrorCodes::DEVICE_FAILED_TO_READ))
+			return;
+
 	readTagCount += totalTagsRead;
 	currentTick += settings.clientSettings->readTickRate;
 	//Find or create tag in memory
@@ -311,7 +320,8 @@ void RFIDDeviceController::DeviceController::updateTagsWithServer()
 			}
 		if (rIndex >= REMEMBERANCE_TAG_BUFFER_SIZE)
 		{
-			this->sendDeviceError((int)ErrorCodes::TAG_MEMORY_BUFFER_FULL);
+			if (!this->sendDeviceError((int)ErrorCodes::TAG_MEMORY_BUFFER_FULL))
+				return;
 			epcIndex--;
 		}
 
@@ -367,50 +377,31 @@ void RFIDDeviceController::DeviceController::updateTagsWithServer()
 			epcMemoryBuffer[i].leaveTime += settings.clientSettings->readTickRate;
 		}
 	}
-
+	
 }
-
-
 
 int RFIDDeviceController::DeviceController::run()
 {
 
 	//Load host. Chat w/ host about getting the party started. Send reader init info
+	resetTicksTillDead();
 	comm = RFIDDeviceController::Communication::getCommunicationObject();
 	if (!comm || !comm->init())
 		return -1;
 	connectToCommandCenter(false);
 
-	//Create reader and get it ready
-	do
-	{
-		if (!settings.rdrSettings->uriConnectionString)
-			sendDeviceError((int)ErrorCodes::DEVICE_FAILED_TO_CONNECT);
-		else if (!reader.initialize(settings.rdrSettings))
-			sendDeviceError((int)ErrorCodes::DEVICE_FAILED_TO_START);
-		else
-			break;
-	} while (true);
-
-	
-	resetTicksTillDead();
-
+	startReader();
 
 	//Start main program loop
 	while (!exitProgram)
 	{
 		checkAndExecuteCommand();
-		if (ticksTillDead <= 0)
-			tellServerAlive();
-
-		//Reset all tags found last read value
-		for (int i = 0; i < REMEMBERANCE_TAG_BUFFER_SIZE; i++)
-			epcMemoryBuffer[i].foundDuringCurrentRead = false;
+		
 
 		//Poll for tags, descrease ticks till tell server it is dead if no tags are found (update stats)
 		updateTagsWithServer();
-		
-		
+		if (ticksTillDead <= 0)
+			tellServerAlive();
 		ticksTillDead--;
 	}
 	return 0;

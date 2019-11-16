@@ -22,8 +22,9 @@ namespace RFIDCommandCenter
         internal volatile bool exit;
         internal volatile bool pauseExecution;
         internal volatile int deviceError;
-
-        bool isDeviceWaiting;
+        internal volatile bool continueAfterDeviceError;
+        internal volatile string serverErrorMessage;
+        
         
         public enum CommandCodes
         {
@@ -43,25 +44,22 @@ namespace RFIDCommandCenter
             ALIVE = 13,
             PING = 14,
             DEVICE_ERROR = 15,
-            CONFIRMATION_SYNC_TICK_COUNT = 16
+            CONFIRMATION_SYNC_TICK_COUNT = 16,
+            REBOOT_READER = 17,
+            WAIT = 18					//Wait for a response, pump alive packets
         }
 
-        enum ErrorCodes
+        public enum ErrorCodes
         {
             NONE = 0,
 			DEVICE_FAILED_TO_READ,
-			TAG_TOO_LONG,
 			DEVICE_FAILED_TO_CONNECT,
 			DEVICE_FAILED_TO_START,
-			TAG_MEMORY_BUFFER_FULL
+			TAG_MEMORY_BUFFER_FULL,
+
+            TAG_TOO_LONG
         };
 
-        enum DeviceErrorCodes
-        {
-            NONE = 0,
-            DEVICE_FAILED_TO_READ = 1,
-            TAG_TOO_LONG = 2,
-        };
 
         public RFIDDeviceClient(Socket who, NetworkCommunication comObj) : base(who, comObj)
         {
@@ -72,11 +70,10 @@ namespace RFIDCommandCenter
         {
             //Create packet to tell client to start
             NetworkCode bufferPacket = new NetworkCode();
-            bufferPacket.command = (int)CommandCodes.START;
+            sendCommand(bufferPacket, CommandCodes.START, NETWORK_TIMEOUT * 1000, true, true);
 #if DEBUG
             reportCommandInfo(bufferPacket);
 #endif
-            provideResponse(bufferPacket);
 
             //program loop, run until we are told to exit
             while (!exit)
@@ -85,8 +82,7 @@ namespace RFIDCommandCenter
                 {
                     //get a packet from the client. An alive packet should come
                     if (!receivePacket(bufferPacket, NETWORK_TIMEOUT * 1000))
-                        if (!isDeviceWaiting)
-                            reportError("Device Timeout: Alive packet not sent");
+                           reportError("Device Timeout: Alive packet not sent");
                 }
                 catch (Exception e)
                 {
@@ -102,12 +98,6 @@ namespace RFIDCommandCenter
             }
         }
 
-
-        private void runDeviceProgram()
-        {
-           
-        }
-        
         private void executePacketRequest(NetworkCode cmdPacket)
         {
             switch (cmdPacket.command)
@@ -130,6 +120,45 @@ namespace RFIDCommandCenter
             }
         }
 
+        private void sendCommand(NetworkCode cmdPacket, CommandCodes cmd, int timeoutUs, bool assured, bool shouldReportError,params object[] cmdParams)
+        {
+            cmdPacket.command = (int)cmd;
+            cmdPacket.tickTime = (ulong)(DateTime.Now.Ticks - tickRateOffset) / TimeSpan.TicksPerMillisecond;
+            cmdPacket.payloadSize = 0;
+            if(cmdParams != null)
+                foreach(object param in cmdParams)
+                {
+                    if (param.GetType() == typeof(int))
+                    {
+                        byte[] bytes = BitConverter.GetBytes((int)param);
+                        bytes.CopyTo(cmdPacket.payload, cmdPacket.payloadSize);
+                        cmdPacket.payloadSize += bytes.Length;
+                    }
+                    else if(param.GetType() == typeof(bool))
+                    {
+                        cmdPacket.payload[cmdPacket.payloadSize] = (byte)( (bool)param ? 1 : 0);
+                        cmdPacket.payloadSize++;
+                    }
+                    else
+                        throw new RFIDCommandCenterException("Command packet parameter is an invalid type",null);
+                }
+            do
+            {
+                try
+                {
+                    if (sendPacket(cmdPacket, NETWORK_TIMEOUT * 1000))
+                        return;
+                    if(shouldReportError)
+                        reportError("Failed to provide response to client");
+                }
+                catch (Exception e)
+                {
+                    if(shouldReportError)
+                        reportError(e.Message);
+                }
+            } while (!exit && assured);
+        }
+
         private void provideResponse(NetworkCode cmdPacket)
         {
             switch (cmdPacket.command)
@@ -147,80 +176,37 @@ namespace RFIDCommandCenter
                     //Write to db
                     break;
                 case (int)CommandCodes.START:
-                    cmdPacket.command = (int)CommandCodes.START;
-                    cmdPacket.tickTime = (ulong)tickRateOffset;
-                    cmdPacket.payloadSize = 0;
-                    while(!exit)
-                        try
-                        {
-                            if (sendPacket(cmdPacket, NETWORK_TIMEOUT  * 1000))
-                                break;
-                            reportError("Could not send packet to tell device client to start");
-                        }
-                        catch(Exception e)
-                        {
-                            reportError(e.Message);
-                        }
+                    sendCommand(cmdPacket, CommandCodes.START, NETWORK_TIMEOUT * 1000, true,true);
                     return;
                 case (int)CommandCodes.DEVICE_ERROR:
-                    break;
+                    return;
                 default:
                     break;
             }
             if (cmdPacket.command == (int)CommandCodes.NONE)
                 return;
-            cmdPacket.command = (int)CommandCodes.CONFIRMATION_SYNC_TICK_COUNT;
-            cmdPacket.tickTime = (ulong)(DateTime.Now.Ticks - tickRateOffset) / TimeSpan.TicksPerMillisecond;
-            Array.Copy(BitConverter.GetBytes((int)CommandCodes.NONE),cmdPacket.payload,4);
-            cmdPacket.payloadSize = 4;
-            while (!exit)
-            {
-                try
-                {
-                    while (!exit)
-                    {
-                        if (sendPacket(cmdPacket, NETWORK_TIMEOUT * 1000))
-                            return;
-                        reportError("Failed to provide response to client");
-                    }
-                }
-                catch (Exception e)
-                {
-                    reportError(e.Message);
-                }
-            }
+            sendCommand(cmdPacket, CommandCodes.CONFIRMATION_SYNC_TICK_COUNT, NETWORK_TIMEOUT * 1000, true, true, (int)CommandCodes.NONE);
         }
 
         private void handleDeviceError(NetworkCode errorCode)
         {
-            string msg;
-            switch(BitConverter.ToInt32(errorCode.payload,0))
+            //Tell device to wait
+            sendCommand(new NetworkCode(), CommandCodes.DEVICE_ERROR, NETWORK_TIMEOUT * 1000, true, false, (int)0, false, true);
+            
+            //Wait for server thread to handle
+            deviceError = BitConverter.ToInt32(errorCode.payload, 0);
+            pauseExecution = true;
+            while (pauseExecution)
             {
-                case (int)ErrorCodes.DEVICE_FAILED_TO_CONNECT:
-                    msg = "Device is not connected to the PC";
-                    break;
-                case (int)ErrorCodes.DEVICE_FAILED_TO_READ:
-                    msg = "Device failed to complete a read operation";
-                    break;
-                case (int)ErrorCodes.DEVICE_FAILED_TO_START:
-                    msg = "Device failed to start rfid reader module";
-                    break;
-                case (int)ErrorCodes.TAG_MEMORY_BUFFER_FULL:
-                    msg = "Device out of tag memory, buffer full";
-                    break;
-                default:
-                    msg = "Unknown device error";
-                    break;
+                //tell device to keep waiting
+                Thread.Sleep(NETWORK_TIMEOUT > 500 ? 500 : NETWORK_TIMEOUT);
+                sendCommand(new NetworkCode(), CommandCodes.DEVICE_ERROR, NETWORK_TIMEOUT * 1000, true, false, (int)0, false, true);
             }
-            DialogResult result = MessageBox.Show(null, "An error occurred with the device:\nError Code: "
-                               + BitConverter.ToInt32(errorCode.payload, 0) +
-                               "\nReason: " + msg +
-                               "\n Would you like to continue?",
-                               "Device Error", MessageBoxButtons.RetryCancel, MessageBoxIcon.Error);
-            if (result != DialogResult.Retry)
-                exit = true;
+            //Tell device to continue and whether or not to continue execution
+            sendCommand(new NetworkCode(), CommandCodes.DEVICE_ERROR, NETWORK_TIMEOUT * 1000, true,true, (int)0,continueAfterDeviceError,false);
         }
-        private void reportCommandInfo(NetworkCode cmdPacket,bool showAlive = false)
+
+        private void reportCommandInfo(NetworkCode cmdPacket,bool showAlive = true)
         {
             switch (cmdPacket.command)
             {
@@ -283,19 +269,8 @@ namespace RFIDCommandCenter
 
         private void reportError(string error)
         {
+            serverErrorMessage = error;
             pauseExecution = true;
-#if DEBUG
-            DialogResult result = MessageBox.Show(null, "An error occurred with the server:\n"
-                                + error +
-                                "\n Would you like to continue?",
-                                "Server Error", MessageBoxButtons.RetryCancel, MessageBoxIcon.Error);
-            if (result == DialogResult.Retry)
-                pauseExecution = false;
-            else
-                Application.Exit();
-#endif
-            //TODO: Log or determine how to handle
-
             while (pauseExecution)
                 Thread.Yield();
         }

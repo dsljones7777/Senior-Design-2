@@ -10,7 +10,8 @@ namespace RFIDDeviceController
 			DEVICE_FAILED_TO_READ,
 			DEVICE_FAILED_TO_CONNECT,
 			DEVICE_FAILED_TO_START,
-			TAG_MEMORY_BUFFER_FULL
+			TAG_MEMORY_BUFFER_FULL,
+			TAG_TOO_LONG
 		};
 
 		enum class CommandCodes : uint32_t
@@ -52,8 +53,6 @@ namespace RFIDDeviceController
 		public:
 			char payload[MAX_PAYLOAD_SIZE];
 		};
-
-		
 
 		struct UnlockNetParam : public NetworkBytecode
 		{
@@ -162,6 +161,8 @@ namespace RFIDDeviceController
 		{
 		public:
 			int errorCode;
+			bool abortOperation;
+			bool wait;
 			DeviceErrorNetParam(int errCode)
 			{
 				cmd = (uint32_t)CommandCodes::DEVICE_ERROR;
@@ -170,7 +171,6 @@ namespace RFIDDeviceController
 			}
 		};
 
-
 		struct ConfirmationNetParam : public NetworkBytecode
 		{
 		public:
@@ -178,9 +178,21 @@ namespace RFIDDeviceController
 		private:
 			ConfirmationNetParam()
 			{
-				cmd = (uint32_t)CommandCodes::DEVICE_ERROR;
+				cmd = (uint32_t)CommandCodes::CONFIRMATION_SYNC_TICK_COUNT;
 				payloadSize = sizeof(ConfirmationNetParam) - sizeof(NetworkBytecode);
 				expectedNextCommand = 0;
+			}
+		};
+
+		struct WaitNetParam : public NetworkBytecode
+		{
+		public:
+			bool continueExecution;		//Tells reader to wait for the specified command
+		
+		private:
+			WaitNetParam()
+			{
+				
 			}
 		};
 #pragma pack()

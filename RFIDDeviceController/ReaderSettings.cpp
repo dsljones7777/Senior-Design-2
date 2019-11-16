@@ -8,6 +8,22 @@ static const char * EXPECTED_HW_ID = "vid_2008&pid_1004";
 #endif
 
 using namespace RFIDDeviceController::Settings;
+void RFIDDeviceController::Settings::ReaderSettings::resetSettings()
+{
+	regionToUse = TMR_REGION_NA;
+	uriConnectionString = "tmr::///COM1";
+	defaultReadPower = 3000;
+	defaultWritePower = 250;
+	defaultBaudRate = 57600;
+	defaultCommandTimeout = 0;
+	defaultTransportTimeout = 0;
+	powerMode = TMR_SR_PowerMode::TMR_SR_POWER_MODE_FULL;
+
+#ifdef _WIN32
+	if (!initWindows())
+		uriConnectionString = nullptr;
+#endif
+}
 ReaderSettings::ReaderSettings()
 {
 	regionToUse = TMR_REGION_NA;

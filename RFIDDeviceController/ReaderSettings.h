@@ -22,6 +22,8 @@ namespace RFIDDeviceController
 			TMR_Region regionToUse = TMR_REGION_NONE;
 			AntennaSettings antennasParams[MAX_ANTENNAS];
 			int numOfAntennas = -1;
+
+			void resetSettings();
 			ReaderSettings();
 			virtual ~ReaderSettings();
 #ifdef _WIN32

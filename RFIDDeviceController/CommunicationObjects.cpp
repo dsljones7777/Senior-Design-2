@@ -27,6 +27,8 @@ bool RFIDDeviceController::Communication::NetworkBytecode::isValid()
 		return payloadSize == sizeof(WriteTagNetParam) - sizeof(NetworkBytecode);
 	case (uint32_t)CommandCodes::ALIVE:
 		return false;
+	case (uint32_t)CommandCodes::DEVICE_ERROR:
+		return payloadSize == sizeof(DeviceErrorNetParam) - sizeof(NetworkBytecode);
 	case (uint32_t)CommandCodes::PING:
 		return payloadSize == sizeof(PingNetParam) - sizeof(NetworkBytecode);
 	case (uint32_t)CommandCodes::CONFIRMATION_SYNC_TICK_COUNT:

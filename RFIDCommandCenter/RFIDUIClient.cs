@@ -8,5 +8,10 @@ namespace RFIDCommandCenter
         {
 
         }
+
+        public override void serverThreadRoutine(object state)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }
