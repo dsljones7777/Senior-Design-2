@@ -1,19 +1,23 @@
 #include "pch.h"
 #include "WindowsClientToHostCommunication.h"
-#include "Settings.h"
+
 #ifdef _WIN32
+
+#include "Settings.h"
 #include <WS2tcpip.h>
-Identification::Communication::WindowsClientToHostCommunication::WindowsClientToHostCommunication()
+using namespace RFIDDeviceController::Communication;
+
+RFIDDeviceController::Communication::WindowsClientToHostCommunication::WindowsClientToHostCommunication()
 {
 }
-Identification::Communication::WindowsClientToHostCommunication::~WindowsClientToHostCommunication()
+RFIDDeviceController::Communication::WindowsClientToHostCommunication::~WindowsClientToHostCommunication()
 {
 }
-bool Identification::Communication::WindowsClientToHostCommunication::connectTo(char const * host)
+bool RFIDDeviceController::Communication::WindowsClientToHostCommunication::connectTo(char const * host)
 {
 	
-	char hostBuffer[Settings::RFID::MAX_STRING_SIZE + 1];
-	strcpy_s(hostBuffer, Settings::RFID::MAX_STRING_SIZE, host);
+	char hostBuffer[Settings::MAX_STRING_SIZE + 1];
+	strcpy_s(hostBuffer, Settings::MAX_STRING_SIZE, host);
 	addrinfo addrHint,* pAddr, *ptr;
 	memset(&addrHint, 0, sizeof(addrinfo));
 	addrHint.ai_family = AF_INET;
@@ -52,27 +56,27 @@ bool Identification::Communication::WindowsClientToHostCommunication::connectTo(
 	return true;
 }
 
-bool Identification::Communication::WindowsClientToHostCommunication::disconnect(char const * reason)
+bool RFIDDeviceController::Communication::WindowsClientToHostCommunication::disconnect(char const * reason)
 {
 	closesocket(clientSocket);
 	return true;
 }
 
-bool Identification::Communication::WindowsClientToHostCommunication::write(NetworkBytecode * what)
+bool RFIDDeviceController::Communication::WindowsClientToHostCommunication::write(NetworkBytecode * what)
 {
 	if (send(clientSocket, (const char *)what, what->payloadSize + sizeof(NetworkBytecode), 0) != what->payloadSize + sizeof(NetworkBytecode))
 		return false;
 	return true;
 }
 
-bool Identification::Communication::WindowsClientToHostCommunication::peek(int & totalBytes)
+bool RFIDDeviceController::Communication::WindowsClientToHostCommunication::peek(int & totalBytes)
 {
 	if(ioctlsocket(clientSocket,FIONREAD,(u_long *)&totalBytes))
 		return false;
 	return true;
 }
 
-bool Identification::Communication::WindowsClientToHostCommunication::read(GenericNetworkBytecode * where)
+bool RFIDDeviceController::Communication::WindowsClientToHostCommunication::read(GenericNetworkBytecode * where)
 {
 	int offset = 0, ttlBytesReceived = 0;
 	while (ttlBytesReceived < sizeof(NetworkBytecode))
@@ -97,12 +101,12 @@ bool Identification::Communication::WindowsClientToHostCommunication::read(Gener
 	return where->isValid();
 }
 
-bool Identification::Communication::WindowsClientToHostCommunication::flush()
+bool RFIDDeviceController::Communication::WindowsClientToHostCommunication::flush()
 {
 	return true;
 }
 
-bool Identification::Communication::WindowsClientToHostCommunication::init()
+bool RFIDDeviceController::Communication::WindowsClientToHostCommunication::init()
 {
 	
 	if (WSAStartup(MAKEWORD(2, 2), &startupData))

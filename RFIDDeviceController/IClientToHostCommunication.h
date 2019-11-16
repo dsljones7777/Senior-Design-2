@@ -1,6 +1,6 @@
 #pragma once
 #include "CommunicationObjects.h"
-namespace Identification
+namespace RFIDDeviceController
 {
 	namespace Communication
 	{

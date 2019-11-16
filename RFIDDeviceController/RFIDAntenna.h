@@ -1,6 +1,6 @@
 #pragma once
 #include <tm_reader.h>
-namespace Identification
+namespace RFIDDeviceController
 {
 	class RFIDAntenna
 	{

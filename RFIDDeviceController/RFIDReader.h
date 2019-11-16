@@ -1,211 +1,56 @@
 #pragma once
 #include <tm_reader.h>
-#include "Settings.h"
+#include "ReaderSettings.h"
 #include "RFIDAntenna.h"
 #include "ILog.h"
-namespace Identification
+#include "Settings.h"
+namespace RFIDDeviceController
 {
 	class RFIDReader
 	{
 	public:
-		RFIDReader(ILog * logAssistant)
+		enum class ReaderErrors : int
 		{
-			log = logAssistant;
-		}
-		virtual ~RFIDReader()
-		{
+			NONE = 0,
+			EPC_TOO_LONG,
+			GET_NEXT_TAG,
+		};
+		ReaderErrors lastError = ReaderErrors::NONE;
 
-		}
-		virtual bool initialize(Settings::RFID::ReaderSettings * devSettings)
-		{
-			//Create the reader
-			TMR_Status startupError = TMR_create(&reader, devSettings->uriConnectionString);
-			if (startupError != TMR_SUCCESS)
-				return false;
+		RFIDReader(ILog * logAssistant);
+		virtual ~RFIDReader();
+		virtual bool initialize(Settings::ReaderSettings * devSettings);
 
-			//Connect to the device
-			startupError = TMR_connect(&reader);
-			if (startupError != TMR_SUCCESS)
-				return false;
+		bool setReadPower(int32_t pwr);
 
-			//Get version information
-			if (!initVersionInfo())
-				return false;
-
-			//Initialize power info
-			if (!initPowerInfo(devSettings))
-				return false;
-
-			//Set up the region according to the settings
-			if (!initRegionSettings(devSettings))
-				return false;
-
-			//Set up operation info
-			if (!initOperationSettings(devSettings))
-				return false;
-
-			//Initialize the antennas
-			if (!initAntennas(devSettings))
-				return false;
-			return true;
-		}
-
-		bool setReadPower(int32_t pwr)
-		{
-			if (pwr > maxPower)
-				pwr = maxPower;
-			else if (pwr < minPower)
-				pwr = minPower;
-
-			TMR_Status status = TMR_paramSet(&reader, TMR_Param::TMR_PARAM_RADIO_READPOWER, &pwr);
-			if (status != TMR_SUCCESS)
-				return false;
-			readPower = pwr;
-			return true;
-		}
-
-		bool setWritePower(int32_t pwr)
-		{
-			if (pwr > maxPower)
-				pwr = maxPower;
-			else if (pwr < minPower)
-				pwr = minPower;
-			TMR_Status status = TMR_paramSet(&reader, TMR_Param::TMR_PARAM_RADIO_WRITEPOWER, &pwr);
-			if (status != TMR_SUCCESS)
-				return false;
-			writePower = pwr;
-			return true;
-		}
+		bool setWritePower(int32_t pwr);
 
 		//Total tags must be <= total tags in TMR_getNextTag
-		bool readRemainingTags(TMR_TagReadData * tags, int & totalTags)
-		{
-			for (int i = 0; i < totalTags; i++)
-			{
-				TMR_Status status = TMR_getNextTag(&reader, tags + i);
-				if (status != TMR_SUCCESS)
-				{
-					totalTags = i;
-					return false;
-				}
-			}
-		}
+		bool readRemainingTags(TMR_TagReadData * tags, int & totalTags);
 
-		bool readTags(TMR_TagReadData * tags, int timeoutMs, int & totalTags)
-		{
-			int tagLimit = totalTags;
-			TMR_Status status = TMR_read(&reader, 100, &totalTags);
-			if (status != TMR_SUCCESS)
-				return false;
-			for (int i = 0; i < totalTags && i < tagLimit; i++)
-			{
-				status = TMR_getNextTag(&reader, tags + i);
-				if (status != TMR_SUCCESS)
-				{
-					totalTags = i;
-					return false;
-				}
-			}
-			return true;
-		}
+		bool readTags(char * epcBufferArray, int timeoutMs, int & totalTags);
 
-		uint32_t getDefaultReadPower()
-		{
-			return readPower;
-		}
+		uint32_t getDefaultReadPower();
 
-		uint32_t getDefaultWritePower()
-		{
-			return writePower;
-		}
+		uint32_t getDefaultWritePower();
 
-		bool setCommandTimeout(uint32_t timeoutMs)
-		{
-			if (TMR_paramSet(&reader, TMR_Param::TMR_PARAM_COMMANDTIMEOUT, &timeoutMs) == TMR_SUCCESS)
-			{
-				commandTimeout = timeoutMs;
-				return true;
-			}
-			return false;
-		}
+		bool setCommandTimeout(uint32_t timeoutMs);
 
-		bool setTransportTimeout(uint32_t timeoutMs)
-		{
-			if (TMR_paramSet(&reader, TMR_Param::TMR_PARAM_TRANSPORTTIMEOUT, &timeoutMs) == TMR_SUCCESS)
-			{
-				transportTimeout = timeoutMs;
-				return true;
-			}
-			return false;
-		}
+		bool setTransportTimeout(uint32_t timeoutMs);
 
-		int getTotalAntennas() const
-		{
-			return totalAntennas;
-		}
+		int getTotalAntennas() const;
 
-		RFIDAntenna const * getAntenna(int index) const
-		{
-			if (index >= totalAntennas)
-				return nullptr;
-			return antennas + index;
-		}
+		RFIDAntenna const * getAntenna(int index) const;
 
 		bool isTagProtocolSupported(TMR_TagProtocol protocol)const;
 
-		bool setCurrentRegion(TMR_Region region)
-		{
-			TMR_Status status = TMR_paramSet(&reader, TMR_PARAM_REGION_ID, &region);
+		bool setCurrentRegion(TMR_Region region);
 
-			//Apply the region if the parameter was successfully set
-			if (status == TMR_SUCCESS)
-				currentRegion = region;
-			return status == TMR_SUCCESS;
-		}
+		bool isRegionSupported(TMR_Region region);
 
-		bool isRegionSupported(TMR_Region region)
-		{
-			//Select the maximum index to iterate, go through each region and determine if the specified region is in the list
-			int maxIndex = regionList.len < regionList.max ? regionList.len : regionList.max;
-			for (int i = 0; i < maxIndex; i++)
-				if (supportedRegions[i] == region)
-					return true;
-			return false;
-		}
+		bool setBaudRate(uint32_t newBaud);
 
-		bool setBaudRate(uint32_t newBaud)
-		{
-			switch (newBaud)
-			{
-			case 11520:
-			case 9600:
-			case 921600:
-			case 19200:
-			case 38400:
-			case 57600:
-			case 230400:
-			case 460800:
-				break;
-			default:
-				return false;
-			}
-			if (TMR_paramSet(&reader, TMR_Param::TMR_PARAM_BAUDRATE, &newBaud) == TMR_SUCCESS)
-			{
-				baudRate = newBaud;
-				return true;
-			}
-			return false;
-		}
-
-		bool setReaderPowerMode(TMR_SR_PowerMode mode)
-		{
-			if (TMR_paramSet(&reader, TMR_Param::TMR_PARAM_POWERMODE, &mode) == TMR_SUCCESS)
-			{
-				powerMode = mode;
-				return true;
-			}
-			return false;
-		}
+		bool setReaderPowerMode(TMR_SR_PowerMode mode);
 
 		bool saveCurrentConfig();
 
@@ -227,14 +72,11 @@ namespace Identification
 
 		bool setGen2WriteEarly(bool writeEarly);
 
-		bool setDevicePowerMode(TMR_SR_PowerMode mode)
-		{
-			TMR_Status status = TMR_paramSet(&reader, TMR_Param::TMR_PARAM_POWERMODE, &mode);
-			if (status != TMR_SUCCESS)
-				return false;
-			powerMode = mode;
-			return true;
-		}
+		bool setDevicePowerMode(TMR_SR_PowerMode mode);
+
+		bool turnOnLed1();
+
+		bool turnOnLed2();
 
 	protected:
 
@@ -278,7 +120,7 @@ namespace Identification
 
 		//Initializes the region by getting the supported regions and trying to set the reader to the specified region if supported
 		//Override to change the way regions are initialized
-		virtual bool initRegionSettings(Settings::RFID::ReaderSettings *  devSettings)
+		virtual bool initRegionSettings(Settings::ReaderSettings *  devSettings)
 		{
 			//Get the current region
 			currentRegion = TMR_REGION_NONE;
@@ -288,7 +130,7 @@ namespace Identification
 
 			//Get the list of supported regions
 			regionList.list = supportedRegions;
-			regionList.max = Settings::RFID::MAX_REGIONS;
+			regionList.max = Settings::MAX_REGIONS;
 			regionList.len = 0;
 			startupError = TMR_paramGet(&reader, TMR_PARAM_REGION_SUPPORTEDREGIONS, &regionList);
 			if (startupError != TMR_SUCCESS)
@@ -304,13 +146,13 @@ namespace Identification
 		}
 
 		//Initializes the antennas and their respective states
-		virtual bool initAntennas(Settings::RFID::ReaderSettings * devSettings)
+		virtual bool initAntennas(Settings::ReaderSettings * devSettings)
 		{
 			//Get list of all antenna ports
-			uint8_t antennaPorts[Settings::RFID::MAX_ANTENNAS];
+			uint8_t antennaPorts[Settings::MAX_ANTENNAS];
 			TMR_uint8List antennaList;
 			antennaList.list = antennaPorts;
-			antennaList.max = Settings::RFID::MAX_ANTENNAS;
+			antennaList.max = Settings::MAX_ANTENNAS;
 			TMR_Status startupError = TMR_paramGet(&reader, TMR_Param::TMR_PARAM_ANTENNA_PORTLIST, &antennaList);
 			if (startupError != TMR_SUCCESS)
 				return false;
@@ -318,36 +160,36 @@ namespace Identification
 
 			//Get list of all connected antenna ports
 			TMR_uint8List connectedAntennaList;
-			uint8_t connectedAntennas[Settings::RFID::MAX_ANTENNAS];
+			uint8_t connectedAntennas[Settings::MAX_ANTENNAS];
 			connectedAntennaList.list = connectedAntennas;
-			connectedAntennaList.max = Settings::RFID::MAX_ANTENNAS;
+			connectedAntennaList.max = Settings::MAX_ANTENNAS;
 			startupError = TMR_paramGet(&reader, TMR_Param::TMR_PARAM_ANTENNA_CONNECTEDPORTLIST, &connectedAntennaList);
 			if (startupError != TMR_SUCCESS)
 				return false;
 
 			//Measure the return losses of each antenna
 			TMR_PortValueList returnLossesList;
-			TMR_PortValue portReturnLosses[Settings::RFID::MAX_ANTENNAS];
+			TMR_PortValue portReturnLosses[Settings::MAX_ANTENNAS];
 			returnLossesList.list = portReturnLosses;
-			returnLossesList.max = Settings::RFID::MAX_ANTENNAS;
+			returnLossesList.max = Settings::MAX_ANTENNAS;
 			startupError = TMR_paramGet(&reader, TMR_Param::TMR_PARAM_ANTENNA_RETURNLOSS, &returnLossesList);
 			if (startupError != TMR_SUCCESS)
 				return false;
 
 			//Get the read power of each antenna
 			TMR_PortValueList readPowerList;
-			TMR_PortValue readPowers[Settings::RFID::MAX_ANTENNAS];
+			TMR_PortValue readPowers[Settings::MAX_ANTENNAS];
 			readPowerList.list = readPowers;
-			readPowerList.max = Settings::RFID::MAX_ANTENNAS;
+			readPowerList.max = Settings::MAX_ANTENNAS;
 			startupError = TMR_paramGet(&reader, TMR_Param::TMR_PARAM_RADIO_PORTREADPOWERLIST, &readPowerList);
 			if (startupError != TMR_SUCCESS)
 				return false;
 
 			//Get the write power of each antenna
 			TMR_PortValueList writePowerList;
-			TMR_PortValue writePowers[Settings::RFID::MAX_ANTENNAS];
+			TMR_PortValue writePowers[Settings::MAX_ANTENNAS];
 			writePowerList.list = writePowers;
-			writePowerList.max = Settings::RFID::MAX_ANTENNAS;
+			writePowerList.max = Settings::MAX_ANTENNAS;
 			startupError = TMR_paramGet(&reader, TMR_Param::TMR_PARAM_RADIO_PORTREADPOWERLIST, &writePowerList);
 			if (startupError != TMR_SUCCESS)
 				return false;
@@ -412,7 +254,7 @@ namespace Identification
 		}
 
 		//Retreives all power information for the device and sets the desired power 
-		virtual bool initPowerInfo(Settings::RFID::ReaderSettings * settings)
+		virtual bool initPowerInfo(Settings::ReaderSettings * settings)
 		{
 			//Get max radio power
 			TMR_Status status = TMR_paramGet(&reader, TMR_Param::TMR_PARAM_RADIO_POWERMAX, &maxPower);
@@ -453,7 +295,7 @@ namespace Identification
 			return true;
 		}
 
-		virtual bool initOperationSettings(Settings::RFID::ReaderSettings * settings)
+		virtual bool initOperationSettings(Settings::ReaderSettings * settings)
 		{
 			//Get the baud rate
 			TMR_Status status = TMR_paramGet(&reader, TMR_Param::TMR_PARAM_BAUDRATE, &baudRate);
@@ -488,13 +330,13 @@ namespace Identification
 		mutable TMR_Reader reader;
 		TMR_Region currentRegion;						//The region that is set by the reader
 		TMR_RegionList regionList;						//Info about list of supported regions
-		TMR_Region supportedRegions[Settings::RFID::MAX_STRING_SIZE];	//List of regions supported by the reader
-		char serialNumber[Settings::RFID::MAX_STRING_SIZE];				//Serial Number of the reader
-		char softwareVersion[Settings::RFID::MAX_STRING_SIZE];			//Software version of the reader
-		char model[Settings::RFID::MAX_STRING_SIZE];					//Model of the reader
-		char hardwareVersion[Settings::RFID::MAX_STRING_SIZE];			//Hardware version of the reader
+		TMR_Region supportedRegions[Settings::MAX_STRING_SIZE];	//List of regions supported by the reader
+		char serialNumber[Settings::MAX_STRING_SIZE];				//Serial Number of the reader
+		char softwareVersion[Settings::MAX_STRING_SIZE];			//Software version of the reader
+		char model[Settings::MAX_STRING_SIZE];					//Model of the reader
+		char hardwareVersion[Settings::MAX_STRING_SIZE];			//Hardware version of the reader
 		int32_t totalAntennas;
-		RFIDAntenna antennas[Settings::RFID::MAX_ANTENNAS];
+		RFIDAntenna antennas[Settings::MAX_ANTENNAS];
 		uint32_t commandTimeout;
 		uint32_t transportTimeout;
 		uint32_t baudRate;

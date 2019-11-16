@@ -2,9 +2,9 @@
 #include "IClientToHostCommunication.h"
 #include "WindowsClientToHostCommunication.h";
 
-using namespace Identification::Communication;
+using namespace RFIDDeviceController::Communication;
 
-IClientToHostCommunication * Identification::Communication::getCommunicationObject()
+IClientToHostCommunication * RFIDDeviceController::Communication::getCommunicationObject()
 {
 #ifdef _WIN32
 	return new WindowsClientToHostCommunication();
@@ -13,10 +13,10 @@ IClientToHostCommunication * Identification::Communication::getCommunicationObje
 #endif
 }
 
-Identification::Communication::IClientToHostCommunication::IClientToHostCommunication()
+RFIDDeviceController::Communication::IClientToHostCommunication::IClientToHostCommunication()
 {
 }
 
-Identification::Communication::IClientToHostCommunication::~IClientToHostCommunication()
+RFIDDeviceController::Communication::IClientToHostCommunication::~IClientToHostCommunication()
 {
 }

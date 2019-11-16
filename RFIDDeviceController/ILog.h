@@ -1,5 +1,5 @@
 #pragma once
-namespace Identification
+namespace RFIDDeviceController
 {
 	class ILog
 	{
