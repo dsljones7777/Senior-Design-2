@@ -11,6 +11,7 @@ namespace RFIDCommandCenter
         {
             CONNECT = 1,
             SAVE_TAG,
+            WRITE_TAG,
             DELETE_TAG,
             SAVE_SYSTEM_USER,
             DELETE_SYSTEM_USER,
@@ -19,7 +20,6 @@ namespace RFIDCommandCenter
             DELETE_LOCATION,
             PING_DEVICE,
             SETUP_DEVICE
-        }
 
         NetworkStream clientStream;
         public UIClient(Socket who,NetworkCommunication comObj) : base (who,comObj)

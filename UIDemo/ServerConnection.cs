@@ -18,8 +18,9 @@ namespace UIDemo
         [Serializable]
         enum NetworkCommands
         {
-            CONNECT= 1,
+            CONNECT = 1,
             SAVE_TAG,
+            WRITE_TAG,
             DELETE_TAG,
             SAVE_SYSTEM_USER,
             DELETE_SYSTEM_USER,
@@ -29,19 +30,11 @@ namespace UIDemo
             PING_DEVICE,
             SETUP_DEVICE
         }
-        
-        [Serializable]
-        protected class StartupPacket
-        { 
-            int cmd = 1;
-            int size = 0;
-            long padding; 
-        }
 
         public Task<bool> connect(string ipOrHostName, ushort port)
         {
             Func<bool> connectRPC = new Func<bool>
-                (() => 
+                (() =>
                 {
                     if (myServerConnection != null)
                         myServerConnection.Dispose();
@@ -50,7 +43,7 @@ namespace UIDemo
                         myServerConnection = new TcpClient(ipOrHostName, port);
                         myServerConnection.Client.Send(BitConverter.GetBytes((int)1));
                     }
-                    catch(Exception e)
+                    catch (Exception e)
                     {
                         FailedConnecting?.Invoke(this, e);
                         return false;
@@ -75,7 +68,7 @@ namespace UIDemo
                         formatter.Serialize(myServerConnection.GetStream(), tagNumber);
                         formatter.Serialize(myServerConnection.GetStream(), name);
                     }
-                    catch(Exception e)
+                    catch (Exception e)
                     {
                         NetworkError?.Invoke(this, e);
                         return false;
@@ -84,7 +77,145 @@ namespace UIDemo
                 });
             return Task.Run(saveTagRPC);
         }
-        
+
+        public Task<bool> deleteTag(byte[] tagNumber)
+        {
+            Func<bool> deteleTagRPC = new Func<bool>(
+                () =>
+                {
+                    var formatter = new BinaryFormatter();
+                    try
+                    {
+                        formatter.Serialize(myServerConnection.GetStream(), NetworkCommands.DELETE_TAG);
+                        formatter.Serialize(myServerConnection.GetStream(), tagNumber);
+                    }
+                    catch (Exception e)
+                    {
+                        NetworkError?.Invoke(this, e);
+                        return false;
+                    }
+                    return true;
+                });
+
+            return Task.Run(deteleTagRPC);
+        }
+
+        public Task<bool> writeTag(byte[] targetTag, byte[] newTagBytes)
+        {
+            Func<bool> writeTagRPC = new Func<bool>(
+                () =>
+                {
+                    var formatter = new BinaryFormatter();
+                    try
+                    {
+                        formatter.Serialize(myServerConnection.GetStream(), NetworkCommands.WRITE_TAG);
+                        formatter.Serialize(myServerConnection.GetStream(), targetTag);
+                        formatter.Serialize(myServerConnection.GetStream(), newTagBytes);
+                    }
+                    catch (Exception e)
+                    {
+                        NetworkError?.Invoke(this, e);
+                        return false;
+                    }
+                    return true;
+                });
+
+            return Task.Run(writeTagRPC);
+        }
+
+        public Task<bool> saveSystemUser(string username, string pass, int role)
+        {
+            Func<bool> saveSystemUser = new Func<bool>(
+                () =>
+                {
+                    var formatter = new BinaryFormatter();
+                    try
+                    {
+                        formatter.Serialize(myServerConnection.GetStream(), NetworkCommands.SAVE_SYSTEM_USER);
+                        formatter.Serialize(myServerConnection.GetStream(), username);
+                        formatter.Serialize(myServerConnection.GetStream(), pass);
+                        formatter.Serialize(myServerConnection.GetStream(), role);
+                    }
+                    catch (Exception e)
+                    {
+                        NetworkError?.Invoke(this, e);
+                        return false;
+                    }
+                    return true;
+                });
+
+            return Task.Run(saveSystemUser);
+        }
+
+        public Task<bool> deleteSystemUser(string username)
+        {
+            Func<bool> deleteSystemUser = new Func<bool>(
+                () =>
+                {
+                    var formatter = new BinaryFormatter();
+                    try
+                    {
+                        formatter.Serialize(myServerConnection.GetStream(), NetworkCommands.DELETE_SYSTEM_USER);
+                        formatter.Serialize(myServerConnection.GetStream(), username);
+                    }
+                    catch(Exception e)
+                    {
+                        NetworkError?.Invoke(this, e);
+                        return false;
+                    }
+                    return true;
+                });
+            return Task.Run(deleteSystemUser);
+        }
+       
+        public Task<bool> saveLocation(string locationName, string readerSerialIn, string readerSerialOut)
+        {
+            Func<bool> saveLocation = new Func<bool>(
+                () =>
+                {
+                    var formatter = new BinaryFormatter();
+                    try
+                    {
+                        formatter.Serialize(myServerConnection.GetStream(), NetworkCommands.SAVE_LOCATION);
+                        formatter.Serialize(myServerConnection.GetStream(), locationName);
+                        formatter.Serialize(myServerConnection.GetStream(), readerSerialIn);
+
+                        if (readerSerialOut == null)
+                            formatter.Serialize(myServerConnection.GetStream(), null);
+                        else
+                            formatter.Serialize(myServerConnection.GetStream(), readerSerialOut);
+                    }
+                    catch (Exception e)
+                    {
+                        NetworkError?.Invoke(this, e);
+                        return false;
+                    }
+                    return true;
+                });
+            return Task.Run(saveLocation);
+        }
+
+        public Task<bool> deletLocation(string locationName)
+        {
+            Func<bool> deleteLocation = new Func<bool>(
+                () =>
+                {
+                    var formatter = new BinaryFormatter();
+                    try
+                    {
+                        formatter.Serialize(myServerConnection.GetStream(), NetworkCommands.SAVE_LOCATION);
+                        formatter.Serialize(myServerConnection.GetStream(), locationName);
+                    }
+                    catch (Exception e)
+                    {
+                        NetworkError?.Invoke(this, e);
+                        return false;
+                    }
+                    return true;
+                });
+            return Task.Run(deleteLocation);
+        }
+
         public void Dispose()
         {
             if (myServerConnection != null)
