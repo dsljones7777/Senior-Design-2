@@ -12,7 +12,7 @@ namespace RFIDCommandCenter
     {
 
         static List<RFIDDeviceClient> deviceClients = new List<RFIDDeviceClient>();
-        static List<RFIDUIClient> uiClients = new List<RFIDUIClient>();
+        static List<UIClient> uiClients = new List<UIClient>();
 
         static void handleRFIDClient(RFIDDeviceClient client)
         {
@@ -77,7 +77,7 @@ namespace RFIDCommandCenter
             client.pauseExecution = false;
         }
 
-        static void handleUIClient(RFIDUIClient client)
+        static void handleUIClient(UIClient client)
         {
 
         }
@@ -155,7 +155,7 @@ namespace RFIDCommandCenter
                 //If new client was accepted then start
                 if(newClient != null)
                 {
-                    RFIDUIClient uiClient = newClient as RFIDUIClient;
+                    UIClient uiClient = newClient as UIClient;
                     RFIDDeviceClient devClient = newClient as RFIDDeviceClient;
                     if (devClient != null)
                         addRFIDDeviceClient(devClient);
@@ -173,7 +173,7 @@ namespace RFIDCommandCenter
                 }
                 lock(uiClients)
                 {
-                    foreach (RFIDUIClient client in uiClients)
+                    foreach (UIClient client in uiClients)
                         handleUIClient(client);
                 }
             }

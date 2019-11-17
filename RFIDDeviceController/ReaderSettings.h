@@ -12,6 +12,9 @@ namespace RFIDDeviceController
 
 		public:
 			static const int MAX_ANTENNAS = 4;
+			static const int MIN_READER_TIMEOUT = 500;
+			static const int MAX_READER_TIMEOUT = 5000;
+			
 			char const * uriConnectionString = nullptr;
 			int32_t defaultReadPower = -1;
 			int32_t defaultWritePower = -1;
@@ -22,6 +25,10 @@ namespace RFIDDeviceController
 			TMR_Region regionToUse = TMR_REGION_NONE;
 			AntennaSettings antennasParams[MAX_ANTENNAS];
 			int numOfAntennas = -1;
+
+			//How long the reader's read timeout is
+			int readTickRate;
+
 
 			void resetSettings();
 			ReaderSettings();

@@ -12,13 +12,13 @@ void RFIDDeviceController::Settings::ReaderSettings::resetSettings()
 {
 	regionToUse = TMR_REGION_NA;
 	uriConnectionString = "tmr::///COM1";
-	defaultReadPower = 3000;
+	defaultReadPower = 500;
 	defaultWritePower = 250;
 	defaultBaudRate = 57600;
 	defaultCommandTimeout = 0;
 	defaultTransportTimeout = 0;
 	powerMode = TMR_SR_PowerMode::TMR_SR_POWER_MODE_FULL;
-
+	readTickRate = 800;
 #ifdef _WIN32
 	if (!initWindows())
 		uriConnectionString = nullptr;
@@ -26,19 +26,7 @@ void RFIDDeviceController::Settings::ReaderSettings::resetSettings()
 }
 ReaderSettings::ReaderSettings()
 {
-	regionToUse = TMR_REGION_NA;
-	uriConnectionString = "tmr::///COM1";
-	defaultReadPower = 3000;
-	defaultWritePower = 250;
-	defaultBaudRate = 57600;
-	defaultCommandTimeout = 0;
-	defaultTransportTimeout = 0;
-	powerMode = TMR_SR_PowerMode::TMR_SR_POWER_MODE_FULL;
-
-#ifdef _WIN32
-	if (!initWindows())
-		uriConnectionString = nullptr;
-#endif
+	resetSettings();
 }
 #ifdef _WIN32
 bool RFIDDeviceController::Settings::ReaderSettings::initWindows()

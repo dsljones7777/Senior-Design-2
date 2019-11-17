@@ -8,8 +8,9 @@ namespace RFIDDeviceController
 		public:
 
 			char const * hostConnectionString;
-			int networkTickRate;		//The host should receive messages at least this often. In ms
-			int readTickRate;			//How long the reader's read timeout is
+
+			//The host should receive messages at least this often. In ms
+			int networkTickRate;				
 
 			//How long to remember a tag for. If the tag arrive cmd occurs how long till a tag leave cmd  should occur.
 			//If tag is present for longer than this then a TAG_PRESENT_TOO_LONG command is sent
@@ -21,8 +22,10 @@ namespace RFIDDeviceController
 			//How long a tag will be present before being considered arrived
 			int tagArriveTime;
 
+			//Does the reader lock the door?
 			bool lockByDefault;
 
+			//How many retrys that occur before the device disconnects from the server and attempts to reconnect
 			int retriesBeforeReconnect;
 
 			ClientSettings();

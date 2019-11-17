@@ -16,27 +16,41 @@ DeviceController::~DeviceController()
 
 void RFIDDeviceController::DeviceController::turnOnLed(int ledNumber)
 {
-
+	if (!reader.initialized)
+		return;
+	if (!reader.setLedState(ledNumber, true))
+		return;
+	if (ledNumber == 1)
+		light1On = true;
+	else
+		light2On = true;
 }
 
 void RFIDDeviceController::DeviceController::turnOffLed(int ledNumber)
 {
-
+	if (!reader.initialized)
+		return;
+	if (!reader.setLedState(ledNumber, false))
+		return;
+	if (ledNumber == 1)
+		light1On = false;
+	else
+		light2On = false;
 }
 
 bool RFIDDeviceController::DeviceController::isLedOn(int ledNumber)
 {
-	return false;
+	return (ledNumber == 1) ? light1On : light2On;
 }
 
 bool RFIDDeviceController::DeviceController::isLedOff(int ledNumber)
 {
-	return true;
+	return (ledNumber == 1) ? !light1On : !light2On;
 }
 
 void RFIDDeviceController::DeviceController::resetTicksTillDead()
 {
-	ticksTillDead = settings.clientSettings->networkTickRate / settings.clientSettings->readTickRate + 1;
+	ticksTillDead = settings.clientSettings->networkTickRate + currentTick;
 }
 
 void RFIDDeviceController::DeviceController::startReader()
@@ -103,23 +117,25 @@ void RFIDDeviceController::DeviceController::connectToCommandCenter(bool onFault
 
 bool RFIDDeviceController::DeviceController::executeCommand(int expectedCommand)
 {
+	//Adjust tick rates
+	int adjustmentValue = (int32_t)(buffer.tickTime - currentTick);
+	int realTimeAdjustment = realReadTickRate - adjustmentValue;
+	if (realTimeAdjustment < settings.rdrSettings->MIN_READER_TIMEOUT)
+		realReadTickRate = settings.rdrSettings->MIN_READER_TIMEOUT;
+	else if (realTimeAdjustment > settings.clientSettings->networkTickRate)
+		realReadTickRate = settings.clientSettings->networkTickRate;
+	else if (realTimeAdjustment > settings.rdrSettings->MAX_READER_TIMEOUT)
+		realReadTickRate = settings.rdrSettings->MAX_READER_TIMEOUT;
+	else
+		realReadTickRate = realTimeAdjustment;
+	currentTick = buffer.tickTime;
+
 	if (!expectedCommand  && buffer.cmd != expectedCommand)
 		return false;
-	int32_t adjustmentValue;
 	switch (buffer.cmd)
 	{
 		case (int)CommandCodes::CONFIRMATION_SYNC_TICK_COUNT:
-			adjustmentValue = (int32_t)(buffer.tickTime - currentTick);
-			for (int i = 0; i < REMEMBERANCE_TAG_BUFFER_SIZE; i++)
-			{
-				if (epcMemoryBuffer[i].valid)
-				{
-					epcMemoryBuffer[i].stayTime = (uint32_t)((int32_t)epcMemoryBuffer[i].stayTime + adjustmentValue);
-					if(epcMemoryBuffer[i].leaveTime > 0)
-						epcMemoryBuffer[i].leaveTime = (uint32_t)((int32_t)epcMemoryBuffer[i].leaveTime + adjustmentValue);
-				}
-			}
-			currentTick = buffer.tickTime;
+			
 			break;
 		case (int)CommandCodes::LOCK:
 			//lock door
@@ -286,13 +302,18 @@ void RFIDDeviceController::DeviceController::updateTagsWithServer()
 		epcMemoryBuffer[i].foundDuringCurrentRead = false;
 	int totalTagsRead = TAG_BUFFER_SIZE, retryCount;
 
+	turnOnLed(READ_LED_NUMBER);
 	//Try to read, if error occurs determine whether to continue function or abort
-	if (!reader.readTags((char*)&epcBuffer, settings.clientSettings->readTickRate, totalTagsRead))
+	if (!reader.readTags((char*)&epcBuffer, realReadTickRate, totalTagsRead))
 		if (!sendDeviceError((int)ErrorCodes::DEVICE_FAILED_TO_READ))
+		{
+			turnOffLed(READ_LED_NUMBER);
 			return;
+		}
+	turnOffLed(READ_LED_NUMBER);
 
 	readTagCount += totalTagsRead;
-	currentTick += settings.clientSettings->readTickRate;
+	currentTick += realReadTickRate;
 	//Find or create tag in memory
 	for (int epcIndex = 0; epcIndex < totalTagsRead && epcIndex < TAG_BUFFER_SIZE; sentTagCount++, epcIndex++)
 	{
@@ -344,10 +365,10 @@ void RFIDDeviceController::DeviceController::updateTagsWithServer()
 				}
 				else
 				{
-					if (settings.clientSettings->readTickRate > epcMemoryBuffer[i].leaveTime)
+					if (realReadTickRate > epcMemoryBuffer[i].leaveTime)
 						epcMemoryBuffer[i].leaveTime = 0;
 					else
-						epcMemoryBuffer[i].leaveTime -= settings.clientSettings->readTickRate;
+						epcMemoryBuffer[i].leaveTime -= realReadTickRate;
 				}
 			}
 			else if(!epcMemoryBuffer[i].toldServerTagPresentTooLong)
@@ -358,23 +379,23 @@ void RFIDDeviceController::DeviceController::updateTagsWithServer()
 					epcMemoryBuffer[i].toldServerTagPresentTooLong = true;
 				}
 			}
-			epcMemoryBuffer[i].stayTime += settings.clientSettings->readTickRate;
+			epcMemoryBuffer[i].stayTime += realReadTickRate;
 
 			
 		}
 		else
 		{
 			//If a tag has not been reported set stay time to left(no server notification) or decrement by read tick rate (keep positive)
-			if (!epcMemoryBuffer[i].sentServerTagPresent && settings.clientSettings->readTickRate > epcMemoryBuffer[i].stayTime)
+			if (!epcMemoryBuffer[i].sentServerTagPresent && realReadTickRate > epcMemoryBuffer[i].stayTime)
 				epcMemoryBuffer[i].valid = false;
 			else if (!epcMemoryBuffer[i].sentServerTagPresent)
-				epcMemoryBuffer[i].stayTime -= settings.clientSettings->readTickRate;
+				epcMemoryBuffer[i].stayTime -= realReadTickRate;
 			else if (epcMemoryBuffer[i].leaveTime >= settings.clientSettings->tagLeaveTime)
 			{
 				epcMemoryBuffer[i].valid = false;
 				this->sendTagLeaveToServer((char*)&epcMemoryBuffer[i].epcFront);
 			}
-			epcMemoryBuffer[i].leaveTime += settings.clientSettings->readTickRate;
+			epcMemoryBuffer[i].leaveTime += realReadTickRate;
 		}
 	}
 	
@@ -383,14 +404,18 @@ void RFIDDeviceController::DeviceController::updateTagsWithServer()
 int RFIDDeviceController::DeviceController::run()
 {
 
-	//Load host. Chat w/ host about getting the party started. Send reader init info
+	//Connect to server / host
 	resetTicksTillDead();
+	realReadTickRate = settings.rdrSettings->readTickRate;
 	comm = RFIDDeviceController::Communication::getCommunicationObject();
 	if (!comm || !comm->init())
 		return -1;
 	connectToCommandCenter(false);
-
 	startReader();
+	turnOffLed(1);
+	turnOffLed(2);
+	char epcMsg[] = "u r a bitch";
+	reader.writeTag(epcMsg, 1000, 1000);
 
 	//Start main program loop
 	while (!exitProgram)
@@ -400,7 +425,7 @@ int RFIDDeviceController::DeviceController::run()
 
 		//Poll for tags, descrease ticks till tell server it is dead if no tags are found (update stats)
 		updateTagsWithServer();
-		if (ticksTillDead <= 0)
+		if (ticksTillDead <= currentTick)
 			tellServerAlive();
 		ticksTillDead--;
 	}

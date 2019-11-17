@@ -74,11 +74,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Models\SystemUser.cs" />
     <Compile Include="Models\Tag.cs" />
-    <Compile Include="RFIDCommandCenterException.cs" />
+    <Compile Include="CommandCenterException.cs" />
     <Compile Include="RFIDDeviceClient.cs" />
-    <Compile Include="RFIDUIClient.cs" />
+    <Compile Include="UIClient.cs" />
     <Compile Include="SecureNetworkCommunication.cs" />
-    <Compile Include="UINetworkCommands.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

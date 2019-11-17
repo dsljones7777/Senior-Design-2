@@ -9,6 +9,9 @@ namespace RFIDDeviceController
 	class DeviceController
 	{
 	public:
+		RFIDReader::ReaderErrors lastError = RFIDReader::ReaderErrors::NONE;
+		
+
 		DeviceController();
 		virtual ~DeviceController();
 
@@ -20,8 +23,10 @@ namespace RFIDDeviceController
 		int run();
 
 	protected:
-		static const int ERROR_LED_NUMBER = 1;
-		static const int PING_LED_NUMBER = 2;
+		static const int ERROR_LED_NUMBER = 2;
+		static const int PING_LED_NUMBER = 1;
+		static const int READ_LED_NUMBER = 1;
+		
 
 #pragma region HardwareControl
 
@@ -36,7 +41,8 @@ namespace RFIDDeviceController
 		//Guarantees the reader starts and if it fails it contacts the server and handles. Return state is reader being able to read or the 
 		void startReader();
 
-		
+		bool light1On;
+		bool light2On;
 		RFIDReader reader = RFIDReader(nullptr);
 #pragma endregion
 
@@ -149,9 +155,11 @@ namespace RFIDDeviceController
 
 		//Tick and statistics
 		uint64_t currentTick = 0;
-		int64_t ticksTillDead = 1;
+		uint64_t ticksTillDead = 0;
 		uint64_t readTagCount = 0;
 		uint64_t sentTagCount = 0;
+		int realReadTickRate;
+		
 #pragma endregion
 	};
 

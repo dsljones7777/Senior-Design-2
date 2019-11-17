@@ -2,10 +2,10 @@
 
 namespace RFIDCommandCenter
 {
-    class RFIDCommandCenterException : Exception
+    class CommandCenterException : Exception
     {
         public readonly Exception realException;
-        public RFIDCommandCenterException(string message,Exception inner) : base(message)
+        public CommandCenterException(string message,Exception inner) : base(message)
         {
             realException = inner;
         }

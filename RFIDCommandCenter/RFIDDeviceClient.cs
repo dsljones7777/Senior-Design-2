@@ -140,7 +140,7 @@ namespace RFIDCommandCenter
                         cmdPacket.payloadSize++;
                     }
                     else
-                        throw new RFIDCommandCenterException("Command packet parameter is an invalid type",null);
+                        throw new CommandCenterException("Command packet parameter is an invalid type",null);
                 }
             do
             {

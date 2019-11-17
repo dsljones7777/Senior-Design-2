@@ -6,6 +6,7 @@ namespace RFIDCommandCenter
     using System.ComponentModel.DataAnnotations.Schema;
     using System.Data.Entity.Spatial;
 
+    [Serializable]
     [Table("Tag")]
     public partial class Tag
     {

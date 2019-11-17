@@ -49,14 +49,14 @@ namespace RFIDCommandCenter
             }
             catch (Exception e)
             {
-                throw new RFIDCommandCenterException("Failed to accept client connection", e);
+                throw new CommandCenterException("Failed to accept client connection", e);
             }
             try
             {
 
                 int bytesRead = readFrom(acceptedSocket, buffer, 4);
                 if (bytesRead != 4)
-                    throw new RFIDCommandCenterException("Failed to read client initialization bytes (less than 4 bytes were read)", null);
+                    throw new CommandCenterException("Failed to read client initialization bytes (less than 4 bytes were read)", null);
 
             }
             catch (Exception e)
@@ -70,7 +70,7 @@ namespace RFIDCommandCenter
                 {
 
                 }
-                throw new RFIDCommandCenterException("Failed to read client initialization bytes", e);
+                throw new CommandCenterException("Failed to read client initialization bytes", e);
             }
             int type = BitConverter.ToInt32(buffer, 0);
             Client returnval;
@@ -81,10 +81,10 @@ namespace RFIDCommandCenter
                     returnval = new RFIDDeviceClient(acceptedSocket, this);
                     break;
                 case (int)ClientType.CLIENT_UI_APP:
-                    returnval = new RFIDUIClient(acceptedSocket, this);
+                    returnval = new UIClient(acceptedSocket, this);
                     break;
                 default:
-                    throw new RFIDCommandCenterException("The client initialization packet is invalid", null);
+                    throw new CommandCenterException("The client initialization packet is invalid", null);
             }
             return returnval;
         }

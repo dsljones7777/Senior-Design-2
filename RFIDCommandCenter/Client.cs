@@ -14,16 +14,16 @@ namespace RFIDCommandCenter
                 return false;
             int ttlBytesRecv = netCommObject.readFrom(clientSocket,networkCache,NetworkCode.HEADER_SIZE);
             if (ttlBytesRecv != NetworkCode.HEADER_SIZE)
-                throw new RFIDCommandCenterException("The specified network packet was too small", null);
+                throw new CommandCenterException("The specified network packet was too small", null);
             data.command = BitConverter.ToInt32(networkCache, 0);
             data.payloadSize = BitConverter.ToInt32(networkCache, 4);
             data.tickTime = BitConverter.ToUInt64(networkCache, 8);
             if(data.payloadSize > NetworkCode.MAX_PAYLOAD_SIZE)
-                throw new RFIDCommandCenterException("The specified network packet size is incorrect", null);
+                throw new CommandCenterException("The specified network packet size is incorrect", null);
             if (data.payloadSize > 0)
             {
                 if(netCommObject.readFrom(clientSocket, data.payload, data.payloadSize) != data.payloadSize)
-                    throw new RFIDCommandCenterException("The specified network packet size is incorrect", null);
+                    throw new CommandCenterException("The specified network packet size is incorrect", null);
             }
             return true;
         }
@@ -32,14 +32,14 @@ namespace RFIDCommandCenter
             if (!clientSocket.Poll(timeoutUs, SelectMode.SelectWrite))
                 return false;
             if(netCommObject.writeTo(clientSocket, BitConverter.GetBytes(data.command),4) != 4)
-                throw new RFIDCommandCenterException("Falied to write command bytes", null);
+                throw new CommandCenterException("Falied to write command bytes", null);
             if (netCommObject.writeTo(clientSocket, BitConverter.GetBytes(data.payloadSize), 4) != 4)
-                throw new RFIDCommandCenterException("Failed to write command bytes", null);
+                throw new CommandCenterException("Failed to write command bytes", null);
             if (netCommObject.writeTo(clientSocket, BitConverter.GetBytes(data.tickTime), 8) != 8)
-                throw new RFIDCommandCenterException("Falied to write command bytes", null);
+                throw new CommandCenterException("Falied to write command bytes", null);
             if (data.payloadSize != 0)
                 if (netCommObject.writeTo(clientSocket, data.payload, data.payloadSize) != data.payloadSize)
-                    throw new RFIDCommandCenterException("Falied to write command bytes", null);
+                    throw new CommandCenterException("Falied to write command bytes", null);
             return true;
         }
         public abstract void serverThreadRoutine(Object state);
