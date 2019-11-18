@@ -9,8 +9,11 @@ namespace RFIDCommandCenter
     class UIClient : Client
     {
         public volatile bool exit = false;
+        public volatile bool clientAnswered = false;
+        public volatile bool continueExecution = false;
         public List<object> messages = new List<object>();
-
+        public event EventHandler<Exception> IncomingRPCError;
+        public event EventHandler<Exception> OutgoingRPCError;
 
         enum NetworkCommands
         {
@@ -24,16 +27,16 @@ namespace RFIDCommandCenter
             SAVE_LOCATION,
             DELETE_LOCATION,
             PING_DEVICE,
-            SETUP_DEVICE
+            SETUP_DEVICE,
+            ERROR_PROMPT
         };
+
         NetworkStream clientStream;
         public UIClient(Socket who,NetworkCommunication comObj) : base (who,comObj)
         {
             clientStream = new NetworkStream(who);
             
         }
-
-        
 
         public override void serverThreadRoutine(object state)
         {
@@ -77,6 +80,16 @@ namespace RFIDCommandCenter
         public bool tellClient(string msg)
         {
             return false;
+        }
+        
+        public void addMessage(string message)
+        {
+
+        }
+
+        private void removeMessage(string message)
+        {
+
         }
     }
 }

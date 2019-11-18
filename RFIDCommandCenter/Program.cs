@@ -8,6 +8,109 @@ using System.Windows.Forms;
 
 namespace RFIDCommandCenter
 {
+    public class ServiceThread
+    {
+        static void handleRFIDClient(RFIDDeviceClient client, List<string> errors)
+        {
+            if (!client.pauseExecution)
+                return;
+            string msg;
+            if (client.serverErrorMessage != null)
+            {
+                errors.Add("A server error occurred:\n" + client.serverErrorMessage);
+                
+                if (result != DialogResult.Retry)
+                {
+                    //Shut down client
+                    client.exit = true;
+                    client.continueAfterDeviceError = false;
+                    client.pauseExecution = false;
+                    return;
+                }
+                client.serverErrorMessage = null;
+            }
+            client.pauseExecution = false;
+
+
+            switch ((RFIDDeviceClient.ErrorCodes)client.deviceError)
+            {
+                case RFIDDeviceClient.ErrorCodes.DEVICE_FAILED_TO_CONNECT:
+                    client.continueAfterDeviceError = false;
+                    msg = "A connected device client could not find it's RFID reader";
+                    break;
+                case RFIDDeviceClient.ErrorCodes.DEVICE_FAILED_TO_READ:
+                    client.continueAfterDeviceError = true;
+                    msg = "A connected client failed to perform a tag read operation";
+                    break;
+                case RFIDDeviceClient.ErrorCodes.DEVICE_FAILED_TO_START:
+                    client.continueAfterDeviceError = false;
+                    msg = "A connected client failed to start it's RFID reader";
+                    break;
+                case RFIDDeviceClient.ErrorCodes.TAG_MEMORY_BUFFER_FULL:
+                    client.continueAfterDeviceError = false;
+                    msg = "A connected client failed ran out of memory for remembered tags";
+                    break;
+                case RFIDDeviceClient.ErrorCodes.TAG_TOO_LONG:
+                    client.continueAfterDeviceError = true;
+                    msg = "A connected client encountered a tag whose EPC was greater than 12 bytes";
+                    break;
+                default:
+                    client.continueAfterDeviceError = true;
+                    msg = null;
+                    break;
+            }
+
+            if (client.deviceError != 0)
+            {
+                DialogResult result = MessageBox.Show(null, "A device error occurred:\n" + msg,
+                    "Device Error", MessageBoxButtons.RetryCancel, MessageBoxIcon.Error);
+                if (result != DialogResult.Retry)
+                {
+                    //Shut down client
+                    client.exit = true;
+                    client.continueAfterDeviceError = false;
+                    client.pauseExecution = false;
+                    return;
+                }
+            }
+            client.deviceError = 0;
+           
+            
+        }
+
+        static void handleUIClient(UIClient client)
+        {
+
+        }
+
+        static void addRFIDDeviceClient(RFIDDeviceClient deviceClient)
+        {
+            lock (deviceClients)
+            {
+                deviceClients.Add(deviceClient);
+            }
+
+            while (!ThreadPool.QueueUserWorkItem(deviceClient.serverThreadRoutine, deviceClient))
+            {
+                DialogResult result = MessageBox.Show(null,
+               "A thread for the client could not be created",
+               "Server Error", MessageBoxButtons.RetryCancel, MessageBoxIcon.Error);
+                if (result != DialogResult.Retry)
+                    return;
+            }
+        }
+
+        static void addUIClient(Client client)
+        {
+
+        }
+    };
+
+    public class NewClientThread
+    {
+        
+    };
+
     public class Program
     {
 
