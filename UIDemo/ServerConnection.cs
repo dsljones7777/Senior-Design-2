@@ -5,6 +5,7 @@ using System.Net.Sockets;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading.Tasks;
+using Network;
 
 namespace UIDemo
 {
@@ -14,22 +15,6 @@ namespace UIDemo
         public event EventHandler<Exception> FailedConnecting;
         public event EventHandler<Exception> NetworkError;
         TcpClient myServerConnection;
-
-        [Serializable]
-        enum NetworkCommands
-        {
-            CONNECT = 1,
-            SAVE_TAG,
-            WRITE_TAG,
-            DELETE_TAG,
-            SAVE_SYSTEM_USER,
-            DELETE_SYSTEM_USER,
-            GET_LOCATION_LIST,
-            SAVE_LOCATION,
-            DELETE_LOCATION,
-            PING_DEVICE,
-            SETUP_DEVICE
-        }
 
         public Task<bool> connect(string ipOrHostName, ushort port)
         {
@@ -63,7 +48,7 @@ namespace UIDemo
                     try
                     {
                         //Tell server it is save tag command
-                        formatter.Serialize(myServerConnection.GetStream(), NetworkCommands.SAVE_TAG);
+                        formatter.Serialize(myServerConnection.GetStream(), NetworkLib.NetworkCommands.SAVE_TAG);
                         //Give server save tag arguments
                         formatter.Serialize(myServerConnection.GetStream(), tagNumber);
                         formatter.Serialize(myServerConnection.GetStream(), name);
@@ -86,7 +71,7 @@ namespace UIDemo
                     var formatter = new BinaryFormatter();
                     try
                     {
-                        formatter.Serialize(myServerConnection.GetStream(), NetworkCommands.DELETE_TAG);
+                        formatter.Serialize(myServerConnection.GetStream(), NetworkLib.NetworkCommands.DELETE_TAG);
                         formatter.Serialize(myServerConnection.GetStream(), tagNumber);
                     }
                     catch (Exception e)
@@ -108,7 +93,7 @@ namespace UIDemo
                     var formatter = new BinaryFormatter();
                     try
                     {
-                        formatter.Serialize(myServerConnection.GetStream(), NetworkCommands.WRITE_TAG);
+                        formatter.Serialize(myServerConnection.GetStream(), NetworkLib.NetworkCommands.WRITE_TAG);
                         formatter.Serialize(myServerConnection.GetStream(), targetTag);
                         formatter.Serialize(myServerConnection.GetStream(), newTagBytes);
                     }
@@ -131,7 +116,7 @@ namespace UIDemo
                     var formatter = new BinaryFormatter();
                     try
                     {
-                        formatter.Serialize(myServerConnection.GetStream(), NetworkCommands.SAVE_SYSTEM_USER);
+                        formatter.Serialize(myServerConnection.GetStream(), NetworkLib.NetworkCommands.SAVE_SYSTEM_USER);
                         formatter.Serialize(myServerConnection.GetStream(), username);
                         formatter.Serialize(myServerConnection.GetStream(), pass);
                         formatter.Serialize(myServerConnection.GetStream(), role);
@@ -155,7 +140,7 @@ namespace UIDemo
                     var formatter = new BinaryFormatter();
                     try
                     {
-                        formatter.Serialize(myServerConnection.GetStream(), NetworkCommands.DELETE_SYSTEM_USER);
+                        formatter.Serialize(myServerConnection.GetStream(), NetworkLib.NetworkCommands.DELETE_SYSTEM_USER);
                         formatter.Serialize(myServerConnection.GetStream(), username);
                     }
                     catch(Exception e)
@@ -176,7 +161,7 @@ namespace UIDemo
                     var formatter = new BinaryFormatter();
                     try
                     {
-                        formatter.Serialize(myServerConnection.GetStream(), NetworkCommands.SAVE_LOCATION);
+                        formatter.Serialize(myServerConnection.GetStream(), NetworkLib.NetworkCommands.SAVE_LOCATION);
                         formatter.Serialize(myServerConnection.GetStream(), locationName);
                         formatter.Serialize(myServerConnection.GetStream(), readerSerialIn);
 
@@ -203,7 +188,7 @@ namespace UIDemo
                     var formatter = new BinaryFormatter();
                     try
                     {
-                        formatter.Serialize(myServerConnection.GetStream(), NetworkCommands.SAVE_LOCATION);
+                        formatter.Serialize(myServerConnection.GetStream(), NetworkLib.NetworkCommands.SAVE_LOCATION);
                         formatter.Serialize(myServerConnection.GetStream(), locationName);
                     }
                     catch (Exception e)

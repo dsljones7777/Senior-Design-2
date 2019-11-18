@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Network;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Sockets;
@@ -15,21 +16,6 @@ namespace RFIDCommandCenter
         public event EventHandler<Exception> IncomingRPCError;
         public event EventHandler<Exception> OutgoingRPCError;
 
-        enum NetworkCommands
-        {
-            CONNECT = 1,
-            SAVE_TAG,
-            WRITE_TAG,
-            DELETE_TAG,
-            SAVE_SYSTEM_USER,
-            DELETE_SYSTEM_USER,
-            GET_LOCATION_LIST,
-            SAVE_LOCATION,
-            DELETE_LOCATION,
-            PING_DEVICE,
-            SETUP_DEVICE,
-            ERROR_PROMPT
-        };
 
         NetworkStream clientStream;
         public UIClient(Socket who,NetworkCommunication comObj) : base (who,comObj)
@@ -48,7 +34,7 @@ namespace RFIDCommandCenter
                     BinaryFormatter formatter = new BinaryFormatter();
                     object cmd = formatter.Deserialize(clientStream);
                     int cmdVal = (int)cmd;
-                    NetworkCommands actualCmd = (NetworkCommands)cmdVal;
+                    NetworkLib.NetworkCommands actualCmd = (NetworkLib.NetworkCommands)cmdVal;
                     executeRPC();
                 }
                 //Check messages to send to UI
