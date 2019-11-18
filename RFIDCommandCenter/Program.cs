@@ -19,14 +19,14 @@ namespace RFIDCommandCenter
             {
                 errors.Add("A server error occurred:\n" + client.serverErrorMessage);
                 
-                if (result != DialogResult.Retry)
-                {
-                    //Shut down client
-                    client.exit = true;
-                    client.continueAfterDeviceError = false;
-                    client.pauseExecution = false;
-                    return;
-                }
+                //if (result != DialogResult.Retry)
+                //{
+                //    //Shut down client
+                //    client.exit = true;
+                //    client.continueAfterDeviceError = false;
+                //    client.pauseExecution = false;
+                //    return;
+                //}
                 client.serverErrorMessage = null;
             }
             client.pauseExecution = false;
@@ -85,10 +85,10 @@ namespace RFIDCommandCenter
 
         static void addRFIDDeviceClient(RFIDDeviceClient deviceClient)
         {
-            lock (deviceClients)
-            {
-                deviceClients.Add(deviceClient);
-            }
+            //lock (deviceClients)
+            //{
+            //    deviceClients.Add(deviceClient);
+            //}
 
             while (!ThreadPool.QueueUserWorkItem(deviceClient.serverThreadRoutine, deviceClient))
             {
