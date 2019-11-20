@@ -35,7 +35,7 @@ namespace RFIDCommandCenter
                     object cmd = formatter.Deserialize(clientStream);
                     int cmdVal = (int)cmd;
                     NetworkLib.NetworkCommands actualCmd = (NetworkLib.NetworkCommands)cmdVal;
-                    executeRPC();
+                    executeRPC(actualCmd);
                 }
                 //Check messages to send to UI
                 lock(messages)
@@ -58,9 +58,57 @@ namespace RFIDCommandCenter
             }
         }
 
-        public void executeRPC()
+        public void executeRPC(NetworkLib.NetworkCommands command)
         {
-            
+            using (var context = new DataContext())
+            {
+                var formatter = new BinaryFormatter();
+                switch (command)
+                {
+                    case NetworkLib.NetworkCommands.SAVE_TAG:
+                        var tagNumberSave = (byte[])formatter.Deserialize(clientStream);
+                        if (tagNumberSave == null || tagNumberSave.Length != 12)
+                            throw new ApplicationException("Invalid RPC");
+                        var tagName = (string)formatter.Deserialize(clientStream);
+                        var saveTag = new Logic.SaveTag();
+                        saveTag.Execute(tagNumberSave, tagName, context);
+                        break;
+                    case NetworkLib.NetworkCommands.DELETE_TAG:
+                        var tagNumberDel = (byte[])formatter.Deserialize(clientStream);
+                        if (tagNumberDel == null || tagNumberDel.Length != 12)
+                            throw new ApplicationException("Invalid RPC");
+                        var delTag = new Logic.DeleteTag();
+                        delTag.Execute(tagNumberDel, context);
+                        break;
+                    case NetworkLib.NetworkCommands.SAVE_SYSTEM_USER:
+                        var userName = (string)formatter.Deserialize(clientStream);
+                        var pass = (string)formatter.Deserialize(clientStream);
+                        var userRole = (int)formatter.Deserialize(clientStream);
+                        if(string.IsNullOrEmpty(userName) || string.IsNullOrEmpty(pass) || userRole == 0)
+                            throw new ApplicationException("Invalid RPC");
+                        var saveSysUser = new Logic.SaveSystemUser();
+                        //need to encrypt pass
+                        //saveSysUser.Execute(userName, pass, userRole, context);
+                        break;
+                    case NetworkLib.NetworkCommands.DELETE_SYSTEM_USER:
+                        var sysUsername = (string)formatter.Deserialize(clientStream);
+                        if (string.IsNullOrEmpty(sysUsername))
+                            throw new ApplicationException("Invalid RPC");
+                        var delSysUser = new Logic.DeleteSystemUser();
+                        delSysUser.Execute(sysUsername, context);
+                        break;
+                    case NetworkLib.NetworkCommands.GET_LOCATION_LIST:
+                        //
+                        break;
+                    case NetworkLib.NetworkCommands.SAVE_LOCATION:
+                        //
+                        break;
+                    case NetworkLib.NetworkCommands.DELETE_LOCATION:
+                        //
+                        break;
+
+                }
+            }
         }
         
         public bool tellClient(string msg)

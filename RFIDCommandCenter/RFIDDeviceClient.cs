@@ -100,24 +100,36 @@ namespace RFIDCommandCenter
 
         private void executePacketRequest(NetworkCode cmdPacket)
         {
-            switch (cmdPacket.command)
+            using (var context = new DataContext())
             {
-                case (int)CommandCodes.TAG_ARRIVE:
-                    //Write to db
-                    break;
-                case (int)CommandCodes.TAG_LEAVE:
-                    //Write to db
-                    break;
-                case (int)CommandCodes.ALIVE:
-                    //Write to db
-                    break;
-                case (int)CommandCodes.TAG_PRESENT_TOO_LONG:
-                    //Write to db
-                    break;
-                case (int)CommandCodes.DEVICE_ERROR:
-                    handleDeviceError(cmdPacket);
-                    break;
+                switch (cmdPacket.command)
+                {
+                    case (int)CommandCodes.TAG_ARRIVE:
+                        var tagArriveNum = (byte[])cmdPacket.payload;
+                        if (tagArriveNum == null)
+                            throw new ApplicationException("Invalid payload data");
+                        var tagArrive = new Logic.TagArrive();
+                        tagArrive.Execute(tagArriveNum, context);
+                        break;
+                    case (int)CommandCodes.TAG_LEAVE:
+                        var tagLeavingNum = (byte[])cmdPacket.payload;
+                        if (tagLeavingNum == null)
+                            throw new ApplicationException("Invalid payload data");
+                        var tagLeave = new Logic.TagLeave();
+                        tagLeave.Execute(tagLeavingNum, context);
+                        break;
+                    case (int)CommandCodes.ALIVE:
+                        //Write to db
+                        break;
+                    case (int)CommandCodes.TAG_PRESENT_TOO_LONG:
+                        //Write to db
+                        break;
+                    case (int)CommandCodes.DEVICE_ERROR:
+                        handleDeviceError(cmdPacket);
+                        break;
+                }
             }
+                
         }
 
         private void sendCommand(NetworkCode cmdPacket, CommandCodes cmd, int timeoutUs, bool assured, bool shouldReportError,params object[] cmdParams)

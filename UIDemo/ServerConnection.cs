@@ -166,7 +166,7 @@ namespace UIDemo
                         formatter.Serialize(myServerConnection.GetStream(), readerSerialIn);
 
                         if (readerSerialOut == null)
-                            formatter.Serialize(myServerConnection.GetStream(), null);
+                            formatter.Serialize(myServerConnection.GetStream(), new NetworkLib.NullSerializer());
                         else
                             formatter.Serialize(myServerConnection.GetStream(), readerSerialOut);
                     }
