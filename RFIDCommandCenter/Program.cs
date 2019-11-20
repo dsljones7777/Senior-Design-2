@@ -8,9 +8,12 @@ using System.Windows.Forms;
 
 namespace RFIDCommandCenter
 {
-    public class ServiceThread
+    internal class ServiceThread
     {
-        static void handleRFIDClient(RFIDDeviceClient client, List<string> errors)
+        List<RFIDDeviceClient> deviceClients = new List<RFIDDeviceClient>();
+        List<UIClient> uiClients = new List<UIClient>();
+
+        void handleRFIDClient(RFIDDeviceClient client, List<string> errors)
         {
             if (!client.pauseExecution)
                 return;
@@ -78,17 +81,23 @@ namespace RFIDCommandCenter
             
         }
 
-        static void handleUIClient(UIClient client)
+        void handleUIClient(UIClient client)
         {
 
         }
 
-        static void addRFIDDeviceClient(RFIDDeviceClient deviceClient)
+        public void AddClient(Client who)
         {
-            //lock (deviceClients)
-            //{
-            //    deviceClients.Add(deviceClient);
-            //}
+            if (who.GetType() == typeof(RFIDDeviceClient))
+                addRFIDDeviceClient((RFIDDeviceClient)who);
+        }
+
+        private void addRFIDDeviceClient(RFIDDeviceClient deviceClient)
+        {
+            lock (deviceClients)
+            {
+                deviceClients.Add(deviceClient);
+            }
 
             while (!ThreadPool.QueueUserWorkItem(deviceClient.serverThreadRoutine, deviceClient))
             {
@@ -100,16 +109,17 @@ namespace RFIDCommandCenter
             }
         }
 
-        static void addUIClient(Client client)
+        private void addUIClient(UIClient client)
         {
-
+            lock(uiClients)
+            {
+                uiClients.Add(client);
+            }
+            while (!ThreadPool.QueueUserWorkItem(client.serverThreadRoutine, client));
         }
     };
 
-    public class NewClientThread
-    {
-        
-    };
+
 
     public class Program
     {

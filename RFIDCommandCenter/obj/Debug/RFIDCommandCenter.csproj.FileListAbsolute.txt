@@ -22,3 +22,5 @@ C:\Users\mrdav\source\repos\RFIDCommandCenter\RFIDCommandCenter\obj\Debug\RFIDCo
 C:\Users\mrdav\source\repos\RFIDCommandCenter\RFIDCommandCenter\obj\Debug\RFIDCommandCenter.csproj.CopyComplete
 C:\Users\mrdav\source\repos\RFIDCommandCenter\RFIDCommandCenter\obj\Debug\RFIDCommandCenter.exe
 C:\Users\mrdav\source\repos\RFIDCommandCenter\RFIDCommandCenter\obj\Debug\RFIDCommandCenter.pdb
+C:\Users\David Jones\Documents\GitHub\Senior-Design-2\RFIDCommandCenter\bin\Debug\SharedLib.dll
+C:\Users\David Jones\Documents\GitHub\Senior-Design-2\RFIDCommandCenter\bin\Debug\SharedLib.pdb

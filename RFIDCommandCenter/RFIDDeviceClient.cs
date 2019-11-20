@@ -83,6 +83,11 @@ namespace RFIDCommandCenter
                     //get a packet from the client. An alive packet should come
                     if (!receivePacket(bufferPacket, NETWORK_TIMEOUT * 1000))
                            reportError("Device Timeout: Alive packet not sent");
+#if DEBUG
+                    reportCommandInfo(bufferPacket);
+#endif
+                    executePacketRequest(bufferPacket);
+                    provideResponse(bufferPacket);
                 }
                 catch (Exception e)
                 {
@@ -90,11 +95,7 @@ namespace RFIDCommandCenter
                     continue;
                 }
 
-#if DEBUG
-                reportCommandInfo(bufferPacket);
-#endif
-                executePacketRequest(bufferPacket);
-                provideResponse(bufferPacket);
+
             }
         }
 
@@ -110,6 +111,10 @@ namespace RFIDCommandCenter
                             throw new ApplicationException("Invalid payload data");
                         var tagArrive = new Logic.TagArrive();
                         tagArrive.Execute(tagArriveNum, context);
+                        //If allowed location exits then
+                        cmdPacket.command = (int)CommandCodes.UNLOCK;
+                        //else
+                            //break;
                         break;
                     case (int)CommandCodes.TAG_LEAVE:
                         var tagLeavingNum = (byte[])cmdPacket.payload;
@@ -134,9 +139,12 @@ namespace RFIDCommandCenter
 
         private void sendCommand(NetworkCode cmdPacket, CommandCodes cmd, int timeoutUs, bool assured, bool shouldReportError,params object[] cmdParams)
         {
+            //Set the cmd header
             cmdPacket.command = (int)cmd;
             cmdPacket.tickTime = (ulong)(DateTime.Now.Ticks - tickRateOffset) / TimeSpan.TicksPerMillisecond;
             cmdPacket.payloadSize = 0;
+
+            //Serialize each parameter into the payload
             if(cmdParams != null)
                 foreach(object param in cmdParams)
                 {
@@ -154,6 +162,7 @@ namespace RFIDCommandCenter
                     else
                         throw new CommandCenterException("Command packet parameter is an invalid type",null);
                 }
+            //Send the command to the device until the command is sent, exit is specifed and msg is not assurred 
             do
             {
                 try
@@ -176,16 +185,15 @@ namespace RFIDCommandCenter
             switch (cmdPacket.command)
             {
                 case (int)CommandCodes.TAG_ARRIVE:
-                    //Write to db
+                    break;
+                case (int)CommandCodes.UNLOCK:
+                    sendCommand(cmdPacket, CommandCodes.UNLOCK, NETWORK_TIMEOUT * 1000,true,true);
                     break;
                 case (int)CommandCodes.TAG_LEAVE:
-                    //Write to db
                     break;
                 case (int)CommandCodes.ALIVE:
-                    //Write to db
                     break;
                 case (int)CommandCodes.TAG_PRESENT_TOO_LONG:
-                    //Write to db
                     break;
                 case (int)CommandCodes.START:
                     sendCommand(cmdPacket, CommandCodes.START, NETWORK_TIMEOUT * 1000, true,true);

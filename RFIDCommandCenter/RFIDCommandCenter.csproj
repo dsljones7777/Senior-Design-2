@@ -90,7 +90,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SharedLib\SharedLib.csproj">
-      <Project>{b707c72e-5307-46d3-948a-fa0f91ea5a57}</Project>
+      <Project>{4d89947e-ed05-4821-93db-6f33e4d1cbfc}</Project>
       <Name>SharedLib</Name>
     </ProjectReference>
   </ItemGroup>
