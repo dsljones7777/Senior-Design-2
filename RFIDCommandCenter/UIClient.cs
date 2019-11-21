@@ -12,7 +12,12 @@ namespace RFIDCommandCenter
         public volatile bool exit = false;
         public volatile bool clientAnswered = false;
         public volatile bool continueExecution = false;
-        public List<object> messages = new List<object>();
+
+        //First obj in tuple is the device serial number, the second object is a string for now but it is what to send to the client
+        List<Tuple<string, object>> messagesToSend = new List<Tuple<string, object>>();
+
+        //First obj in tuple is the device serial number, the second object is a bool for now but it is what client sends back to us
+        List<Tuple<string, object>> messagesRcvd = new List<Tuple<string, object>>();
         public event EventHandler<Exception> IncomingRPCError;
         public event EventHandler<Exception> OutgoingRPCError;
 
@@ -37,24 +42,16 @@ namespace RFIDCommandCenter
                     NetworkLib.NetworkCommands actualCmd = (NetworkLib.NetworkCommands)cmdVal;
                     executeRPC(actualCmd);
                 }
-                //Check messages to send to UI
-                lock(messages)
+
+                //Check to see mesdages needed to be sent to the client
+                lock(messagesToSend)
                 {
-                    foreach(object val in messages)
-                    {
-                        if(val.GetType() == typeof(string))
-                        {
-                            if (tellClient((string)val))
-                            {
-                                //tell main thread somehow to continue;
-                            }
-                            else
-                            {
-                                //tell main thread to not continue with error;
-                            }
-                        }
-                    }
+                    foreach(var serialMsgTup in messagesToSend)
+                        tellClient(serialMsgTup.Item1,(string)serialMsgTup.Item2);
+                    messagesToSend.Clear();
                 }
+
+                
             }
         }
 
@@ -106,24 +103,40 @@ namespace RFIDCommandCenter
                     case NetworkLib.NetworkCommands.DELETE_LOCATION:
                         //
                         break;
-
+                    case NetworkLib.NetworkCommands.ERROR_PROMPT:
+                        string serial = (string)formatter.Deserialize(clientStream);
+                        bool userResponse = (bool)formatter.Deserialize(clientStream);
+                        msgRecevied(serial, userResponse);
+                        break;
                 }
             }
         }
         
-        public bool tellClient(string msg)
+       
+
+        public void tellClient(string serial, string msg)
         {
-            return false;
+            BinaryFormatter formatSerializer = new BinaryFormatter();
+            formatSerializer.Serialize(clientStream, NetworkLib.NetworkCommands.ERROR_PROMPT);
+            formatSerializer.Serialize(clientStream, serial);
+            formatSerializer.Serialize(clientStream, msg);
         }
         
-        public void addMessage(string message)
+        public void addMessage(string serial, string message)
         {
-
+            lock (messagesToSend)
+            {
+                messagesToSend.Add(new Tuple<string, object>(serial, message));
+            }  
         }
 
-        private void removeMessage(string message)
+        public void msgRecevied(string serial, bool didUsrSayYes)
         {
-
+            lock(messagesRcvd)
+            {
+                messagesRcvd.Add(new Tuple<string, object>(serial, didUsrSayYes));
+            }
         }
+        
     }
 }

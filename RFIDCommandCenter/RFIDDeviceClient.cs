@@ -24,7 +24,7 @@ namespace RFIDCommandCenter
         internal volatile int deviceError;
         internal volatile bool continueAfterDeviceError;
         internal volatile string serverErrorMessage;
-        
+        internal string deviceSerialNumber;
         
         public enum CommandCodes
         {
