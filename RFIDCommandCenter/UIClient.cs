@@ -110,15 +110,32 @@ namespace RFIDCommandCenter
                         //
                         break;
                     case NetworkLib.NetworkCommands.SAVE_LOCATION:
-                        //
+                        try
+                        {
+                            var locatioNameSave = (string)formatter.Deserialize(clientStream);
+                            var readerSerialIn = (string)formatter.Deserialize(clientStream);
+                            var readerSerialOut = (object)formatter.Deserialize(clientStream);
+                            var saveLocation = new Logic.SaveLocation();
+
+                            if (readerSerialOut.GetType() == typeof(NetworkLib.NullSerializer))
+                                saveLocation.Execute(locatioNameSave, readerSerialIn, null, context);
+                            else
+                                saveLocation.Execute(locatioNameSave, readerSerialIn, readerSerialOut.ToString(), context);
+                        }
+                        catch
+                        {
+                            throw new Exception("The Location Name or Reader Serial In already exists");
+                        }
                         break;
                     case NetworkLib.NetworkCommands.DELETE_LOCATION:
-                        //
+                        var locationDeleteName = (string)formatter.Deserialize(clientStream);
+                        var deleteLocation = new Logic.DeleteLocation();
+                        deleteLocation.Execute(locationDeleteName, null, context);
                         break;
                     case NetworkLib.NetworkCommands.ERROR_PROMPT:
-                        string serial = (string)formatter.Deserialize(clientStream);
-                        bool userResponse = (bool)formatter.Deserialize(clientStream);
-                        msgRecevied(serial, userResponse);
+                        var serial = (object)formatter.Deserialize(clientStream);
+                        if(serial.GetType() != typeof(NetworkLib.NullSerializer))
+                            msgRecevied(serial.ToString(), (bool)formatter.Deserialize(clientStream));
                         break;
                 }
             }

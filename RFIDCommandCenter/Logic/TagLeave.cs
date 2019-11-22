@@ -14,7 +14,7 @@ namespace RFIDCommandCenter.Logic
 
             if (tagLeaving == null)
                 throw new ApplicationException("The Tag marked for leaving does not exist in the system");
-
+            
             tagLeaving.InLocation = false;
 
             context.SaveChanges();

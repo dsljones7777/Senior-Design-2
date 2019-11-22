@@ -58,15 +58,20 @@
   <ItemGroup>
     <Compile Include="Client.cs" />
     <Compile Include="Context\DataContext.cs" />
+    <Compile Include="Context\TempDbContext.cs" />
+    <Compile Include="Logic\DeleteLocation.cs" />
     <Compile Include="Logic\DeleteSystemUser.cs" />
     <Compile Include="Logic\DeleteTag.cs" />
+    <Compile Include="Logic\GetAllLocations.cs" />
     <Compile Include="Logic\GetAllowedLocationIdsByTagIds.cs" />
     <Compile Include="Logic\GetAllUniqueSerialNumbers.cs" />
     <Compile Include="Logic\GetLocationsById.cs" />
     <Compile Include="Logic\GetSystemUserByUsername.cs" />
     <Compile Include="Logic\GetTagByTagNumber.cs" />
     <Compile Include="Logic\GetTagIdsByLocationId.cs" />
+    <Compile Include="Logic\Login.cs" />
     <Compile Include="Logic\SaveAllowedTagLocation.cs" />
+    <Compile Include="Logic\SaveLocation.cs" />
     <Compile Include="Logic\SaveSystemUser.cs" />
     <Compile Include="Logic\SaveTag.cs" />
     <Compile Include="Logic\TagArrive.cs" />

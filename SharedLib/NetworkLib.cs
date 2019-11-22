@@ -26,5 +26,12 @@ namespace Network
         {
 
         }
+        
+        [Serializable]
+        public class LocationObjList
+        {
+            public string LocationName { get; set; }
+            public string ReaderSerialIn { get; set; }
+        }
     }
 }

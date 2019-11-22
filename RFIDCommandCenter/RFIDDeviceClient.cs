@@ -110,7 +110,7 @@ namespace RFIDCommandCenter
                         if (tagArriveNum == null)
                             throw new ApplicationException("Invalid payload data");
                         var tagArrive = new Logic.TagArrive();
-                        tagArrive.Execute(tagArriveNum, context);
+                        tagArrive.Execute(tagArriveNum, deviceSerialNumber,context);
                         //If allowed location exits then
                         cmdPacket.command = (int)CommandCodes.UNLOCK;
                         //else
