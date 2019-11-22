@@ -302,15 +302,10 @@ void RFIDDeviceController::DeviceController::updateTagsWithServer()
 		epcMemoryBuffer[i].foundDuringCurrentRead = false;
 	int totalTagsRead = TAG_BUFFER_SIZE, retryCount;
 
-	turnOnLed(READ_LED_NUMBER);
 	//Try to read, if error occurs determine whether to continue function or abort
 	if (!reader.readTags((char*)&epcBuffer, realReadTickRate, totalTagsRead))
 		if (!sendDeviceError((int)ErrorCodes::DEVICE_FAILED_TO_READ))
-		{
-			turnOffLed(READ_LED_NUMBER);
 			return;
-		}
-	turnOffLed(READ_LED_NUMBER);
 
 	readTagCount += totalTagsRead;
 	currentTick += realReadTickRate;
@@ -413,9 +408,9 @@ int RFIDDeviceController::DeviceController::run()
 	connectToCommandCenter(false);
 	startReader();
 	turnOffLed(1);
-	turnOffLed(2);
+	turnOffLed(2);/*
 	char epcMsg[] = "u r a bitch";
-	reader.writeTag(epcMsg, 1000, 1000);
+	reader.writeTag(epcMsg, 1000, 1000);*/
 
 	//Start main program loop
 	while (!exitProgram)

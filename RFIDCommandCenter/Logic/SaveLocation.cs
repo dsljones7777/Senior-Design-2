@@ -16,7 +16,9 @@ namespace RFIDCommandCenter.Logic
                 ReaderSerialIn = readerSerialIn,
                 ReaderSerialOut = readerSerialOut,
             });
-            
+
+
+            context.SaveChanges();
         }
     }
 }

@@ -60,7 +60,7 @@ namespace UIDemo
                 }
 
             }
-            catch
+            catch(Exception e)
             {
 
             }

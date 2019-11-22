@@ -49,11 +49,24 @@ namespace UIDemo
                 () =>
                 {
                     this.Text = "Tag Center (Connected)";
+                    test();
                 });
             if (InvokeRequired)
                 Invoke(uiAction);
             else
                 uiAction.Invoke();
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private async void test()
+        {
+            MessageBox.Show("Starting test");
+            await connection.saveLocation("Testing Room", "TESTSERIAL", null);
+            await connection.saveLocation("Testing Roo3m", "TESTSERIAL", null);
         }
     }
 }

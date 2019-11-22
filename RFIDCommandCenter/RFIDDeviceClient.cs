@@ -106,7 +106,8 @@ namespace RFIDCommandCenter
                 switch (cmdPacket.command)
                 {
                     case (int)CommandCodes.TAG_ARRIVE:
-                        var tagArriveNum = (byte[])cmdPacket.payload;
+                        byte[] tagArriveNum = new byte[12];
+                        Array.Copy(cmdPacket.payload, tagArriveNum, 12);
                         if (tagArriveNum == null)
                             throw new ApplicationException("Invalid payload data");
                         var tagArrive = new Logic.TagArrive();
