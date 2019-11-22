@@ -21,15 +21,6 @@ namespace RFIDCommandCenter
             if (client.serverErrorMessage != null)
             {
                 errors.Add("A server error occurred:\n" + client.serverErrorMessage);
-                
-                //if (result != DialogResult.Retry)
-                //{
-                //    //Shut down client
-                //    client.exit = true;
-                //    client.continueAfterDeviceError = false;
-                //    client.pauseExecution = false;
-                //    return;
-                //}
                 client.serverErrorMessage = null;
             }
             client.pauseExecution = false;
@@ -81,15 +72,24 @@ namespace RFIDCommandCenter
             
         }
 
-        void handleUIClient(UIClient client)
+        void handleUIClient(UIClient client,List<string> errors)
         {
-
+            
         }
 
         public void AddClient(Client who)
         {
             if (who.GetType() == typeof(RFIDDeviceClient))
                 addRFIDDeviceClient((RFIDDeviceClient)who);
+        }
+
+        public void HandleClients()
+        {
+            List<string> errors = new List<string>();
+            foreach (var dev in deviceClients)
+                handleRFIDClient(dev,errors);
+            foreach (var ui in uiClients)
+                handleUIClient(ui,errors);
         }
 
         private void addRFIDDeviceClient(RFIDDeviceClient deviceClient)
@@ -117,6 +117,8 @@ namespace RFIDCommandCenter
             }
             while (!ThreadPool.QueueUserWorkItem(client.serverThreadRoutine, client));
         }
+
+       
     };
 
 
@@ -218,14 +220,7 @@ namespace RFIDCommandCenter
         }
         static void Main(string[] args)
         {
-            //GET YOUR SHIT OUT OF MY CODE FILES ;)
-            //using (var context = new DataContext())
-            //{
-            //    var component = new Logic.GetSystemUserByUsername();
-            //    var test = component.Execute("cosimo", context);
-            //}
-            
-
+            ServiceThread serverThread = new ServiceThread();
             //Create an object to start accepting ui and device clients
             NetworkCommunication netObj = NetworkCommunication.createNetworkCommunicationObject();
             while(true)
@@ -267,28 +262,19 @@ namespace RFIDCommandCenter
 
                 //If new client was accepted then start
                 if(newClient != null)
-                {
-                    UIClient uiClient = newClient as UIClient;
-                    RFIDDeviceClient devClient = newClient as RFIDDeviceClient;
-                    if (devClient != null)
-                        addRFIDDeviceClient(devClient);
-                    else if (uiClient != null)
-                        addUIClient(devClient);
-                    else
-                        MessageBox.Show(null, "A client connected who is not a device or ui client", "Unknown Client", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                }
-
-                //Service every device client and ui client
-                lock(deviceClients)
-                {
-                    foreach(RFIDDeviceClient client in deviceClients)
-                        handleRFIDClient(client);
-                }
-                lock(uiClients)
-                {
-                    foreach (UIClient client in uiClients)
-                        handleUIClient(client);
-                }
+                    serverThread.AddClient(newClient);
+                serverThread.HandleClients();
+                ////Service every device client and ui client
+                //lock(deviceClients)
+                //{
+                //    foreach(RFIDDeviceClient client in deviceClients)
+                //        handleRFIDClient(client);
+                //}
+                //lock(uiClients)
+                //{
+                //    foreach (UIClient client in uiClients)
+                //        handleUIClient(client);
+                //}
             }
            
         }

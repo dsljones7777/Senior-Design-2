@@ -1,20 +1,109 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Sockets;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Network;
+using static Network.NetworkLib;
 
 namespace UIDemo
 {
     class ServerConnection : IDisposable
     {
+        public class ServerMessage
+        {
+            public string deviceSerial;     //Null serials indicate it is a server related issue not particular to any device
+            public string message;
+            public bool retry = false;
+        }
         public event EventHandler Connected;
         public event EventHandler<Exception> FailedConnecting;
         public event EventHandler<Exception> NetworkError;
+        public event EventHandler<ServerMessage> ServerMessageReceived;
+        static volatile bool exitCallbackThread;
+        
+        Task serverCallbackThread;
         TcpClient myServerConnection;
+
+        void serverCallbackThreadRoutine()
+        {
+            BinaryFormatter formatter = new BinaryFormatter();
+            try
+            {
+                while (!exitCallbackThread)
+                {
+                    try
+                    {
+                       
+                        if (myServerConnection.Available <= 0)
+                        {
+                            Thread.Sleep(200);
+                            continue;
+                        }
+                        switch ((NetworkCommands)formatter.Deserialize(myServerConnection.GetStream()))
+                        {
+                            case NetworkLib.NetworkCommands.ERROR_PROMPT:
+                                handleErrorPromptFromServer();
+                                break;
+                        }
+
+                    }
+                    catch
+                    {
+
+                    }
+
+                }
+
+            }
+            catch
+            {
+
+            }
+        }
+
+        void handleErrorPromptFromServer()
+        {
+            Stream netStream = myServerConnection.GetStream();
+            BinaryFormatter formatter = new BinaryFormatter();
+            object arg1 = formatter.Deserialize(netStream);
+            string msg = (string)formatter.Deserialize(netStream);
+            string devSerial = null;
+            if (arg1.GetType() != typeof(NetworkLib.NullSerializer))
+                devSerial = (string)arg1;
+            ServerMessageReceived?.Invoke(this, new ServerMessage{deviceSerial = devSerial , message = msg});
+        }
+
+        public Task<bool> sendMessageReply(ServerMessage msg)
+        {
+            Func<bool> sendMessageReplyFunc = new Func<bool>(
+               () =>
+               {
+                   BinaryFormatter formatter = new BinaryFormatter();
+                   Stream serverStream = myServerConnection.GetStream();
+                   try
+                   {
+                       //Tell server message
+                       formatter.Serialize(serverStream, NetworkLib.NetworkCommands.ERROR_PROMPT);
+                       if (msg.deviceSerial == null)
+                           formatter.Serialize(serverStream, new NetworkLib.NullSerializer());
+                       else
+                           formatter.Serialize(serverStream, msg.deviceSerial);
+                       formatter.Serialize(serverStream, msg.retry);
+                   }
+                   catch (Exception e)
+                   {
+                       NetworkError?.Invoke(this, e);
+                       return false;
+                   }
+                   return true;
+               });
+            return Task.Run(sendMessageReplyFunc);
+        }
 
         public Task<bool> connect(string ipOrHostName, ushort port)
         {
@@ -26,6 +115,8 @@ namespace UIDemo
                     try
                     {
                         myServerConnection = new TcpClient(ipOrHostName, port);
+                        serverCallbackThread = new Task(serverCallbackThreadRoutine);
+                        serverCallbackThread.Start();
                         myServerConnection.Client.Send(BitConverter.GetBytes((int)1));
                     }
                     catch (Exception e)

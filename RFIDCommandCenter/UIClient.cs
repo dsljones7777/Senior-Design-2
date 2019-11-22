@@ -40,18 +40,30 @@ namespace RFIDCommandCenter
                     object cmd = formatter.Deserialize(clientStream);
                     int cmdVal = (int)cmd;
                     NetworkLib.NetworkCommands actualCmd = (NetworkLib.NetworkCommands)cmdVal;
-                    executeRPC(actualCmd);
+                    try
+                    {
+                        executeRPC(actualCmd);
+                    }
+                    catch(Exception e)
+                    {
+                        addMessage(null, e.Message);
+                    }
                 }
 
-                //Check to see mesdages needed to be sent to the client
+                //Check to see messages needed to be sent to the client
                 lock(messagesToSend)
                 {
-                    foreach(var serialMsgTup in messagesToSend)
-                        tellClient(serialMsgTup.Item1,(string)serialMsgTup.Item2);
-                    messagesToSend.Clear();
+                    
+                        try
+                        {
+                            foreach (var serialMsgTup in messagesToSend)
+                                tellClient(serialMsgTup.Item1, (string)serialMsgTup.Item2);
+                            messagesToSend.Clear();
+                        }
+                        catch
+                        {
+                        }
                 }
-
-                
             }
         }
 
@@ -118,7 +130,10 @@ namespace RFIDCommandCenter
         {
             BinaryFormatter formatSerializer = new BinaryFormatter();
             formatSerializer.Serialize(clientStream, NetworkLib.NetworkCommands.ERROR_PROMPT);
-            formatSerializer.Serialize(clientStream, serial);
+            if (serial == null)
+                formatSerializer.Serialize(clientStream, new NetworkLib.NullSerializer());
+            else 
+                formatSerializer.Serialize(clientStream, serial);
             formatSerializer.Serialize(clientStream, msg);
         }
         
