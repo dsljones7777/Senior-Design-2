@@ -28,34 +28,40 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.dataGridView1 = new System.Windows.Forms.DataGridView();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
+            this.controlGrid = new System.Windows.Forms.DataGridView();
+            ((System.ComponentModel.ISupportInitialize)(this.controlGrid)).BeginInit();
             this.SuspendLayout();
             // 
-            // dataGridView1
+            // controlGrid
             // 
-            this.dataGridView1.BackgroundColor = System.Drawing.SystemColors.Control;
-            this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridView1.Location = new System.Drawing.Point(0, 0);
-            this.dataGridView1.Name = "dataGridView1";
-            this.dataGridView1.RowTemplate.Height = 28;
-            this.dataGridView1.Size = new System.Drawing.Size(1557, 690);
-            this.dataGridView1.TabIndex = 0;
+            this.controlGrid.AllowUserToAddRows = false;
+            this.controlGrid.AllowUserToDeleteRows = false;
+            this.controlGrid.AllowUserToResizeColumns = false;
+            this.controlGrid.AllowUserToResizeRows = false;
+            this.controlGrid.BackgroundColor = System.Drawing.SystemColors.Control;
+            this.controlGrid.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.controlGrid.Location = new System.Drawing.Point(0, 0);
+            this.controlGrid.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.controlGrid.Name = "controlGrid";
+            this.controlGrid.RowTemplate.Height = 28;
+            this.controlGrid.Size = new System.Drawing.Size(878, 413);
+            this.controlGrid.TabIndex = 0;
             // 
             // LocationGridControl
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Controls.Add(this.dataGridView1);
+            this.Controls.Add(this.controlGrid);
+            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.Name = "LocationGridControl";
-            this.Size = new System.Drawing.Size(1615, 798);
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
+            this.Size = new System.Drawing.Size(1077, 519);
+            ((System.ComponentModel.ISupportInitialize)(this.controlGrid)).EndInit();
             this.ResumeLayout(false);
 
         }
 
         #endregion
 
-        private System.Windows.Forms.DataGridView dataGridView1;
+        private System.Windows.Forms.DataGridView controlGrid;
     }
 }

@@ -71,6 +71,13 @@ namespace RFIDCommandCenter
         {
             using (var context = new DataContext())
             {
+                if (cmd.GetType() == typeof(LoginUserRPC))
+                {
+                    //TODO: Execute login 
+                    return;
+                }
+                else if (clientUsername == null)
+                    throw new Exception("You must be logged in to do that");
                 if(cmd.GetType() == typeof(SaveTagRPC))
                 {
                     SaveTagRPC op = (SaveTagRPC)cmd;
