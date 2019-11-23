@@ -88,6 +88,7 @@
     <Compile Include="RFIDDeviceClient.cs" />
     <Compile Include="UIClient.cs" />
     <Compile Include="SecureNetworkCommunication.cs" />
+    <Compile Include="UIRPCExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

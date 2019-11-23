@@ -43,6 +43,8 @@
   <ItemGroup>
     <Compile Include="NetworkLib.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UIClientConnection.cs" />
+    <Compile Include="UIRPCs.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

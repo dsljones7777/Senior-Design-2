@@ -5,33 +5,18 @@ namespace Network
     public class NetworkLib
     {
         [Serializable]
-        public enum NetworkCommands
-        {
-            CONNECT = 1,
-            SAVE_TAG,
-            WRITE_TAG,
-            DELETE_TAG,
-            SAVE_SYSTEM_USER,
-            DELETE_SYSTEM_USER,
-            GET_LOCATION_LIST,
-            SAVE_LOCATION,
-            DELETE_LOCATION,
-            PING_DEVICE,
-            SETUP_DEVICE,
-            ERROR_PROMPT
-        };
-
-        [Serializable]
-        public class NullSerializer
-        {
-
-        }
-        
-        [Serializable]
         public class LocationObjList
         {
             public string LocationName { get; set; }
             public string ReaderSerialIn { get; set; }
+        }
+
+        [Serializable]
+        public class ServerMessage
+        {
+            public string deviceSerial;     //Null serials indicate it is a server related issue not particular to any device
+            public string message;
+            public bool retry = false;
         }
     }
 }

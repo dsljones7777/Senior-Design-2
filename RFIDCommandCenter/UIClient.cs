@@ -1,4 +1,5 @@
 ﻿using Network;
+using SharedLib.Network;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -10,23 +11,20 @@ namespace RFIDCommandCenter
     class UIClient : Client
     {
         public volatile bool exit = false;
-        public volatile bool clientAnswered = false;
         public volatile bool continueExecution = false;
+        public Exception lastException;
 
         //First obj in tuple is the device serial number, the second object is a string for now but it is what to send to the client
         List<Tuple<string, object>> messagesToSend = new List<Tuple<string, object>>();
 
         //First obj in tuple is the device serial number, the second object is a bool for now but it is what client sends back to us
         List<Tuple<string, object>> messagesRcvd = new List<Tuple<string, object>>();
-        public event EventHandler<Exception> IncomingRPCError;
-        public event EventHandler<Exception> OutgoingRPCError;
-
 
         NetworkStream clientStream;
+
         public UIClient(Socket who,NetworkCommunication comObj) : base (who,comObj)
         {
             clientStream = new NetworkStream(who);
-            
         }
 
         public override void serverThreadRoutine(object state)
@@ -38,123 +36,103 @@ namespace RFIDCommandCenter
                 {
                     BinaryFormatter formatter = new BinaryFormatter();
                     object cmd = formatter.Deserialize(clientStream);
-                    int cmdVal = (int)cmd;
-                    NetworkLib.NetworkCommands actualCmd = (NetworkLib.NetworkCommands)cmdVal;
                     try
                     {
-                        executeRPC(actualCmd);
+                        executeRPC(cmd);
                     }
                     catch(Exception e)
                     {
-                        addMessage(null, e.Message);
+                        lastException = e;
+                        return;
                     }
                 }
 
                 //Check to see messages needed to be sent to the client
                 lock(messagesToSend)
                 {
-                    
-                        try
-                        {
-                            foreach (var serialMsgTup in messagesToSend)
-                                tellClient(serialMsgTup.Item1, (string)serialMsgTup.Item2);
-                            messagesToSend.Clear();
-                        }
-                        catch
-                        {
-                        }
+                    try
+                    {
+                        foreach (var serialMsgTup in messagesToSend)
+                            tellClient(serialMsgTup.Item1, (string)serialMsgTup.Item2);
+                        messagesToSend.Clear();
+                    }
+                    catch(Exception e)
+                    {
+                        lastException = e;
+                        return;
+                    }
                 }
             }
         }
 
-        public void executeRPC(NetworkLib.NetworkCommands command)
+        void executeRPC(object cmd)
         {
             using (var context = new DataContext())
             {
-                var formatter = new BinaryFormatter();
-                switch (command)
+                if(cmd.GetType() == typeof(SaveTagRPC))
                 {
-                    case NetworkLib.NetworkCommands.SAVE_TAG:
-                        var tagNumberSave = (byte[])formatter.Deserialize(clientStream);
-                        if (tagNumberSave == null || tagNumberSave.Length != 12)
-                            throw new ApplicationException("Invalid RPC");
-                        var tagName = (string)formatter.Deserialize(clientStream);
-                        var saveTag = new Logic.SaveTag();
-                        saveTag.Execute(tagNumberSave, tagName, context);
-                        break;
-                    case NetworkLib.NetworkCommands.DELETE_TAG:
-                        var tagNumberDel = (byte[])formatter.Deserialize(clientStream);
-                        if (tagNumberDel == null || tagNumberDel.Length != 12)
-                            throw new ApplicationException("Invalid RPC");
-                        var delTag = new Logic.DeleteTag();
-                        delTag.Execute(tagNumberDel, context);
-                        break;
-                    case NetworkLib.NetworkCommands.SAVE_SYSTEM_USER:
-                        var userName = (string)formatter.Deserialize(clientStream);
-                        var pass = (string)formatter.Deserialize(clientStream);
-                        var userRole = (int)formatter.Deserialize(clientStream);
-                        if(string.IsNullOrEmpty(userName) || string.IsNullOrEmpty(pass) || userRole == 0)
-                            throw new ApplicationException("Invalid RPC");
-                        var saveSysUser = new Logic.SaveSystemUser();
-                        //need to encrypt pass
-                        //saveSysUser.Execute(userName, pass, userRole, context);
-                        break;
-                    case NetworkLib.NetworkCommands.DELETE_SYSTEM_USER:
-                        var sysUsername = (string)formatter.Deserialize(clientStream);
-                        if (string.IsNullOrEmpty(sysUsername))
-                            throw new ApplicationException("Invalid RPC");
-                        var delSysUser = new Logic.DeleteSystemUser();
-                        delSysUser.Execute(sysUsername, context);
-                        break;
-                    case NetworkLib.NetworkCommands.GET_LOCATION_LIST:
-                        //
-                        break;
-                    case NetworkLib.NetworkCommands.SAVE_LOCATION:
-                        try
-                        {
-                            var locatioNameSave = (string)formatter.Deserialize(clientStream);
-                            var readerSerialIn = (string)formatter.Deserialize(clientStream);
-                            var readerSerialOut = (object)formatter.Deserialize(clientStream);
-                            var saveLocation = new Logic.SaveLocation();
-
-                            if (readerSerialOut.GetType() == typeof(NetworkLib.NullSerializer))
-                                saveLocation.Execute(locatioNameSave, readerSerialIn, null, context);
-                            else
-                                saveLocation.Execute(locatioNameSave, readerSerialIn, readerSerialOut.ToString(), context);
-                        }
-                        catch
-                        {
-                            throw new Exception("The Location Name or Reader Serial In already exists");
-                        }
-                        break;
-                    case NetworkLib.NetworkCommands.DELETE_LOCATION:
-                        var locationDeleteName = (string)formatter.Deserialize(clientStream);
-                        var deleteLocation = new Logic.DeleteLocation();
-                        deleteLocation.Execute(locationDeleteName, null, context);
-                        break;
-                    case NetworkLib.NetworkCommands.ERROR_PROMPT:
-                        var serial = (object)formatter.Deserialize(clientStream);
-                        if(serial.GetType() != typeof(NetworkLib.NullSerializer))
-                            msgRecevied(serial.ToString(), (bool)formatter.Deserialize(clientStream));
-                        break;
+                    SaveTagRPC op = (SaveTagRPC)cmd;
+                    var saveTag = new Logic.SaveTag();
+                    saveTag.Execute(op.tagNumber,op.name, context);
+                }
+                else if(cmd.GetType() == typeof(DeleteTagRPC))
+                {
+                    DeleteTagRPC op = (DeleteTagRPC)cmd;
+                    var deleteTag = new Logic.DeleteTag();
+                    deleteTag.Execute(op.tagNumber,context);
+                }
+                else if (cmd.GetType() == typeof(SaveSystemUserRPC))
+                {
+                    SaveSystemUserRPC op = (SaveSystemUserRPC)cmd;
+                    var saveSysUser = new Logic.SaveSystemUser();
+                    //TODO: Implement hashing
+                    byte[] passBytes = null;
+                    saveSysUser.Execute(op.username, passBytes,op.role, context);
+                }
+                else if (cmd.GetType() == typeof(DeleteSystemUserRPC))
+                {
+                    DeleteSystemUserRPC op = (DeleteSystemUserRPC)cmd;
+                    var delSysUser = new Logic.DeleteSystemUser();
+                    delSysUser.Execute(op.username, context);
+                }
+                else if(cmd.GetType() == typeof(SaveLocationRPC))
+                {
+                    SaveLocationRPC op = (SaveLocationRPC)cmd;
+                    var saveLoc = new Logic.SaveLocation();
+                    saveLoc.Execute(op.locationName, op.readerSerialIn,op.readerSerialOut,context);
+                }
+                else if(cmd.GetType() == typeof(DeleteLocationRPC))
+                {
+                    DeleteLocationRPC op = (DeleteLocationRPC)cmd;
+                    var delLoc = new Logic.DeleteLocation();
+                    //TODO: Delete location should not include reader serial in
+                    delLoc.Execute(op.locationName, null, context);
+                }
+                else if(cmd.GetType() == typeof(ErrorReplyRPC))
+                {
+                    ErrorReplyRPC op = (ErrorReplyRPC)cmd;
+                    if (op.serialNumber != null)
+                        msgRecevied(op.serialNumber, op.retry);
+                }
+                else
+                {
+                    throw new Exception("Client sent an invalid RPC");
                 }
             }
         }
-        
-       
 
-        public void tellClient(string serial, string msg)
+        void tellClient(string serialNum, string clientMsg)
         {
+            ErrorReplyRPC errorRpc = new ErrorReplyRPC()
+            {
+                msg = clientMsg,
+                serialNumber = serialNum
+            };
             BinaryFormatter formatSerializer = new BinaryFormatter();
-            formatSerializer.Serialize(clientStream, NetworkLib.NetworkCommands.ERROR_PROMPT);
-            if (serial == null)
-                formatSerializer.Serialize(clientStream, new NetworkLib.NullSerializer());
-            else 
-                formatSerializer.Serialize(clientStream, serial);
-            formatSerializer.Serialize(clientStream, msg);
+            formatSerializer.Serialize(clientStream, errorRpc);
         }
         
-        public void addMessage(string serial, string message)
+        public void addErrorMessage(string serial, string message)
         {
             lock (messagesToSend)
             {
@@ -162,7 +140,7 @@ namespace RFIDCommandCenter
             }  
         }
 
-        public void msgRecevied(string serial, bool didUsrSayYes)
+        void msgRecevied(string serial, bool didUsrSayYes)
         {
             lock(messagesRcvd)
             {

@@ -12,69 +12,52 @@ namespace RFIDCommandCenter
     {
         List<RFIDDeviceClient> deviceClients = new List<RFIDDeviceClient>();
         List<UIClient> uiClients = new List<UIClient>();
+        
 
-        void handleRFIDClient(RFIDDeviceClient client, List<string> errors)
+        void handleRFIDClient(RFIDDeviceClient client, out string deviceError, out string serverError)
         {
+            deviceError = null;
+            serverError = null;
             if (!client.pauseExecution)
                 return;
-            string msg;
             if (client.serverErrorMessage != null)
             {
-                errors.Add("A server error occurred:\n" + client.serverErrorMessage);
+                serverError = "A server error occurred:\n" + client.serverErrorMessage);
                 client.serverErrorMessage = null;
             }
-            client.pauseExecution = false;
-
 
             switch ((RFIDDeviceClient.ErrorCodes)client.deviceError)
             {
                 case RFIDDeviceClient.ErrorCodes.DEVICE_FAILED_TO_CONNECT:
                     client.continueAfterDeviceError = false;
-                    msg = "A connected device client could not find it's RFID reader";
+                    deviceError = "A connected device client could not find it's RFID reader";
                     break;
                 case RFIDDeviceClient.ErrorCodes.DEVICE_FAILED_TO_READ:
                     client.continueAfterDeviceError = true;
-                    msg = "A connected client failed to perform a tag read operation";
+                    deviceError = "A connected client failed to perform a tag read operation";
                     break;
                 case RFIDDeviceClient.ErrorCodes.DEVICE_FAILED_TO_START:
                     client.continueAfterDeviceError = false;
-                    msg = "A connected client failed to start it's RFID reader";
+                    deviceError = "A connected client failed to start it's RFID reader";
                     break;
                 case RFIDDeviceClient.ErrorCodes.TAG_MEMORY_BUFFER_FULL:
                     client.continueAfterDeviceError = false;
-                    msg = "A connected client failed ran out of memory for remembered tags";
+                    deviceError = "A connected client failed ran out of memory for remembered tags";
                     break;
                 case RFIDDeviceClient.ErrorCodes.TAG_TOO_LONG:
                     client.continueAfterDeviceError = true;
-                    msg = "A connected client encountered a tag whose EPC was greater than 12 bytes";
+                    deviceError = "A connected client encountered a tag whose EPC was greater than 12 bytes";
                     break;
                 default:
                     client.continueAfterDeviceError = true;
-                    msg = null;
                     break;
             }
-
-            if (client.deviceError != 0)
-            {
-                DialogResult result = MessageBox.Show(null, "A device error occurred:\n" + msg,
-                    "Device Error", MessageBoxButtons.RetryCancel, MessageBoxIcon.Error);
-                if (result != DialogResult.Retry)
-                {
-                    //Shut down client
-                    client.exit = true;
-                    client.continueAfterDeviceError = false;
-                    client.pauseExecution = false;
-                    return;
-                }
-            }
-            client.deviceError = 0;
-           
             
         }
 
         void handleUIClient(UIClient client,List<string> errors)
         {
-                
+            
         }
 
         public void AddClient(Client who)
@@ -127,99 +110,7 @@ namespace RFIDCommandCenter
 
     public class Program
     {
-
-        //static List<RFIDDeviceClient> deviceClients = new List<RFIDDeviceClient>();
-        //static List<UIClient> uiClients = new List<UIClient>();
-
-        //static void handleRFIDClient(RFIDDeviceClient client)
-        //{
-        //    if (!client.pauseExecution)
-        //        return;
-        //    string msg;
-        //    switch((RFIDDeviceClient.ErrorCodes)client.deviceError)
-        //    {
-        //        case RFIDDeviceClient.ErrorCodes.DEVICE_FAILED_TO_CONNECT:
-        //            client.continueAfterDeviceError = false;
-        //            msg = "A connected device client could not find it's RFID reader";
-        //            break;
-        //        case RFIDDeviceClient.ErrorCodes.DEVICE_FAILED_TO_READ:
-        //            client.continueAfterDeviceError = true;
-        //            msg = "A connected client failed to perform a tag read operation";
-        //            break;
-        //        case RFIDDeviceClient.ErrorCodes.DEVICE_FAILED_TO_START:
-        //            client.continueAfterDeviceError = false;
-        //            msg = "A connected client failed to start it's RFID reader";
-        //            break;
-        //        case RFIDDeviceClient.ErrorCodes.TAG_MEMORY_BUFFER_FULL:
-        //            client.continueAfterDeviceError = false;
-        //            msg = "A connected client failed ran out of memory for remembered tags";
-        //            break;
-        //        case RFIDDeviceClient.ErrorCodes.TAG_TOO_LONG:
-        //            client.continueAfterDeviceError = true;
-        //            msg = "A connected client encountered a tag whose EPC was greater than 12 bytes";
-        //            break;
-        //        default:
-        //            client.continueAfterDeviceError = true;
-        //            msg = null;
-        //            break;
-        //    }
-        //    if(client.deviceError != 0)
-        //    {
-        //        DialogResult result = MessageBox.Show(null, "A device error occurred:\n" + msg,
-        //            "Device Error", MessageBoxButtons.RetryCancel, MessageBoxIcon.Error);
-        //        if(result != DialogResult.Retry)
-        //        {
-        //            //Shut down client
-        //            client.exit = true;
-        //            client.continueAfterDeviceError = false;
-        //            client.pauseExecution = false;
-        //            return;
-        //        }
-        //    }
-        //    client.deviceError = 0;
-        //    if(client.serverErrorMessage != null)
-        //    {
-        //        DialogResult result = MessageBox.Show(null, "A server error occurred:\n" + client.serverErrorMessage,
-        //           "Server Error", MessageBoxButtons.RetryCancel, MessageBoxIcon.Error);
-        //        if (result != DialogResult.Retry)
-        //        {
-        //            //Shut down client
-        //            client.exit = true;
-        //            client.continueAfterDeviceError = false;
-        //            client.pauseExecution = false;
-        //            return;
-        //        }
-        //        client.serverErrorMessage = null;
-        //    }
-        //    client.pauseExecution = false;
-        //}
-
-        //static void handleUIClient(UIClient client)
-        //{
-
-        //}
-
-        //static void addRFIDDeviceClient(RFIDDeviceClient deviceClient)
-        //{
-        //    lock (deviceClients)
-        //    {
-        //        deviceClients.Add(deviceClient);
-        //    }
-            
-        //    while(!ThreadPool.QueueUserWorkItem(deviceClient.serverThreadRoutine, deviceClient))
-        //    {
-        //        DialogResult result = MessageBox.Show(null,
-        //       "A thread for the client could not be created",
-        //       "Server Error", MessageBoxButtons.RetryCancel, MessageBoxIcon.Error);
-        //        if (result != DialogResult.Retry)
-        //            return;
-        //    }
-        //}
-
-        //static void addUIClient(Client client)
-        //{
-
-        //}
+        
         static void Main(string[] args)
         {
             ServiceThread serverThread = new ServiceThread();
@@ -261,22 +152,10 @@ namespace RFIDCommandCenter
                         return;
                     continue;
                 }
-
-                //If new client was accepted then start
+                
                 if(newClient != null)
                     serverThread.AddClient(newClient);
                 serverThread.HandleClients();
-                ////Service every device client and ui client
-                //lock(deviceClients)
-                //{
-                //    foreach(RFIDDeviceClient client in deviceClients)
-                //        handleRFIDClient(client);
-                //}
-                //lock(uiClients)
-                //{
-                //    foreach (UIClient client in uiClients)
-                //        handleUIClient(client);
-                //}
             }
            
         }
