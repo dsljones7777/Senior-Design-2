@@ -12,7 +12,14 @@ namespace RFIDCommandCenter.Logic
         {
             var tagList = context.Tags.ToList();
 
-            return new List<SharedLib.SharedModels.ViewTagModel>();
+            var locationList = context.Locations.ToList();
+
+            return tagList.ConvertAll(x => new SharedLib.SharedModels.ViewTagModel
+            {
+                TagName = x.Name,
+                TagNumber = Encoding.Default.GetString(x.TagNumber),
+                LastLocation = locationList.FirstOrDefault(l => l.ID == x.LastLocation).LocationName
+            });            
         }
     }
 }
