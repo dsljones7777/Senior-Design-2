@@ -8,9 +8,9 @@ namespace RFIDCommandCenter.Logic
 {
     public class DeleteLocation
     {
-        public void Execute(string locationName, string readerSerialIn, DataContext context)
+        public void Execute(string locationName, DataContext context)
         {
-            var existingLocation = context.Locations.SingleOrDefault(l => l.LocationName == locationName || l.ReaderSerialIn == readerSerialIn);
+            var existingLocation = context.Locations.SingleOrDefault(l => l.LocationName == locationName);
 
             if (existingLocation == null)
                 throw new Exception("There is no location with that location name/reader serial combo.");

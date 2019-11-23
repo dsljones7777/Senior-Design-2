@@ -108,7 +108,7 @@ namespace RFIDCommandCenter
                     DeleteLocationRPC op = (DeleteLocationRPC)cmd;
                     var delLoc = new Logic.DeleteLocation();
                     //TODO: Delete location should not include reader serial in
-                    delLoc.Execute(op.locationName, null, context);
+                    delLoc.Execute(op.locationName, context);
                 }
                 else if(cmd.GetType() == typeof(ErrorReplyRPC))
                 {
