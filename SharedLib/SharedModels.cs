@@ -32,5 +32,13 @@ namespace SharedLib
             public string ReaderSerialIn { get; set; }
             public string ReaderSeralOut { get; set; }
         }
+
+        [Serializable]
+        public class ViewAllowedLocationsModel
+        {
+            public int ID { get; set; }
+            public string LocationName { get; set; }
+            public bool TagAllowedInLoc { get; set; }
+        }
     }
 }
