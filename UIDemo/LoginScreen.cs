@@ -136,8 +136,13 @@ namespace UIDemo
         
         private async void loginButton_Click(object sender, EventArgs e)
         {
+            //Change logo to blinking
             loginLogoPictureBox.Image = UIDemo.Properties.Resources.SecureID_Blink;
+
+            //Connect to server
             await connection.connect("127.0.0.1", 52437);
+
+            //Send login user rpc
             LoginUserRPC rpc = new LoginUserRPC()
             {
                 username = usrnameTextbox.Text,
@@ -146,7 +151,11 @@ namespace UIDemo
             pwdTextbox.Text = "";
             var loginTask = rpc.executeAsync();
             await loginTask;
+
+            //Change logo back
             loginLogoPictureBox.Image = UIDemo.Properties.Resources.SecureID_Static;
+
+            //Ensure a proper login was done
             if (loginTask.IsFaulted)
                 return;
             rpc = (LoginUserRPC)loginTask.Result;
@@ -155,9 +164,12 @@ namespace UIDemo
                 MessageBox.Show(this, "The username or password is not valid", "Incorrect Login", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
+
+            //Load the main
             MainWindow mainWindow = new MainWindow(usrnameTextbox.Text,true);
             this.Hide();
-            mainWindow.Show(this);
+            mainWindow.ShowDialog(this);
+            this.Show();
         }
     }
 }

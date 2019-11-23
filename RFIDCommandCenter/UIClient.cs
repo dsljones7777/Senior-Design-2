@@ -13,6 +13,8 @@ namespace RFIDCommandCenter
         public volatile bool exit = false;
         public volatile bool continueExecution = false;
         public Exception lastException;
+        public string clientUsername = null;
+        public int role;
 
         //First obj in tuple is the device serial number, the second object is a string for now but it is what to send to the client
         List<Tuple<string, object>> messagesToSend = new List<Tuple<string, object>>();

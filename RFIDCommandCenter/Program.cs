@@ -22,7 +22,7 @@ namespace RFIDCommandCenter
                 return;
             if (client.serverErrorMessage != null)
             {
-                serverError = "A server error occurred:\n" + client.serverErrorMessage);
+                serverError = "A server error occurred:\n" + client.serverErrorMessage;
                 client.serverErrorMessage = null;
             }
 
@@ -55,7 +55,7 @@ namespace RFIDCommandCenter
             
         }
 
-        void handleUIClient(UIClient client,List<string> errors)
+        void handleUIClient(UIClient client)
         {
             
         }
@@ -70,11 +70,11 @@ namespace RFIDCommandCenter
 
         public void HandleClients()
         {
-            List<string> errors = new List<string>();
+            string devError, serverError;
             foreach (var dev in deviceClients)
-                handleRFIDClient(dev,errors);
+                handleRFIDClient(dev,out devError,out serverError);
             foreach (var ui in uiClients)
-                handleUIClient(ui,errors);
+                handleUIClient(ui);
         }
 
         private void addRFIDDeviceClient(RFIDDeviceClient deviceClient)
