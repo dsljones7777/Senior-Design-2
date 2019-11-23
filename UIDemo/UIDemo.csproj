@@ -58,11 +58,11 @@
     <Compile Include="LocationControl.Designer.cs">
       <DependentUpon>LocationControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="LocationGridControl.cs">
+    <Compile Include="GridControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="LocationGridControl.Designer.cs">
-      <DependentUpon>LocationGridControl.cs</DependentUpon>
+    <Compile Include="GridControl.Designer.cs">
+      <DependentUpon>GridControl.cs</DependentUpon>
     </Compile>
     <Compile Include="LoginScreen.cs">
       <SubType>Form</SubType>
@@ -85,8 +85,8 @@
     <EmbeddedResource Include="LocationControl.resx">
       <DependentUpon>LocationControl.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="LocationGridControl.resx">
-      <DependentUpon>LocationGridControl.cs</DependentUpon>
+    <EmbeddedResource Include="GridControl.resx">
+      <DependentUpon>GridControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="LoginScreen.resx">
       <DependentUpon>LoginScreen.cs</DependentUpon>

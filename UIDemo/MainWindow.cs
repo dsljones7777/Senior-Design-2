@@ -34,5 +34,33 @@ namespace UIDemo
             Task<UIClientConnection.UINetworkPacket> rpcCall = rpc.executeAsync();
             await rpcCall;
         }
+        GridControl gridCtl;
+        private void button12_Click(object sender, EventArgs e)
+        {
+            //RPC call
+
+            gridCtl = new GridControl(true, true, true, true, true);
+            gridCtl.hookAddNew(addNewUser);
+            gridCtl.hookEdit(editUser);
+            gridCtl.hookRemove(removeUser);
+            DialogWindow window = new DialogWindow("View Users", null, gridCtl, false, false);
+            window.ShowDialog(this);
+        }
+
+        private void addNewUser(object sender, EventArgs e)
+        {
+            
+        }
+
+        private void removeUser(object sender, EventArgs e)
+        {
+            DataRow[] users = gridCtl.getSelectedItems();
+
+        }
+
+        private void editUser(object sender, EventArgs e)
+        {
+            DataRow[] users = gridCtl.getSelectedItems();
+        }
     }
 }
