@@ -18,5 +18,11 @@ namespace Network
             public string message;
             public bool retry = false;
         }
+
+        public enum Role
+        {
+            Admin = 1,
+            BaseUser = 2
+        }
     }
 }

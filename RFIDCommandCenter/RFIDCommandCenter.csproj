@@ -62,6 +62,8 @@
     <Compile Include="Logic\DeleteLocation.cs" />
     <Compile Include="Logic\DeleteSystemUser.cs" />
     <Compile Include="Logic\DeleteTag.cs" />
+    <Compile Include="Logic\EditLocation.cs" />
+    <Compile Include="Logic\EditUser.cs" />
     <Compile Include="Logic\GetAllLocations.cs" />
     <Compile Include="Logic\GetAllowedLocationIdsByTagIds.cs" />
     <Compile Include="Logic\GetAllUniqueSerialNumbers.cs" />
@@ -76,6 +78,9 @@
     <Compile Include="Logic\SaveTag.cs" />
     <Compile Include="Logic\TagArrive.cs" />
     <Compile Include="Logic\TagLeave.cs" />
+    <Compile Include="Logic\ViewLocations.cs" />
+    <Compile Include="Logic\ViewTags.cs" />
+    <Compile Include="Logic\ViewUsers.cs" />
     <Compile Include="Models\Location.cs" />
     <Compile Include="Models\TagLocationBridge.cs" />
     <Compile Include="NetworkCode.cs" />

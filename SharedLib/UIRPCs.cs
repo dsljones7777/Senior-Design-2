@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using static SharedLib.Network.UIClientConnection;
+using static Network.NetworkLib;
 
 namespace SharedLib
 {
@@ -111,6 +109,67 @@ namespace SharedLib
             {
                 this.bothWay = true;
             }
+        }
+
+        [Serializable]
+        public class AddUserRPC : UINetworkPacket
+        {
+            public string username;
+            public string pass;
+            public Role userRole;
+        }
+
+        [Serializable]
+        public class EditUserRPC : UINetworkPacket
+        {
+            public Nullable<Role> userRole;
+            string pass;
+        }
+
+        [Serializable]
+        public class ViewUserRPC : UINetworkPacket
+        {
+            public List<SharedModels.SharedUsers> userList;
+            public ViewUserRPC()
+            {
+                this.bothWay = true;
+            }
+        }
+
+        [Serializable]
+        public class ViewTagsRPC : UINetworkPacket
+        {
+            public List<SharedModels.ViewTagModel> tagList;
+            public ViewTagsRPC()
+            {
+                this.bothWay = true;
+            }
+        }
+
+        [Serializable]
+        public class ViewLocationsRPC : UINetworkPacket
+        {
+            public List<SharedModels.LocationModel> locationList;
+            public ViewLocationsRPC()
+            {
+                this.bothWay = true;
+            }
+        }
+
+        [Serializable]
+        public class EditLocationRPC : UINetworkPacket
+        {
+            string currentLocationName;
+            string newLocationName;
+            string readerSerialIn;
+            string readerSerialOut;
+        }
+
+        [Serializable]
+        public class AddTagToLocation : UINetworkPacket
+        {
+            int tagID;
+            int locationID;
         }
     }
     
