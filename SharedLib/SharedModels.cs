@@ -30,7 +30,7 @@ namespace SharedLib
         {
             public string LocationName { get; set; }
             public string ReaderSerialIn { get; set; }
-            public string ReaderSeralOut { get; set; }
+            public string ReaderSerialOut { get; set; }
         }
     }
 }

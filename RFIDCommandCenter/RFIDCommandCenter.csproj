@@ -56,7 +56,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Client.cs" />
+    <Compile Include="Clients\Client.cs" />
     <Compile Include="Context\DataContext.cs" />
     <Compile Include="Context\TempDbContext.cs" />
     <Compile Include="Logic\DeleteLocation.cs" />
@@ -83,17 +83,16 @@
     <Compile Include="Logic\ViewUsers.cs" />
     <Compile Include="Models\Location.cs" />
     <Compile Include="Models\TagLocationBridge.cs" />
-    <Compile Include="NetworkCode.cs" />
-    <Compile Include="NetworkCommunication.cs" />
+    <Compile Include="Network\NetworkCode.cs" />
+    <Compile Include="Network\NetworkCommunication.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Models\SystemUser.cs" />
     <Compile Include="Models\Tag.cs" />
     <Compile Include="CommandCenterException.cs" />
-    <Compile Include="RFIDDeviceClient.cs" />
-    <Compile Include="UIClient.cs" />
-    <Compile Include="SecureNetworkCommunication.cs" />
-    <Compile Include="UIRPCExtensions.cs" />
+    <Compile Include="Clients\RFIDDeviceClient.cs" />
+    <Compile Include="Clients\UIClient.cs" />
+    <Compile Include="Network\SecureNetworkCommunication.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

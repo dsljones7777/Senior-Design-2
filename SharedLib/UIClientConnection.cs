@@ -133,7 +133,7 @@ namespace SharedLib
                         else
                             throw new Exception("Could not determine the RPC from the server");
                     }
-                    catch(Exception e)
+                    catch
                     {
 
                     }

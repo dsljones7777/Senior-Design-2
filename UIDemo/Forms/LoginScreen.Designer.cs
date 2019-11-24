@@ -146,7 +146,6 @@
             this.Name = "LoginScreen";
             this.ShowInTaskbar = false;
             this.Text = "SecureID";
-            this.Load += new System.EventHandler(this.Form1_Load);
             this.Shown += new System.EventHandler(this.Form1_Shown);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();

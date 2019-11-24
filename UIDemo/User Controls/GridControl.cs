@@ -14,6 +14,8 @@ namespace UIDemo
     {
         bool selectionAllowed = false;
         bool multiSelectionAllowed = false;
+        bool isChangingValue = false;       //Is a grid cell value changing programmatically (disables reentry of event handler)
+
         public GridControl(bool allowSelect, bool singleSelect, bool allowAdd,bool allowRemove, bool allowEdit)
         {
             InitializeComponent();
@@ -26,7 +28,39 @@ namespace UIDemo
             editButton.Enabled = false;
         }
 
-        public void loadDataSet(DataTable tbl)
+        public void load(DataTable tbl, EventHandler addNewHandler, EventHandler editHandler, EventHandler removeHandler)
+        {
+            DataTable dataToLoad = new DataTable();
+            if (selectionAllowed)
+            {
+                DataColumn newColumn = new DataColumn("Select", typeof(Boolean));
+                newColumn.ReadOnly = false;
+                dataToLoad.Columns.Add(newColumn);
+            }
+            foreach (DataColumn column in tbl.Columns)
+            {
+                column.ReadOnly = true;
+                dataToLoad.Columns.Add(column);
+            }
+            foreach (DataRow x in tbl.Rows)
+            {
+                if (selectionAllowed)
+                    dataToLoad.Rows.Add(false, x.ItemArray);
+                else
+                    dataToLoad.Rows.Add(x.ItemArray);
+            }
+            controlGrid.DataSource = dataToLoad;
+            fitSize();
+
+            if (addNewHandler != null)
+                addButton.Click += addNewHandler;
+            if (editHandler != null)
+                editButton.Click += editHandler;
+            if (removeHandler != null)
+                removeButton.Click += removeHandler;
+        }
+
+        void loadDataSet(DataTable tbl)
         {
             DataTable dataToLoad = new DataTable();
             if (selectionAllowed)
@@ -51,28 +85,12 @@ namespace UIDemo
             fitSize();
         }
 
-        public void hookAddNew(EventHandler hdl)
-        {
-            addButton.Click += hdl;
-        }
-
-        public void hookEdit(EventHandler hdl)
-        {
-            editButton.Click += hdl;
-        }
-
-        public void hookRemove(EventHandler hdl)
-        {
-            removeButton.Click += hdl;
-        }
-
         public DataRow[] getSelectedItems()
         {
             DataTable tbl = (DataTable)controlGrid.DataSource;
             return tbl.Select("Selected=TRUE");
         }
 
-        bool isChangingValue = false;
         private void controlGrid_CellValueChanged(object sender, DataGridViewCellEventArgs e)
         {
             if (isChangingValue || e.ColumnIndex != 1 || e.RowIndex < 0 || !selectionAllowed)
