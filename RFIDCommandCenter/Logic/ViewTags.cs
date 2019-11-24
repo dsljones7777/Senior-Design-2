@@ -17,7 +17,7 @@ namespace RFIDCommandCenter.Logic
             return tagList.ConvertAll(x => new SharedLib.SharedModels.ViewTagModel
             {
                 TagName = x.Name,
-                TagNumber = Encoding.Default.GetString(x.TagNumber),
+                TagNumber = Convert.ToBase64String(x.TagNumber),
                 LastLocation = locationList.FirstOrDefault(l => l.ID == x.LastLocation).LocationName
             });            
         }
