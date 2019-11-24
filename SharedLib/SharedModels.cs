@@ -23,6 +23,8 @@ namespace SharedLib
             public string TagNumber { get; set; }
             public string LastLocation { get; set; }
             public bool InLocation { get; set; }
+            public bool LostTag { get; set; }
+            public bool GuestTag { get; set; }
         }
 
         [Serializable]

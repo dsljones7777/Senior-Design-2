@@ -288,7 +288,18 @@ namespace RFIDCommandCenter
 
         void viewAllowedLocations(object cmd, DataContext context)
         {
+            ViewAllowedLocationsRPC op = (ViewAllowedLocationsRPC)cmd;
+            var viewAllowed = new Logic.ViewAllowedLocations();
+            var allowedLocations = viewAllowed.Execute(op.TagName, context);
+            sendRPC(new ViewAllowedLocationsRPC { allowedLocationList = allowedLocations });
+        }
 
+        void viewUsers(object cmd, DataContext context)
+        {
+            ViewUserRPC op = (ViewUserRPC)cmd;
+            var viewUsers = new Logic.ViewUsers();
+            var userList = viewUsers.Execute(context);
+            sendRPC(new ViewUserRPC { userList = userList });
         }
 
         //void editUser(object cmd, DataContext context)

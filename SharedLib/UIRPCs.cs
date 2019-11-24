@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using static SharedLib.Network.UIClientConnection;
 using static Network.NetworkLib;
+using static SharedLib.SharedModels;
 
 namespace SharedLib
 {
@@ -178,7 +179,8 @@ namespace SharedLib
         {
             public byte[] tagNumber;
             public string name;
-            public bool lost;
+            public bool? lost;
+            public bool? guest;
         }
 
         [Serializable]
@@ -216,7 +218,24 @@ namespace SharedLib
         [Serializable]
         public class ViewAllowedLocationsRPC : UINetworkPacket
         {
+            public List<ViewAllowedLocationsModel> allowedLocationList;
+            public string TagName;
 
+            public ViewAllowedLocationsRPC()
+            {
+                this.bothWay = true;
+            }
+        }
+
+        [Serializable]
+        public class ViewGuestTagsRPC : UINetworkPacket
+        {
+            public List<SharedModels.ViewTagModel> tagList;
+
+            public ViewGuestTagsRPC()
+            {
+                this.bothWay = true;
+            }
         }
     }
     

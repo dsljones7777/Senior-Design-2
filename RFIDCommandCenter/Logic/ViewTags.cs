@@ -18,7 +18,9 @@ namespace RFIDCommandCenter.Logic
             {
                 TagName = x.Name,
                 TagNumber = Convert.ToBase64String(x.TagNumber),
-                LastLocation = locationList.FirstOrDefault(l => l.ID == x.LastLocation).LocationName
+                LastLocation = locationList.FirstOrDefault(l => l.ID == x.LastLocation).LocationName,
+                LostTag = x.LostTag,
+                GuestTag = x.Guest
             });            
         }
     }
