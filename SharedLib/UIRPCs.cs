@@ -122,8 +122,18 @@ namespace SharedLib
         [Serializable]
         public class EditUserRPC : UINetworkPacket
         {
+
             public Nullable<Role> userRole;
-            string pass;
+            public string pass;
+            public string username;
+
+            public EditUserRPC(string usrName, string password, Role usrRole, bool roleProvided)
+            {
+                username = usrName;
+                pass = String.IsNullOrWhiteSpace(password) ? null : password;
+                if (roleProvided)
+                    userRole = usrRole;
+            }
         }
 
         [Serializable]

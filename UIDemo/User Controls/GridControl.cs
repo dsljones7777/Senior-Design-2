@@ -39,15 +39,29 @@ namespace UIDemo
             }
             foreach (DataColumn column in tbl.Columns)
             {
-                column.ReadOnly = true;
-                dataToLoad.Columns.Add(column);
+                DataColumn newColumn = new DataColumn(column.ColumnName, column.DataType, column.Expression, column.ColumnMapping);
+                newColumn.ReadOnly = true;
+                dataToLoad.Columns.Add(newColumn);
             }
             foreach (DataRow x in tbl.Rows)
             {
+                int numberOfItems = selectionAllowed ? x.ItemArray.Length + 1 : x.ItemArray.Length;
+                object[] items = new object[numberOfItems];
+                int offset = 0;
+                if(selectionAllowed)
+                {
+                    items[offset] = false;
+                    offset++;
+                }
+                foreach(var item in x.ItemArray)
+                {
+                    items[offset] = item;
+                    offset++;
+                }
                 if (selectionAllowed)
-                    dataToLoad.Rows.Add(false, x.ItemArray);
+                    dataToLoad.Rows.Add(items);
                 else
-                    dataToLoad.Rows.Add(x.ItemArray);
+                    dataToLoad.Rows.Add(items);
             }
             controlGrid.DataSource = dataToLoad;
             fitSize();
@@ -60,40 +74,21 @@ namespace UIDemo
                 removeButton.Click += removeHandler;
         }
 
-        void loadDataSet(DataTable tbl)
+        public void removeRow(DataRow row)
         {
-            DataTable dataToLoad = new DataTable();
-            if (selectionAllowed)
-            {
-                DataColumn newColumn = new DataColumn("Select", typeof(Boolean));
-                newColumn.ReadOnly = false;
-                dataToLoad.Columns.Add(newColumn);
-            }
-            foreach(DataColumn column in tbl.Columns)
-            {
-                column.ReadOnly = true;
-                dataToLoad.Columns.Add(column);
-            }
-            foreach(DataRow x in tbl.Rows)
-            {
-                if (selectionAllowed)
-                    dataToLoad.Rows.Add(false, x.ItemArray);
-                else
-                    dataToLoad.Rows.Add(x.ItemArray);
-            }
-            controlGrid.DataSource = dataToLoad;
-            fitSize();
+            DataTable tbl = (DataTable)controlGrid.DataSource;
+            tbl.Rows.Remove(row);
         }
 
         public DataRow[] getSelectedItems()
         {
             DataTable tbl = (DataTable)controlGrid.DataSource;
-            return tbl.Select("Selected=TRUE");
+            return tbl.Select("Select=TRUE");
         }
 
-        private void controlGrid_CellValueChanged(object sender, DataGridViewCellEventArgs e)
+        private void controlGrid_CellValueChanging(object sender, DataGridViewCellEventArgs e)
         {
-            if (isChangingValue || e.ColumnIndex != 1 || e.RowIndex < 0 || !selectionAllowed)
+            if (isChangingValue || e.ColumnIndex != 0|| e.RowIndex < 0 || !selectionAllowed)
                 return;
 
             DataGridViewRow selectedRow = controlGrid.Rows[e.RowIndex];
@@ -102,7 +97,7 @@ namespace UIDemo
             int totalSelected = val ? 1 : 0;
 
             isChangingValue = true;
-            foreach(DataGridViewRow row in controlGrid.Rows)
+            foreach (DataGridViewRow row in controlGrid.Rows)
             {
                 if (row == selectedRow)
                     continue;
@@ -112,7 +107,7 @@ namespace UIDemo
                 else if (currentCellVal)
                     totalSelected++;
             }
-            if(totalSelected > 0)
+            if (totalSelected > 0)
             {
                 editButton.Enabled = true;
                 removeButton.Enabled = true;
@@ -224,6 +219,14 @@ namespace UIDemo
         private void removeButton_Click(object sender, EventArgs e)
         {
             
+        }
+
+        private void controlGrid_CurrentCellDirtyStateChanged(object sender, EventArgs e)
+        {
+            if (controlGrid.IsCurrentCellDirty)
+            {
+                controlGrid.CommitEdit(DataGridViewDataErrorContexts.Commit);
+            }
         }
     }
 }

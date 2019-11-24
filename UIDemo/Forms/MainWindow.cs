@@ -1,4 +1,5 @@
-﻿using SharedLib.Network;
+﻿using Network;
+using SharedLib.Network;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -8,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using UIDemo.User_Controls;
 
 namespace UIDemo
 {
@@ -43,8 +45,9 @@ namespace UIDemo
             }
         };
 
-
         GridControl gridCtl;
+
+        LocationControl locationCtl;
 
         public MainWindow(string usrname, bool allowAdminFunctions)
         {
@@ -81,9 +84,29 @@ namespace UIDemo
             window.ShowDialog(this);
         }
 
-        private void addNewUser(object sender, EventArgs e)
+        private async void addNewUser(object sender, EventArgs e)
         {
-            
+            SystemUserControl ctl = new SystemUserControl("", NetworkLib.Role.BaseUser);
+            DialogWindow window = new DialogWindow("Add New User", null, ctl, true, true);
+            window.OkButtonHandler = 
+                () => 
+                {
+                    if (!String.IsNullOrWhiteSpace(ctl.Password) && ctl.Password.Length >= 6)
+                        return true;
+                    MessageBox.Show(this, "The password must be at least 6 characters", "Bad Password", MessageBoxButtons.OK, MessageBoxIcon.Stop); ;
+                    return false;
+                };
+            DialogResult result = window.ShowDialog(this);
+            if (result != DialogResult.OK)
+                return;
+            NetworkLib.Role newRole = ctl.UserRole;
+            AddUserRPC rpc = new AddUserRPC()
+            {
+                username = ctl.Username,
+                pass = ctl.Password,
+                userRole = ctl.UserRole
+            };
+            await rpc.executeAsync();
         }
 
         private async void removeUser(object sender, EventArgs e)
@@ -108,11 +131,32 @@ namespace UIDemo
             MessageBox.Show(this, "The users were successfully removed from the system", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
         }
 
-        private void editUser(object sender, EventArgs e)
+        private async void editUser(object sender, EventArgs e)
         {
             DataRow[] users = gridCtl.getSelectedItems();
             if (users == null || users.Length == 0)
                 return;
+            string role = users[0]["User Role"] as string;
+            NetworkLib.Role usrRole;
+            switch(role)
+            {
+                case "Administrator":
+                    usrRole =  NetworkLib.Role.Admin;
+                    break;
+               default:
+                    usrRole = NetworkLib.Role.BaseUser;
+                    break;
+            }
+            SystemUserControl ctl = new SystemUserControl(users[0]["User Name"] as string, usrRole);
+            ctl.disableNameEditing();
+            DialogWindow window = new DialogWindow("Edit User", null,ctl, true, true);
+            DialogResult result = window.ShowDialog(this);
+            if (result != DialogResult.OK)
+                return;
+            NetworkLib.Role newRole = ctl.UserRole;
+
+            EditUserRPC rpc = new EditUserRPC(ctl.Username, ctl.Password, newRole, newRole != usrRole);
+            await rpc.executeAsync();
         }
 
         private async void viewTagsButton_Clock(object sender, EventArgs e)
@@ -181,7 +225,7 @@ namespace UIDemo
             locationTable.Clear();
             foreach (var x in rpc.locationList)
                 locationTable.Rows.Add(x.LocationName, x.ReaderSerialIn, x.ReaderSerialOut ?? "");
-            gridCtl = new GridControl(true, true, true, true, true);
+            gridCtl = new GridControl(true, false, true, true, true);
             gridCtl.load(locationTable, addNewLocation, editLocation, removeLocation);
             DialogWindow window = new DialogWindow("View Locations", null, gridCtl, false, false);
             window.ShowDialog(this);
@@ -189,23 +233,41 @@ namespace UIDemo
 
         private async void addNewLocation(object sender, EventArgs e)
         {
-            LocationControl locCtl = new LocationControl();
-            DialogWindow locationWindow = new DialogWindow("Add New Location", null, locCtl);
+            locationCtl = new LocationControl();
+            DialogWindow locationWindow = new DialogWindow("Add New Location", null, locationCtl);
             DialogResult result = locationWindow.ShowDialog(this);
             if (result != DialogResult.OK)
                 return;
             SaveLocationRPC rpc = new SaveLocationRPC()
             {
-                locationName = locCtl.LocationName,
-                readerSerialIn = locCtl.SerialIn,
-                readerSerialOut = locCtl.SerialOut
+                locationName = locationCtl.LocationName,
+                readerSerialIn = locationCtl.SerialIn,
+                readerSerialOut = locationCtl.SerialOut
             };
             await rpc.executeAsync();
         }
 
-        private void removeLocation(object sender, EventArgs e)
+        private async void removeLocation(object sender, EventArgs e)
         {
-            
+            DataRow[] locations = gridCtl.getSelectedItems();
+            if (locations == null || locations.Length == 0)
+                return;
+            DialogResult result = MessageBox.Show(this, "Are you sure you want to remove the selected locations?", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            if (result != DialogResult.Yes)
+                return;
+            foreach (DataRow loc in locations)
+            {
+                DeleteLocationRPC rpc = new DeleteLocationRPC()
+                {
+                    locationName = loc["Location Name"] as string
+                };
+                var task = rpc.executeAsync();
+                await task;
+                if (task.IsFaulted)
+                    return;
+                gridCtl.removeRow(loc);
+            }
+            MessageBox.Show(locationCtl, "The locations were successfully removed from the system", "Locations Removed", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void editLocation(object sender, EventArgs e)

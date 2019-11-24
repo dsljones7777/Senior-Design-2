@@ -20,11 +20,15 @@ namespace UIDemo
                 captionLabel.Visible = false;
             captionLabel.Text = caption;
             formLayoutPanel.Controls.Add(usrControl, 0, 0);
-            formLayoutPanel.SetColumnSpan(usrControl, 2);
         }
+
+        public Func<bool> OkButtonHandler;
 
         private void okButton_Click(object sender, EventArgs e)
         {
+            if (OkButtonHandler != null)
+                if (!OkButtonHandler())
+                    return;
             this.DialogResult = DialogResult.OK;
             this.Close();
         }

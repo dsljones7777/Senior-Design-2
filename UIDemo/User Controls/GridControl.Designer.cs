@@ -51,13 +51,13 @@
             this.controlGrid.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
             this.controlGrid.MultiSelect = false;
             this.controlGrid.Name = "controlGrid";
-            this.controlGrid.ReadOnly = true;
             this.controlGrid.RowHeadersVisible = false;
             this.controlGrid.RowTemplate.Height = 28;
             this.controlGrid.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.controlGrid.Size = new System.Drawing.Size(746, 395);
             this.controlGrid.TabIndex = 0;
-            this.controlGrid.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.controlGrid_CellValueChanged);
+            this.controlGrid.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.controlGrid_CellValueChanging);
+            this.controlGrid.CurrentCellDirtyStateChanged += new System.EventHandler(this.controlGrid_CurrentCellDirtyStateChanged);
             // 
             // tableLayoutPanel1
             // 
