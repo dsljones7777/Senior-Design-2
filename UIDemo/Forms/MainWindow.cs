@@ -20,6 +20,7 @@ namespace UIDemo
             Columns =
                 {
                     new DataColumn("Tag Name",typeof(string)),
+                    new DataColumn("Is Guest Tag", typeof(bool)),
                     new DataColumn("Last Location",typeof(string)),
                     new DataColumn("Present",typeof(bool)),
                     new DataColumn("Tag Number",typeof(string))
@@ -48,6 +49,8 @@ namespace UIDemo
         GridControl gridCtl;
 
         LocationControl locationCtl;
+
+        TagControl tagCtl;
 
         public MainWindow(string usrname, bool allowAdminFunctions)
         {
@@ -180,12 +183,23 @@ namespace UIDemo
             window.ShowDialog(this);
         }
 
-        private void addNewTag(object sender, EventArgs e)
+        private async void addNewTag(object sender, EventArgs e)
         {
-
+            tagCtl = new TagControl();
+            DialogWindow tagWindow = new DialogWindow("Add New Tag", null, tagCtl);
+            DialogResult result = tagWindow.ShowDialog(this);
+            if (result != DialogResult.OK)
+                return;
+            SaveTagRPC rpc = new SaveTagRPC()
+            {
+                name = tagCtl.TagName,
+                tagNumber = tagCtl.TagData,
+                guest = tagCtl.IsGuest
+            };
+            await rpc.executeAsync();
         }
 
-        private void removeTags(object sender, EventArgs e)
+        private async void removeTags(object sender, EventArgs e)
         {
             DataRow[] tags = gridCtl.getSelectedItems();
             if (tags == null || tags.Length == 0)
@@ -193,22 +207,37 @@ namespace UIDemo
             DialogResult result = MessageBox.Show(this, "Are you sure you want to remove the selected tags?", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
             if (result != DialogResult.Yes)
                 return;
-            //foreach (DataRow tag in tags)
-            //{
-            //    DeleteTagRPC rpc = new DeleteTagRPC()
-            //    {
-            //        tagNumber = (string)tags["Tag Number"];
-            //};
-            //var task = rpc.executeAsync();
-            //await task;
-            //if (task.IsFaulted)
-            //    return;
-            //MessageBox.Show(this, "The users were successfully removed from the system", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            foreach (DataRow tag in tags)
+            {
+                DeleteTagRPC rpc = new DeleteTagRPC()
+                {
+                    tagNumber = Convert.FromBase64String(tag["Tag Number"] as string)
+                };
+                var task = rpc.executeAsync();
+                await task;
+                if (task.IsFaulted)
+                    return;
+                gridCtl.removeRow(tag);
+            };
+            MessageBox.Show(this, "The users were successfully removed from the system", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
         }
 
         private void editTag(object sender, EventArgs e)
         {
+            DataRow[] tags = gridCtl.getSelectedItems();
+            if (tags == null || tags.Length == 0)
+                return;
+            bool isGuest = tags[0][""]
+            SystemUserControl ctl = new SystemUserControl(users[0]["User Name"] as string, usrRole);
+            ctl.disableNameEditing();
+            DialogWindow window = new DialogWindow("Edit User", null, ctl, true, true);
+            DialogResult result = window.ShowDialog(this);
+            if (result != DialogResult.OK)
+                return;
+            NetworkLib.Role newRole = ctl.UserRole;
 
+            EditUserRPC rpc = new EditUserRPC(ctl.Username, ctl.Password, newRole, newRole != usrRole);
+            await rpc.executeAsync();
         }
 
         private async void viewLocationsButton_Click(object sender, EventArgs e)

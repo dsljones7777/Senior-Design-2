@@ -16,5 +16,32 @@ namespace UIDemo.User_Controls
         {
             InitializeComponent();
         }
+
+        public string TagName
+        {
+            get
+            {
+                return tagNameTextbox.Text;
+            }
+        }
+
+        public byte[] TagData
+        {
+            get
+            {
+                if (String.IsNullOrWhiteSpace(tagDataTextbox.Text))
+                    return null;
+                return Convert.FromBase64String(tagDataTextbox.Text);
+            }
+        }
+
+        public bool IsGuest
+        {
+            get
+            {
+                return guestCheckbox.Checked;
+            }
+        }
+
     }
 }
