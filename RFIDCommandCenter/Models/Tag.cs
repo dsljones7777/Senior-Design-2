@@ -26,5 +26,9 @@ namespace RFIDCommandCenter
 
         [Required]
         public bool Active { get; set; }
+
+        public bool LostTag { get; set; }
+
+        public bool Guest { get; set; }
     }
 }
