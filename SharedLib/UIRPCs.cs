@@ -237,6 +237,17 @@ namespace SharedLib
                 this.bothWay = true;
             }
         }
+
+        [Serializable]
+        public class GetUniqueSerialNumbersRPC : UINetworkPacket
+        {
+            public List<string> serialNumberList;
+
+            public GetUniqueSerialNumbersRPC()
+            {
+                this.bothWay = true;
+            }
+        }
     }
     
 }
