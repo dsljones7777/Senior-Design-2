@@ -31,9 +31,9 @@
             this.controlGrid = new System.Windows.Forms.DataGridView();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
-            this.removeButton = new System.Windows.Forms.Button();
-            this.addButton = new System.Windows.Forms.Button();
             this.editButton = new System.Windows.Forms.Button();
+            this.addButton = new System.Windows.Forms.Button();
+            this.removeButton = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.controlGrid)).BeginInit();
             this.tableLayoutPanel1.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
@@ -95,15 +95,16 @@
             this.tableLayoutPanel2.Size = new System.Drawing.Size(213, 38);
             this.tableLayoutPanel2.TabIndex = 1;
             // 
-            // removeButton
+            // editButton
             // 
-            this.removeButton.Location = new System.Drawing.Point(123, 4);
-            this.removeButton.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.removeButton.Name = "removeButton";
-            this.removeButton.Size = new System.Drawing.Size(87, 30);
-            this.removeButton.TabIndex = 0;
-            this.removeButton.Text = "Remove";
-            this.removeButton.UseVisualStyleBackColor = true;
+            this.editButton.Location = new System.Drawing.Point(63, 4);
+            this.editButton.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.editButton.Name = "editButton";
+            this.editButton.Size = new System.Drawing.Size(54, 30);
+            this.editButton.TabIndex = 2;
+            this.editButton.Text = "Edit";
+            this.editButton.UseVisualStyleBackColor = true;
+            this.editButton.Click += new System.EventHandler(this.editButton_Click);
             // 
             // addButton
             // 
@@ -115,17 +116,18 @@
             this.addButton.Text = "Add";
             this.addButton.UseVisualStyleBackColor = true;
             // 
-            // editButton
+            // removeButton
             // 
-            this.editButton.Location = new System.Drawing.Point(63, 4);
-            this.editButton.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.editButton.Name = "editButton";
-            this.editButton.Size = new System.Drawing.Size(54, 30);
-            this.editButton.TabIndex = 2;
-            this.editButton.Text = "Edit";
-            this.editButton.UseVisualStyleBackColor = true;
+            this.removeButton.Location = new System.Drawing.Point(123, 4);
+            this.removeButton.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.removeButton.Name = "removeButton";
+            this.removeButton.Size = new System.Drawing.Size(87, 30);
+            this.removeButton.TabIndex = 0;
+            this.removeButton.Text = "Remove";
+            this.removeButton.UseVisualStyleBackColor = true;
+            this.removeButton.Click += new System.EventHandler(this.removeButton_Click);
             // 
-            // LocationGridControl
+            // GridControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -134,7 +136,7 @@
             this.Controls.Add(this.tableLayoutPanel1);
             this.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
-            this.Name = "LocationGridControl";
+            this.Name = "GridControl";
             this.Size = new System.Drawing.Size(753, 451);
             ((System.ComponentModel.ISupportInitialize)(this.controlGrid)).EndInit();
             this.tableLayoutPanel1.ResumeLayout(false);

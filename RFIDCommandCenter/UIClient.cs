@@ -5,6 +5,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net.Sockets;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Text;
+using System.Threading;
+using static SharedLib.Network.UIClientConnection;
 
 namespace RFIDCommandCenter
 {
@@ -33,9 +36,11 @@ namespace RFIDCommandCenter
         {
             while (!exit)
             {
+                bool wasActionTaken = false;
                 //I have a command available
                 if(clientStream.DataAvailable)
                 {
+                    wasActionTaken = true;
                     BinaryFormatter formatter = new BinaryFormatter();
                     object cmd = formatter.Deserialize(clientStream);
                     try
@@ -52,6 +57,8 @@ namespace RFIDCommandCenter
                 //Check to see messages needed to be sent to the client
                 lock(messagesToSend)
                 {
+                    if (messagesToSend.Count > 0)
+                        wasActionTaken = true;
                     try
                     {
                         foreach (var serialMsgTup in messagesToSend)
@@ -64,6 +71,9 @@ namespace RFIDCommandCenter
                         return;
                     }
                 }
+
+                if (!wasActionTaken)
+                    Thread.Sleep(50);
             }
         }
 
@@ -73,7 +83,21 @@ namespace RFIDCommandCenter
             {
                 if (cmd.GetType() == typeof(LoginUserRPC))
                 {
-                    //TODO: Execute login 
+                    LoginUserRPC loginData = (LoginUserRPC)cmd;
+                    var login = new Logic.Login();
+                    var pwdBytes = Encoding.ASCII.GetBytes(loginData.password);
+                    try
+                    {
+                        int role;
+                        login.Execute(loginData.username, pwdBytes,out role, context);
+                        loginData.isValidLogin = true;
+                        loginData.isAdmin = (role == (int)NetworkLib.Role.Admin);
+                    }
+                    catch(Exception e)
+                    {
+                        loginData.isValidLogin = false;
+                    }
+                    sendRPC(loginData);
                     return;
                 }
                 else if (clientUsername == null)
@@ -128,6 +152,12 @@ namespace RFIDCommandCenter
                     throw new Exception("Client sent an invalid RPC");
                 }
             }
+        }
+
+        void sendRPC(UINetworkPacket packet)
+        {
+            BinaryFormatter formatSerializer = new BinaryFormatter();
+            formatSerializer.Serialize(clientStream, packet);
         }
 
         void tellClient(string serialNum, string clientMsg)

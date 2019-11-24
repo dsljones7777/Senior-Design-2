@@ -22,7 +22,7 @@ namespace SharedLib
             public event EventHandler<Exception> FailedConnecting;
             public static event EventHandler<Exception> NetworkError;
             public event EventHandler<ServerMessage> ServerMessageReceived;
-
+            [Serializable]
             public abstract class UINetworkPacket
             {
                 protected bool bothWay = false;

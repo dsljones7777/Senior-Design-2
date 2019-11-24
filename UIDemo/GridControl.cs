@@ -22,6 +22,8 @@ namespace UIDemo
             addButton.Visible = allowAdd;
             removeButton.Visible = allowRemove;
             editButton.Visible = allowEdit;
+            removeButton.Enabled = false;
+            editButton.Enabled = false;
         }
 
         public void loadDataSet(DataTable tbl)
@@ -73,21 +75,34 @@ namespace UIDemo
         bool isChangingValue = false;
         private void controlGrid_CellValueChanged(object sender, DataGridViewCellEventArgs e)
         {
-            if (isChangingValue || e.ColumnIndex != 1 || e.RowIndex < 0 || !selectionAllowed ||  multiSelectionAllowed)
+            if (isChangingValue || e.ColumnIndex != 1 || e.RowIndex < 0 || !selectionAllowed)
                 return;
 
             DataGridViewRow selectedRow = controlGrid.Rows[e.RowIndex];
             DataGridViewCell cell = selectedRow.Cells[e.ColumnIndex];
             bool val = (bool)cell.Value;
-            if (!val)
-                return;
+            int totalSelected = val ? 1 : 0;
+
             isChangingValue = true;
             foreach(DataGridViewRow row in controlGrid.Rows)
             {
                 if (row == selectedRow)
                     continue;
-                if ((bool)row.Cells[0].Value)
+                bool currentCellVal = (bool)row.Cells[0].Value;
+                if (!multiSelectionAllowed && currentCellVal)
                     row.Cells[0].Value = false;
+                else if (currentCellVal)
+                    totalSelected++;
+            }
+            if(totalSelected > 0)
+            {
+                editButton.Enabled = true;
+                removeButton.Enabled = true;
+            }
+            else
+            {
+                editButton.Enabled = false;
+                removeButton.Enabled = false;
             }
             isChangingValue = false;
         }
@@ -174,6 +189,23 @@ namespace UIDemo
                     column.MinimumWidth = newWidth;
                 }
             }
+        }
+
+        private void editButton_Click(object sender, EventArgs e)
+        {
+            DataRow[] found = getSelectedItems();
+            if (found == null || found.Length == 0)
+                return;
+            if(found.Length > 1)
+            {
+                MessageBox.Show(this, "You can only edit one selected item at a time", "Editing Issue", MessageBoxButtons.OK, MessageBoxIcon.Stop);
+                return;
+            }
+        }
+
+        private void removeButton_Click(object sender, EventArgs e)
+        {
+            
         }
     }
 }

@@ -45,7 +45,6 @@
             this.button17 = new System.Windows.Forms.Button();
             this.button18 = new System.Windows.Forms.Button();
             this.button19 = new System.Windows.Forms.Button();
-            this.removeUser = new System.Windows.Forms.Button();
             this.button12 = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
@@ -199,6 +198,7 @@
             this.button17.TabIndex = 20;
             this.button17.Text = "Remove User";
             this.button17.UseVisualStyleBackColor = true;
+            this.button17.Click += new System.EventHandler(this.button17_Click);
             // 
             // button18
             // 
@@ -220,16 +220,6 @@
             this.button19.Text = "Remove Tag From Location";
             this.button19.UseVisualStyleBackColor = true;
             // 
-            // removeUser
-            // 
-            this.removeUser.Location = new System.Drawing.Point(21, 293);
-            this.removeUser.Margin = new System.Windows.Forms.Padding(2);
-            this.removeUser.Name = "removeUser";
-            this.removeUser.Size = new System.Drawing.Size(104, 65);
-            this.removeUser.TabIndex = 23;
-            this.removeUser.Text = "Edit User";
-            this.removeUser.UseVisualStyleBackColor = true;
-            // 
             // button12
             // 
             this.button12.Location = new System.Drawing.Point(21, 373);
@@ -239,7 +229,7 @@
             this.button12.TabIndex = 24;
             this.button12.Text = "View Users";
             this.button12.UseVisualStyleBackColor = true;
-            this.button12.Click += new System.EventHandler(this.button12_Click);
+            this.button12.Click += new System.EventHandler(this.viewUsers_Click);
             // 
             // MainWindow
             // 
@@ -247,7 +237,6 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(935, 535);
             this.Controls.Add(this.button12);
-            this.Controls.Add(this.removeUser);
             this.Controls.Add(this.button19);
             this.Controls.Add(this.button18);
             this.Controls.Add(this.button17);
@@ -291,7 +280,6 @@
         private System.Windows.Forms.Button button17;
         private System.Windows.Forms.Button button18;
         private System.Windows.Forms.Button button19;
-        private System.Windows.Forms.Button removeUser;
         private System.Windows.Forms.Button button12;
     }
 }
