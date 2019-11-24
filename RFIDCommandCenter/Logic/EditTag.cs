@@ -8,7 +8,7 @@ namespace RFIDCommandCenter.Logic
 {
     public class EditTag
     {
-        public void Execute(byte[] tagNumber, string tagName, bool lost, DataContext context)
+        public void Execute(byte[] tagNumber, string tagName, bool? lost, DataContext context)
         {
             var existingTag = context.Tags.SingleOrDefault(x => x.TagNumber == tagNumber || x.Name == tagName);
 
@@ -21,7 +21,7 @@ namespace RFIDCommandCenter.Logic
             if (tagName != null)
                 existingTag.Name = tagName;
 
-            existingTag.LostTag = lost;
+            existingTag.LostTag = lost.Value;
 
             context.SaveChanges();
         }
