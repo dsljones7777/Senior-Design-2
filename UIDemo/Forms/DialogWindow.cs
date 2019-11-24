@@ -12,7 +12,7 @@ namespace UIDemo
 {
     public partial class DialogWindow : Form
     {
-        public DialogWindow(string title, string caption, Control usrControl)
+        public DialogWindow(string title, string caption, Control usrControl, bool showOk = true, bool showCancel = true)
         {
             InitializeComponent();
             this.Text = title;

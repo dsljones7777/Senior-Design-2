@@ -5,11 +5,14 @@ namespace RFIDCommandCenter.Logic
 {
     public class Login
     {
-        public void Execute(string username, byte[] pass, int userRole, DataContext context)
+        public void Execute(string username, byte[] pass,out int userRole, DataContext context)
         {            
             var existingSysUser = context.SystemUsers.SingleOrDefault(s => s.Username == username);
-
-            if (existingSysUser.Pass != pass)
+            if(existingSysUser == null)
+                throw new ApplicationException("The username/password entered was incrorrect");
+            userRole = existingSysUser.UserRole;
+           
+            if (!existingSysUser.Pass.SequenceEqual(pass))
                 throw new ApplicationException("The username/password entered was incrorrect");
         }
     }

@@ -22,7 +22,7 @@ namespace SharedLib
             public event EventHandler<Exception> FailedConnecting;
             public static event EventHandler<Exception> NetworkError;
             public event EventHandler<ServerMessage> ServerMessageReceived;
-
+            [Serializable]
             public abstract class UINetworkPacket
             {
                 protected bool bothWay = false;
@@ -133,7 +133,7 @@ namespace SharedLib
                         else
                             throw new Exception("Could not determine the RPC from the server");
                     }
-                    catch(Exception e)
+                    catch
                     {
 
                     }

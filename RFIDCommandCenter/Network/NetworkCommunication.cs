@@ -4,11 +4,6 @@ using System.Net.Sockets;
 
 namespace RFIDCommandCenter
 {
-    
-    
-
-    
-
     class NetworkCommunication
     {
         public enum ClientType

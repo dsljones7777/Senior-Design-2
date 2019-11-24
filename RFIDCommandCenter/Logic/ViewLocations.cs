@@ -10,7 +10,7 @@ namespace RFIDCommandCenter.Logic
             return context.Locations.Select(l => 
             new SharedLib.SharedModels.LocationModel
             {
-                LocationName = l.LocationName, ReaderSerialIn = l.ReaderSerialIn, ReaderSeralOut = l.ReaderSerialOut
+                LocationName = l.LocationName, ReaderSerialIn = l.ReaderSerialIn, ReaderSerialOut = l.ReaderSerialOut
             }).ToList();
         }
     }

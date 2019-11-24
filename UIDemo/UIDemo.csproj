@@ -46,52 +46,51 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DialogWindow.cs">
+    <Compile Include="Forms\DialogWindow.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="DialogWindow.Designer.cs">
+    <Compile Include="Forms\DialogWindow.Designer.cs">
       <DependentUpon>DialogWindow.cs</DependentUpon>
     </Compile>
-    <Compile Include="LocationControl.cs">
+    <Compile Include="User Controls\LocationControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="LocationControl.Designer.cs">
+    <Compile Include="User Controls\LocationControl.Designer.cs">
       <DependentUpon>LocationControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="LocationGridControl.cs">
+    <Compile Include="User Controls\GridControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="LocationGridControl.Designer.cs">
-      <DependentUpon>LocationGridControl.cs</DependentUpon>
+    <Compile Include="User Controls\GridControl.Designer.cs">
+      <DependentUpon>GridControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="LoginScreen.cs">
+    <Compile Include="Forms\LoginScreen.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="LoginScreen.Designer.cs">
+    <Compile Include="Forms\LoginScreen.Designer.cs">
       <DependentUpon>LoginScreen.cs</DependentUpon>
     </Compile>
-    <Compile Include="MainWindow.cs">
+    <Compile Include="Forms\MainWindow.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="MainWindow.Designer.cs">
+    <Compile Include="Forms\MainWindow.Designer.cs">
       <DependentUpon>MainWindow.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="UIHelper.cs" />
-    <EmbeddedResource Include="DialogWindow.resx">
+    <EmbeddedResource Include="Forms\DialogWindow.resx">
       <DependentUpon>DialogWindow.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="LocationControl.resx">
+    <EmbeddedResource Include="User Controls\LocationControl.resx">
       <DependentUpon>LocationControl.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="LocationGridControl.resx">
-      <DependentUpon>LocationGridControl.cs</DependentUpon>
+    <EmbeddedResource Include="User Controls\GridControl.resx">
+      <DependentUpon>GridControl.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="LoginScreen.resx">
+    <EmbeddedResource Include="Forms\LoginScreen.resx">
       <DependentUpon>LoginScreen.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="MainWindow.resx">
+    <EmbeddedResource Include="Forms\MainWindow.resx">
       <DependentUpon>MainWindow.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">

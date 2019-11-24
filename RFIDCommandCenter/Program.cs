@@ -143,7 +143,7 @@ namespace RFIDCommandCenter
                 {
                     newClient = netObj.acceptPendingClient(100000);
                 }
-                catch(Exception e)
+                catch
                 {
                     DialogResult result = MessageBox.Show(null,
                       "The client failed to connect\nContinue?",
