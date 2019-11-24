@@ -29,14 +29,14 @@
         private void InitializeComponent()
         {
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+            this.lostLabel = new System.Windows.Forms.Label();
+            this.lostCheckbox = new System.Windows.Forms.CheckBox();
             this.tagNameTextbox = new System.Windows.Forms.TextBox();
             this.usernameLabel = new System.Windows.Forms.Label();
+            this.roleLabel = new System.Windows.Forms.Label();
             this.passwordLabel = new System.Windows.Forms.Label();
             this.tagDataTextbox = new System.Windows.Forms.TextBox();
             this.guestCheckbox = new System.Windows.Forms.CheckBox();
-            this.lostCheckbox = new System.Windows.Forms.CheckBox();
-            this.roleLabel = new System.Windows.Forms.Label();
-            this.label1 = new System.Windows.Forms.Label();
             this.tableLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -47,7 +47,7 @@
             this.tableLayoutPanel1.ColumnCount = 2;
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-            this.tableLayoutPanel1.Controls.Add(this.label1, 0, 3);
+            this.tableLayoutPanel1.Controls.Add(this.lostLabel, 0, 3);
             this.tableLayoutPanel1.Controls.Add(this.lostCheckbox, 0, 3);
             this.tableLayoutPanel1.Controls.Add(this.tagNameTextbox, 1, 0);
             this.tableLayoutPanel1.Controls.Add(this.usernameLabel, 0, 0);
@@ -65,6 +65,27 @@
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.Size = new System.Drawing.Size(320, 124);
             this.tableLayoutPanel1.TabIndex = 1;
+            // 
+            // lostLabel
+            // 
+            this.lostLabel.Anchor = System.Windows.Forms.AnchorStyles.Right;
+            this.lostLabel.AutoSize = true;
+            this.lostLabel.Location = new System.Drawing.Point(39, 102);
+            this.lostLabel.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
+            this.lostLabel.Name = "lostLabel";
+            this.lostLabel.Size = new System.Drawing.Size(32, 17);
+            this.lostLabel.TabIndex = 8;
+            this.lostLabel.Text = "Lost";
+            // 
+            // lostCheckbox
+            // 
+            this.lostCheckbox.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.lostCheckbox.AutoSize = true;
+            this.lostCheckbox.Location = new System.Drawing.Point(77, 103);
+            this.lostCheckbox.Name = "lostCheckbox";
+            this.lostCheckbox.Size = new System.Drawing.Size(15, 14);
+            this.lostCheckbox.TabIndex = 7;
+            this.lostCheckbox.UseVisualStyleBackColor = true;
             // 
             // tagNameTextbox
             // 
@@ -84,6 +105,17 @@
             this.usernameLabel.Size = new System.Drawing.Size(68, 17);
             this.usernameLabel.TabIndex = 3;
             this.usernameLabel.Text = "Tag Name";
+            // 
+            // roleLabel
+            // 
+            this.roleLabel.Anchor = System.Windows.Forms.AnchorStyles.Right;
+            this.roleLabel.AutoSize = true;
+            this.roleLabel.Location = new System.Drawing.Point(5, 75);
+            this.roleLabel.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
+            this.roleLabel.Name = "roleLabel";
+            this.roleLabel.Size = new System.Drawing.Size(66, 17);
+            this.roleLabel.TabIndex = 5;
+            this.roleLabel.Text = "Guest Tag";
             // 
             // passwordLabel
             // 
@@ -115,38 +147,6 @@
             this.guestCheckbox.TabIndex = 6;
             this.guestCheckbox.UseVisualStyleBackColor = true;
             // 
-            // lostCheckbox
-            // 
-            this.lostCheckbox.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.lostCheckbox.AutoSize = true;
-            this.lostCheckbox.Location = new System.Drawing.Point(77, 103);
-            this.lostCheckbox.Name = "lostCheckbox";
-            this.lostCheckbox.Size = new System.Drawing.Size(15, 14);
-            this.lostCheckbox.TabIndex = 7;
-            this.lostCheckbox.UseVisualStyleBackColor = true;
-            // 
-            // roleLabel
-            // 
-            this.roleLabel.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.roleLabel.AutoSize = true;
-            this.roleLabel.Location = new System.Drawing.Point(5, 75);
-            this.roleLabel.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
-            this.roleLabel.Name = "roleLabel";
-            this.roleLabel.Size = new System.Drawing.Size(66, 17);
-            this.roleLabel.TabIndex = 5;
-            this.roleLabel.Text = "Guest Tag";
-            // 
-            // label1
-            // 
-            this.label1.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(39, 102);
-            this.label1.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(32, 17);
-            this.label1.TabIndex = 8;
-            this.label1.Text = "Lost";
-            // 
             // TagControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
@@ -173,7 +173,7 @@
         private System.Windows.Forms.Label passwordLabel;
         private System.Windows.Forms.TextBox tagDataTextbox;
         private System.Windows.Forms.CheckBox guestCheckbox;
-        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label lostLabel;
         private System.Windows.Forms.CheckBox lostCheckbox;
         private System.Windows.Forms.Label roleLabel;
     }

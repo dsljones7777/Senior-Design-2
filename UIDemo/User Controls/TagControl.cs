@@ -12,9 +12,13 @@ namespace UIDemo.User_Controls
 {
     public partial class TagControl : UserControl
     {
-        public TagControl()
+        public TagControl(string tagName, string tagBytes, bool isLost, bool isGuest)
         {
             InitializeComponent();
+            tagNameTextbox.Text = tagName;
+            tagDataTextbox.Text = tagBytes;
+            lostCheckbox.Checked = isLost;
+            guestCheckbox.Checked = isGuest;
         }
 
         public string TagName
@@ -43,5 +47,22 @@ namespace UIDemo.User_Controls
             }
         }
 
+        public bool IsLost
+        {
+            get
+            {
+                return lostCheckbox.Checked;
+            }
+        }
+
+        public void hideLostOption()
+        {
+            lostCheckbox.Visible = false;
+        }
+
+        public void disableTagByteEditing()
+        {
+            tagDataTextbox.Enabled = false;
+        }
     }
 }

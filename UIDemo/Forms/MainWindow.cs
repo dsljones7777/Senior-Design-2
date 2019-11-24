@@ -20,10 +20,11 @@ namespace UIDemo
             Columns =
                 {
                     new DataColumn("Tag Name",typeof(string)),
-                    new DataColumn("Is Guest Tag", typeof(bool)),
                     new DataColumn("Last Location",typeof(string)),
                     new DataColumn("Present",typeof(bool)),
-                    new DataColumn("Tag Number",typeof(string))
+                    new DataColumn("Tag Number",typeof(string)),
+                    new DataColumn("Lost",typeof(bool)),
+                    new DataColumn("Guest", typeof(bool)),
                 }
         };
 
@@ -176,7 +177,7 @@ namespace UIDemo
             }
             tagTable.Clear();
             foreach (var x in rpc.tagList)
-                tagTable.Rows.Add(x.TagName, x.LastLocation ,x.InLocation,x.TagNumber);
+                tagTable.Rows.Add(x.TagName, x.LastLocation ?? "" ,x.InLocation,x.TagNumber,x.LostTag,x.GuestTag);
             gridCtl = new GridControl(true, true, true, true, true);
             gridCtl.load(tagTable, addNewTag, editTag, removeTags);
             DialogWindow window = new DialogWindow("View Tags", null, gridCtl, false, false);
@@ -185,7 +186,8 @@ namespace UIDemo
 
         private async void addNewTag(object sender, EventArgs e)
         {
-            tagCtl = new TagControl();
+            tagCtl = new TagControl("","",false,false);
+            tagCtl.hideLostOption();
             DialogWindow tagWindow = new DialogWindow("Add New Tag", null, tagCtl);
             DialogResult result = tagWindow.ShowDialog(this);
             if (result != DialogResult.OK)
@@ -222,21 +224,31 @@ namespace UIDemo
             MessageBox.Show(this, "The users were successfully removed from the system", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
         }
 
-        private void editTag(object sender, EventArgs e)
+        private async void editTag(object sender, EventArgs e)
         {
             DataRow[] tags = gridCtl.getSelectedItems();
             if (tags == null || tags.Length == 0)
                 return;
-            bool isGuest = tags[0][""]
-            SystemUserControl ctl = new SystemUserControl(users[0]["User Name"] as string, usrRole);
-            ctl.disableNameEditing();
-            DialogWindow window = new DialogWindow("Edit User", null, ctl, true, true);
+            bool isGuest = (bool)tags[0]["Guest"];
+            bool isLost = (bool)tags[0]["Lost"];
+            string name = (string)tags[0]["Tag Name"];
+            string bytes = (string)tags[0]["Tag Number"];
+            tagCtl = new TagControl(name, bytes, isLost, isGuest);
+            tagCtl.disableTagByteEditing();
+            DialogWindow window = new DialogWindow("Edit Tag", null, tagCtl, true, true);
             DialogResult result = window.ShowDialog(this);
             if (result != DialogResult.OK)
                 return;
-            NetworkLib.Role newRole = ctl.UserRole;
-
-            EditUserRPC rpc = new EditUserRPC(ctl.Username, ctl.Password, newRole, newRole != usrRole);
+            EditTagRPC rpc = new EditTagRPC()
+            {
+                tagNumber = tagCtl.TagData
+            };
+            if (!String.Equals(name, tagCtl.TagName))
+                rpc.name = tagCtl.TagName;
+            if (isGuest != tagCtl.IsGuest)
+                rpc.guest = tagCtl.IsGuest;
+            if (isLost != tagCtl.IsLost)
+                rpc.lost = tagCtl.IsLost;
             await rpc.executeAsync();
         }
 

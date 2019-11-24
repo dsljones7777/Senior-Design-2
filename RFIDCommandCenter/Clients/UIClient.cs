@@ -128,8 +128,10 @@ namespace RFIDCommandCenter
                     if (op.serialNumber != null)
                         msgRecevied(op.serialNumber, op.retry);
                 }
-                else if(cmd.GetType() == typeof(ViewLocationsRPC))
-                    viewLocation(context);
+                else if (cmd.GetType() == typeof(ViewLocationsRPC))
+                    viewLocations(context);
+                else if (cmd.GetType() == typeof(ViewTagsRPC))
+                    viewTags(context);
                 else
                     throw new Exception("Client sent an invalid RPC", null);
             }
@@ -152,13 +154,22 @@ namespace RFIDCommandCenter
         }
 
         #region RPCLogic
-        void viewLocation(DataContext context)
+        void viewLocations(DataContext context)
         {
             var allLocations = new Logic.ViewLocations();
             ViewLocationsRPC rpc = new ViewLocationsRPC();
             rpc.locationList = allLocations.Execute(context);
             sendRPC(rpc);
         }
+
+        void viewTags(DataContext context)
+        {
+            var allTags = new Logic.ViewTags();
+            ViewTagsRPC rpc = new ViewTagsRPC();
+            rpc.tagList = allTags.Execute(context);
+            sendRPC(rpc);
+        }
+
         void loginUser(LoginUserRPC loginData, DataContext context)
         {
             var login = new Logic.Login();
