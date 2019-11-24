@@ -21,8 +21,11 @@ namespace RFIDCommandCenter.Logic
             if (tagName != null)
                 existingTag.Name = tagName;
 
-            existingTag.LostTag = lost.Value;
-
+            if(lost.HasValue)
+            {
+                existingTag.LostTag = lost.Value;
+            }
+            
             context.SaveChanges();
         }
     }

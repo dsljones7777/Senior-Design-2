@@ -122,6 +122,14 @@ namespace RFIDCommandCenter
                     tagArrive(cmd, context);
                 else if (cmd.GetType() == typeof(TagLeaveRPC))
                     tagLeave(cmd, context);
+                else if (cmd.GetType() == typeof(ViewLocationsRPC))
+                    viewLocations(cmd, context);
+                else if (cmd.GetType() == typeof(ViewAllowedLocationsRPC))
+                    viewAllowedLocations(cmd, context);
+                else if (cmd.GetType() == typeof(ViewUserRPC))
+                    viewUsers(cmd, context);
+                else if (cmd.GetType() == typeof(GetUniqueSerialNumbersRPC))
+                    getUniqueSerialNumbers(cmd, context);
                 else if (cmd.GetType() == typeof(ErrorReplyRPC))
                 {
                     ErrorReplyRPC op = (ErrorReplyRPC)cmd;
@@ -320,6 +328,13 @@ namespace RFIDCommandCenter
             var viewUsers = new Logic.ViewUsers();
             var userList = viewUsers.Execute(context);
             sendRPC(new ViewUserRPC { userList = userList });
+        }
+
+        void getUniqueSerialNumbers(object cmd, DataContext context)
+        {
+            GetUniqueSerialNumbersRPC op = (GetUniqueSerialNumbersRPC)cmd;
+            var uniqueSerials = new Logic.GetAllUniqueSerialNumbers();
+            sendRPC(new GetUniqueSerialNumbersRPC { serialNumberList = uniqueSerials.Execute(context) });
         }
 
         //void editUser(object cmd, DataContext context)
