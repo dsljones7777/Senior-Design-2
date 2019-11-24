@@ -177,7 +177,11 @@ namespace UIDemo
             }
             tagTable.Clear();
             foreach (var x in rpc.tagList)
-                tagTable.Rows.Add(x.TagName, x.LastLocation ?? "" ,x.InLocation,x.TagNumber,x.LostTag,x.GuestTag);
+            {
+                string tagVal = BitConverter.ToString(x.TagNumber).Replace("-", "");
+                tagTable.Rows.Add(x.TagName, x.LastLocation ?? "", x.InLocation, tagVal, x.LostTag, x.GuestTag);
+            }
+                
             gridCtl = new GridControl(true, true, true, true, true);
             gridCtl.load(tagTable, addNewTag, editTag, removeTags);
             DialogWindow window = new DialogWindow("View Tags", null, gridCtl, false, false);
@@ -189,6 +193,22 @@ namespace UIDemo
             tagCtl = new TagControl("","",false,false);
             tagCtl.hideLostOption();
             DialogWindow tagWindow = new DialogWindow("Add New Tag", null, tagCtl);
+            tagWindow.OkButtonHandler = 
+                () => 
+                {
+                    if(String.IsNullOrWhiteSpace(tagCtl.TagName))
+                    {
+                        MessageBox.Show(tagCtl, "You have specify the tag name", "Tag Invalid", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return false;
+                    }
+                    if (String.IsNullOrWhiteSpace(tagCtl.TagString) || tagCtl.TagString.Length % 2 != 0)
+                    {
+                        MessageBox.Show(tagCtl, "You have specify the tag number and it must be an even length", "Tag Invalid", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return false;
+                    }
+                    return true;
+                };
+
             DialogResult result = tagWindow.ShowDialog(this);
             if (result != DialogResult.OK)
                 return;
@@ -198,7 +218,15 @@ namespace UIDemo
                 tagNumber = tagCtl.TagData,
                 guest = tagCtl.IsGuest
             };
-            await rpc.executeAsync();
+            try
+            {
+                await rpc.executeAsync();
+            }
+            catch(Exception e1)
+            {
+
+            }
+            
         }
 
         private async void removeTags(object sender, EventArgs e)
@@ -206,7 +234,7 @@ namespace UIDemo
             DataRow[] tags = gridCtl.getSelectedItems();
             if (tags == null || tags.Length == 0)
                 return;
-            DialogResult result = MessageBox.Show(this, "Are you sure you want to remove the selected tags?", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            DialogResult result = MessageBox.Show(tagCtl, "Are you sure you want to remove the selected tags?", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
             if (result != DialogResult.Yes)
                 return;
             foreach (DataRow tag in tags)
@@ -221,7 +249,7 @@ namespace UIDemo
                     return;
                 gridCtl.removeRow(tag);
             };
-            MessageBox.Show(this, "The users were successfully removed from the system", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            MessageBox.Show(tagCtl, "The tags were successfully removed from the system", "Removed Tags", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private async void editTag(object sender, EventArgs e)
@@ -249,7 +277,9 @@ namespace UIDemo
                 rpc.guest = tagCtl.IsGuest;
             if (isLost != tagCtl.IsLost)
                 rpc.lost = tagCtl.IsLost;
-            await rpc.executeAsync();
+            var task = rpc.executeAsync();
+            await task;
+
         }
 
         private async void viewLocationsButton_Click(object sender, EventArgs e)

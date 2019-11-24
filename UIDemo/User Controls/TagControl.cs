@@ -29,13 +29,29 @@ namespace UIDemo.User_Controls
             }
         }
 
+        byte[] hexStringToByteArray(string hexString)
+        {
+            return Enumerable.Range(0, hexString.Length)
+                             .Where(x => x % 2 == 0)
+                             .Select(x => Convert.ToByte(hexString.Substring(x, 2), 16))
+                             .ToArray();
+        }
+
+        public string TagString
+        {
+            get
+            {
+                return tagDataTextbox.Text;
+            }
+        }
+
         public byte[] TagData
         {
             get
             {
                 if (String.IsNullOrWhiteSpace(tagDataTextbox.Text))
                     return null;
-                return Convert.FromBase64String(tagDataTextbox.Text);
+                return hexStringToByteArray(tagDataTextbox.Text);
             }
         }
 

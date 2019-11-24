@@ -14,7 +14,11 @@ namespace RFIDCommandCenter.Logic
             if (tagToDelete == null)
                 throw new ApplicationException("A Tag that ID does not exist");
 
-            tagToDelete.Active = false;
+            var allowedLocationsWithTagId = context.AllowedLocations.Where(l => l.TagID == tagToDelete.ID).ToList();
+
+            context.AllowedLocations.RemoveRange(allowedLocationsWithTagId);
+            
+            context.Tags.Remove(tagToDelete); 
 
             context.SaveChanges();
         }

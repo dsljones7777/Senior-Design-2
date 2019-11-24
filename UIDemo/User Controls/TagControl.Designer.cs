@@ -135,7 +135,6 @@
             this.tagDataTextbox.Name = "tagDataTextbox";
             this.tagDataTextbox.Size = new System.Drawing.Size(240, 25);
             this.tagDataTextbox.TabIndex = 1;
-            this.tagDataTextbox.UseSystemPasswordChar = true;
             // 
             // guestCheckbox
             // 

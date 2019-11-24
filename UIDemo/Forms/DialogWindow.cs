@@ -15,6 +15,7 @@ namespace UIDemo
         public DialogWindow(string title, string caption, Control usrControl, bool showOk = true, bool showCancel = true)
         {
             InitializeComponent();
+            this.DialogResult = DialogResult.Cancel;
             this.Text = title;
             if (String.IsNullOrWhiteSpace(caption))
                 captionLabel.Visible = false;
@@ -35,14 +36,12 @@ namespace UIDemo
 
         private void cancelButton_Click(object sender, EventArgs e)
         {
-            this.DialogResult = DialogResult.Cancel;
             this.Close();
         }
 
         private void DialogWindow_FormClosed(object sender, FormClosedEventArgs e)
         {
-            if(e.CloseReason == CloseReason.UserClosing)
-                this.DialogResult = DialogResult.Cancel;
+           
         }
 
         private void DialogWindow_Load(object sender, EventArgs e)

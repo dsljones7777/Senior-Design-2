@@ -20,7 +20,7 @@ namespace SharedLib
         public class ViewTagModel
         {
             public string TagName { get; set; }
-            public string TagNumber { get; set; }
+            public byte[] TagNumber { get; set; }
             public string LastLocation { get; set; }
             public bool InLocation { get; set; }
             public bool LostTag { get; set; }

@@ -53,6 +53,10 @@ namespace RFIDCommandCenter
 
                 }
             }
+            catch(Exception e)
+            {
+
+            }
             return true;
         }
 
@@ -122,24 +126,22 @@ namespace RFIDCommandCenter
                     tagArrive(cmd, context);
                 else if (cmd.GetType() == typeof(TagLeaveRPC))
                     tagLeave(cmd, context);
-                else if (cmd.GetType() == typeof(ViewLocationsRPC))
-                    viewLocations(cmd, context);
                 else if (cmd.GetType() == typeof(ViewAllowedLocationsRPC))
                     viewAllowedLocations(cmd, context);
                 else if (cmd.GetType() == typeof(ViewUserRPC))
                     viewUsers(cmd, context);
                 else if (cmd.GetType() == typeof(GetUniqueSerialNumbersRPC))
                     getUniqueSerialNumbers(cmd, context);
+                else if (cmd.GetType() == typeof(ViewLocationsRPC))
+                    viewLocations(context);
+                else if (cmd.GetType() == typeof(ViewTagsRPC))
+                    viewTags(context);
                 else if (cmd.GetType() == typeof(ErrorReplyRPC))
                 {
                     ErrorReplyRPC op = (ErrorReplyRPC)cmd;
                     if (op.serialNumber != null)
                         msgRecevied(op.serialNumber, op.retry);
                 }
-                else if (cmd.GetType() == typeof(ViewLocationsRPC))
-                    viewLocations(context);
-                else if (cmd.GetType() == typeof(ViewTagsRPC))
-                    viewTags(context);
                 else
                     throw new Exception("Client sent an invalid RPC", null);
             }
@@ -269,7 +271,7 @@ namespace RFIDCommandCenter
         {
             EditTagRPC op = (EditTagRPC)cmd;
             var editTag = new Logic.EditTag();
-            editTag.Execute(op.tagNumber, op.name, op.lost, context);
+            editTag.Execute(op.tagNumber, op.name, op.lost,op.guest, context);
         }
 
         private static void removeConnectedDevices(DataContext context)
@@ -304,14 +306,6 @@ namespace RFIDCommandCenter
             TagLeaveRPC op = (TagLeaveRPC)cmd;
             var tagArrive = new Logic.TagLeave();
             tagArrive.Execute(op.tagNumber, context);
-        }
-
-        void viewLocations(object cmd, DataContext context)
-        {
-            ViewLocationsRPC op = (ViewLocationsRPC)cmd;
-            var viewLocations = new Logic.ViewLocations();
-            var locations = viewLocations.Execute(context);
-            sendRPC(new ViewLocationsRPC { locationList = locations});
         }
 
         void viewAllowedLocations(object cmd, DataContext context)
