@@ -93,22 +93,36 @@ namespace RFIDCommandCenter
             using (var context = new DataContext())
             {
                 if (cmd.GetType() == typeof(LoginUserRPC))
-                    loginUser((LoginUserRPC)cmd,context);
+                    loginUser((LoginUserRPC)cmd, context);
                 else if (clientUsername == null)
                     throw new Exception("You must be logged in to do that");
-                else if(cmd.GetType() == typeof(SaveTagRPC))
+                else if (cmd.GetType() == typeof(SaveTagRPC))
                     saveTag(cmd, context);
-                else if(cmd.GetType() == typeof(DeleteTagRPC))
+                else if (cmd.GetType() == typeof(DeleteTagRPC))
                     deleteTag(cmd, context);
                 else if (cmd.GetType() == typeof(SaveSystemUserRPC))
                     saveSystemUser(cmd, context);
                 else if (cmd.GetType() == typeof(DeleteSystemUserRPC))
                     deleteSystemUser(cmd, context);
-                else if(cmd.GetType() == typeof(SaveLocationRPC))
+                else if (cmd.GetType() == typeof(SaveLocationRPC))
                     saveLocation(cmd, context);
-                else if(cmd.GetType() == typeof(DeleteLocationRPC))
+                else if (cmd.GetType() == typeof(DeleteLocationRPC))
                     deleteLocation(cmd, context);
-                else if(cmd.GetType() == typeof(ErrorReplyRPC))
+                else if (cmd.GetType() == typeof(EditLocationRPC))
+                    editLocation(cmd, context);
+                else if (cmd.GetType() == typeof(EditTagRPC))
+                    editTag(cmd, context);
+                else if (cmd.GetType() == typeof(RemoveConnectedDevicesRPC))
+                    removeConnectedDevices(context);
+                else if (cmd.GetType() == typeof(SaveAllowedLocationsRPC))
+                    saveAllowedTagLocation(cmd, context);
+                else if (cmd.GetType() == typeof(SaveConnectedDeviceRPC))
+                    saveConnectedDevice(cmd, context);
+                else if (cmd.GetType() == typeof(TagArriveRPC))
+                    tagArrive(cmd, context);
+                else if (cmd.GetType() == typeof(TagLeaveRPC))
+                    tagLeave(cmd, context);
+                else if (cmd.GetType() == typeof(ErrorReplyRPC))
                 {
                     ErrorReplyRPC op = (ErrorReplyRPC)cmd;
                     if (op.serialNumber != null)
@@ -117,7 +131,7 @@ namespace RFIDCommandCenter
                 else if(cmd.GetType() == typeof(ViewLocationsRPC))
                     viewLocation(context);
                 else
-                    throw new Exception("Client sent an invalid RPC",null);
+                    throw new Exception("Client sent an invalid RPC", null);
             }
         }
 
@@ -205,7 +219,7 @@ namespace RFIDCommandCenter
         {
             SaveTagRPC op = (SaveTagRPC)cmd;
             var saveTag = new Logic.SaveTag();
-            saveTag.Execute(op.tagNumber, op.name, context);
+            saveTag.Execute(op.tagNumber, op.name, op.guest, context);
         }
 
         void sendRPC(UINetworkPacket packet)
@@ -224,6 +238,75 @@ namespace RFIDCommandCenter
             BinaryFormatter formatSerializer = new BinaryFormatter();
             formatSerializer.Serialize(clientStream, errorRpc);
         }
+
+        private static void editLocation(object cmd, DataContext context)
+        {
+            EditLocationRPC op = (EditLocationRPC)cmd;
+            var editLocation = new Logic.EditLocation();
+            editLocation.Execute(op.currentLocationName, op.newLocationName, op.readerSerialIn, op.readerSerialOut, context);
+        }
+
+        private static void editTag(object cmd, DataContext context)
+        {
+            EditTagRPC op = (EditTagRPC)cmd;
+            var editTag = new Logic.EditTag();
+            editTag.Execute(op.tagNumber, op.name, op.lost, context);
+        }
+
+        private static void removeConnectedDevices(DataContext context)
+        {
+            var removeDevices = new Logic.RemoveAllConnectedDevices();
+            removeDevices.Execute(context);
+        }
+
+        private static void saveAllowedTagLocation(object cmd, DataContext context)
+        {
+            SaveAllowedLocationsRPC op = (SaveAllowedLocationsRPC) cmd;
+            var saveAllowedLocations = new Logic.SaveAllowedTagLocation();
+            saveAllowedLocations.Execute(op.tagID, op.locationID, context);
+        }
+
+        private static void saveConnectedDevice(object cmd, DataContext context)
+        {
+            SaveConnectedDeviceRPC op = (SaveConnectedDeviceRPC)cmd;
+            var saveConnectedDevice = new Logic.SaveConnectedDevice();
+            saveConnectedDevice.Execute(op.serialNumber, context);
+        }
+
+        private static void tagArrive(object cmd, DataContext context)
+        {
+            TagArriveRPC op = (TagArriveRPC)cmd;
+            var tagArrive = new Logic.TagArrive();
+            tagArrive.Execute(op.tagNumber, op.deviceSerialNumber, context);
+        }
+
+        private static void tagLeave(object cmd, DataContext context)
+        {
+            TagLeaveRPC op = (TagLeaveRPC)cmd;
+            var tagArrive = new Logic.TagLeave();
+            tagArrive.Execute(op.tagNumber, context);
+        }
+
+        void viewLocations(object cmd, DataContext context)
+        {
+            ViewLocationsRPC op = (ViewLocationsRPC)cmd;
+            var viewLocations = new Logic.ViewLocations();
+            var locations = viewLocations.Execute(context);
+            sendRPC(new ViewLocationsRPC { locationList = locations});
+        }
+
+        void viewAllowedLocations(object cmd, DataContext context)
+        {
+
+        }
+
+        //void editUser(object cmd, DataContext context)
+        //{
+        //    EditUserRPC op = (EditUserRPC)cmd;
+        //    var editUser = new Logic.EditUser();
+        //    editUser.Execute(op)
+        //}
+
         #endregion
 
     }

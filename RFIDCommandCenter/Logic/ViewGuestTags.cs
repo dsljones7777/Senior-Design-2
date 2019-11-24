@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace RFIDCommandCenter.Logic
 {
-    public class ViewTags
+    public class ViewGuestTags
     {
         public List<SharedLib.SharedModels.ViewTagModel> Execute(DataContext context)
         {
-            var tagList = context.Tags.ToList();
+            var tagList = context.Tags.Where(t => t.Guest).ToList();
 
             var locationList = context.Locations.ToList();
 
@@ -19,7 +19,7 @@ namespace RFIDCommandCenter.Logic
                 TagName = x.Name,
                 TagNumber = Convert.ToBase64String(x.TagNumber),
                 LastLocation = locationList.FirstOrDefault(l => l.ID == x.LastLocation).LocationName
-            });            
+            });
         }
     }
 }

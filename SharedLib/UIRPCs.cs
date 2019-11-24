@@ -20,6 +20,7 @@ namespace SharedLib
         {
             public byte[] tagNumber;
             public string name;
+            public bool guest;
         }
 
         [Serializable]
@@ -169,17 +170,63 @@ namespace SharedLib
         [Serializable]
         public class EditLocationRPC : UINetworkPacket
         {
-            string currentLocationName;
-            string newLocationName;
-            string readerSerialIn;
-            string readerSerialOut;
+            public string currentLocationName;
+            public string newLocationName;
+            public string readerSerialIn;
+            public string readerSerialOut;
         }
 
         [Serializable]
         public class AddTagToLocation : UINetworkPacket
         {
-            int tagID;
-            int locationID;
+            public int tagID;
+            public int locationID;
+        }
+
+        [Serializable]
+        public class EditTagRPC : UINetworkPacket
+        {
+            public byte[] tagNumber;
+            public string name;
+            public bool lost;
+        }
+
+        [Serializable]
+        public class RemoveConnectedDevicesRPC : UINetworkPacket
+        {
+
+        }
+
+        [Serializable]
+        public class SaveAllowedLocationsRPC : UINetworkPacket
+        {
+            public int tagID;
+            public int locationID;
+        }   
+        
+        [Serializable]
+        public class SaveConnectedDeviceRPC : UINetworkPacket
+        {
+            public string serialNumber;
+        }
+
+        [Serializable]
+        public class TagArriveRPC : UINetworkPacket
+        {
+            public byte[] tagNumber;
+            public string deviceSerialNumber;
+        }
+
+        [Serializable]
+        public class TagLeaveRPC : UINetworkPacket
+        {
+            public byte[] tagNumber;
+        }
+        
+        [Serializable]
+        public class ViewAllowedLocationsRPC : UINetworkPacket
+        {
+
         }
     }
     

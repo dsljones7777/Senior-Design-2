@@ -9,7 +9,7 @@ namespace RFIDCommandCenter.Logic
 {
     public class SaveTag
     {
-        public void Execute(byte[] tagNumber, string name, DataContext context)
+        public void Execute(byte[] tagNumber, string name, bool guest, DataContext context)
         {
             var tag = context.Tags.FirstOrDefault(t => t.TagNumber == tagNumber);
 
@@ -20,6 +20,7 @@ namespace RFIDCommandCenter.Logic
             {
                 TagNumber = tagNumber,
                 Name = name,
+                Guest = guest,
                 Active = true
             };
 
