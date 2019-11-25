@@ -1,4 +1,5 @@
 ﻿using Network;
+using SharedLib;
 using SharedLib.Network;
 using System;
 using System.Collections.Generic;
@@ -100,7 +101,7 @@ namespace RFIDCommandCenter
                 if (cmd.GetType() == typeof(LoginUserRPC))
                     loginUser((LoginUserRPC)cmd, context);
                 else if (clientUsername == null)
-                    throw new Exception("You must be logged in to do that");
+                    throw new UIClientException("You must be logged in to do that");
                 else if (cmd.GetType() == typeof(SaveTagRPC))
                     saveTag(cmd, context);
                 else if (cmd.GetType() == typeof(DeleteTagRPC))
@@ -150,7 +151,7 @@ namespace RFIDCommandCenter
                         msgRecevied(op.serialNumber, op.retry);
                 }
                 else
-                    throw new Exception("Client sent an invalid RPC", null);
+                    throw new UIClientException("Client sent an invalid RPC");
             }
         }
         

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SharedLib;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,7 +14,7 @@ namespace RFIDCommandCenter.Logic
             var existingLocation = context.Locations.SingleOrDefault(l => l.LocationName == locationName);
 
             if (existingLocation == null)
-                throw new Exception("There is no location with that location name/reader serial combo.");
+                throw new UIClientException("There is no location with that location name/reader serial combo.");
 
             var allowedLocations = context.AllowedLocations.Where(l => l.LocationID == existingLocation.ID).ToList();
 

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SharedLib;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
@@ -14,7 +15,7 @@ namespace RFIDCommandCenter.Logic
             var tag = context.Tags.FirstOrDefault(t => t.TagNumber == tagNumber);
 
             if (tag != null)
-                throw new ApplicationException("A tag with that number already exists.");
+                throw new UIClientException("A tag with that number already exists.");
 
             var tageEntity = new Tag
             {

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SharedLib;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,7 +14,7 @@ namespace RFIDCommandCenter.Logic
             var existingUser = context.SystemUsers.SingleOrDefault(x => x.Username == username);
 
             if (existingUser == null)
-                throw new Exception("There is no user with that username in the database");
+                throw new UIClientException("There is no user with that username in the database");
 
             if (pass != null)
                 existingUser.Pass = pass;
