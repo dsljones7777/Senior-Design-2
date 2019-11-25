@@ -33,7 +33,9 @@ namespace RFIDDeviceController
 			DEVICE_ERROR=15,
 			CONFIRMATION_SYNC_TICK_COUNT = 16,
 			REBOOT_READER = 17,		
-			WAIT = 18					//Wait for a response, pump alive packets
+			WAIT = 18,					//Wait for a response, pump alive packets
+			SERIAL_NUMBER = 19,          //Request device serial
+			START_READER = 20
 		};
 #pragma pack(1)
 		struct NetworkBytecode
@@ -193,6 +195,28 @@ namespace RFIDDeviceController
 			WaitNetParam()
 			{
 				
+			}
+		};
+
+		struct StartReaderNetParam : public NetworkBytecode
+		{
+		private:
+			StartReaderNetParam()
+			{
+
+			}
+		};
+
+		struct ReaderSerialNetParam : public NetworkBytecode
+		{
+		public:
+			char devSerial[65];
+			ReaderSerialNetParam(char const * serialNumber)
+			{
+				cmd = (int)CommandCodes::SERIAL_NUMBER;
+				payloadSize = sizeof(ReaderSerialNetParam) - sizeof(NetworkBytecode);
+				for (int i = 0; serialNumber[i]; i++)
+					devSerial[i] = serialNumber[i];
 			}
 		};
 #pragma pack()

@@ -46,6 +46,8 @@ namespace UIDemo
         {
             get
             {
+                if (String.IsNullOrWhiteSpace(serialOutCombo.Text))
+                    return null;
                 return serialOutCombo.Text;
             }
             set

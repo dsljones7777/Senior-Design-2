@@ -14,7 +14,7 @@ namespace RFIDDeviceController
 
 		DeviceController();
 		virtual ~DeviceController();
-
+		
 		//Estimated tags per read (per 250ms)
 		static const int TAG_BUFFER_SIZE = 5;											
 		static const int REMEMBERANCE_TAG_BUFFER_SIZE = 10 * 4 * TAG_BUFFER_SIZE;		//10 seconds* 4 times a second (250ms reader tick rate) * Estimated tags per read (per read tick rate)
@@ -75,6 +75,8 @@ namespace RFIDDeviceController
 
 		void sendWithoutAssurance();
 
+		void sendSerialNumberToServer();
+
 		Communication::GenericNetworkBytecode buffer;
 
 		Communication::IClientToHostCommunication * comm = nullptr;
@@ -108,7 +110,10 @@ namespace RFIDDeviceController
 		//the server as arriving, leaving
 		void updateTagsWithServer();
 
-
+		virtual void wait(int ms)
+		{
+			Sleep((DWORD)ms);
+		}
 		
 
 		//Array for easier offsetting of epc buffer when reading

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net.Sockets;
+using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -46,7 +47,9 @@ namespace RFIDCommandCenter
             DEVICE_ERROR = 15,
             CONFIRMATION_SYNC_TICK_COUNT = 16,
             REBOOT_READER = 17,
-            WAIT = 18					//Wait for a response, pump alive packets
+            WAIT = 18,					//Wait for a response, pump alive packets
+            SERIAL_NUMBER = 19,          //Request device serial
+            START_READER = 20
         }
 
         public enum ErrorCodes
@@ -74,7 +77,14 @@ namespace RFIDCommandCenter
 #if DEBUG
             reportCommandInfo(bufferPacket);
 #endif
-
+            sendCommand(bufferPacket, CommandCodes.START_READER, NETWORK_TIMEOUT * 1000, true, true);
+#if DEBUG
+            reportCommandInfo(bufferPacket);
+#endif
+            sendCommand(bufferPacket, CommandCodes.SERIAL_NUMBER, NETWORK_TIMEOUT * 1000, true, true,new byte[65]);
+#if DEBUG
+            reportCommandInfo(bufferPacket);
+#endif
             //program loop, run until we are told to exit
             while (!exit)
             {
@@ -94,8 +104,6 @@ namespace RFIDCommandCenter
                     reportError(e.Message);
                     continue;
                 }
-
-
             }
         }
 
@@ -111,7 +119,7 @@ namespace RFIDCommandCenter
                         if (tagArriveNum == null)
                             throw new ApplicationException("Invalid payload data");
                         var tagArrive = new Logic.TagArrive();
-                        tagArrive.Execute(tagArriveNum, deviceSerialNumber,context);
+                        //tagArrive.Execute(tagArriveNum, deviceSerialNumber,context);
                         //If allowed location exits then
                         cmdPacket.command = (int)CommandCodes.UNLOCK;
                         //else
@@ -121,8 +129,8 @@ namespace RFIDCommandCenter
                         var tagLeavingNum = (byte[])cmdPacket.payload;
                         if (tagLeavingNum == null)
                             throw new ApplicationException("Invalid payload data");
-                        var tagLeave = new Logic.TagLeave();
-                        tagLeave.Execute(tagLeavingNum, context);
+                        //var tagLeave = new Logic.TagLeave();
+                        //tagLeave.Execute(tagLeavingNum, context);
                         break;
                     case (int)CommandCodes.ALIVE:
                         //Write to db
@@ -132,6 +140,12 @@ namespace RFIDCommandCenter
                         break;
                     case (int)CommandCodes.DEVICE_ERROR:
                         handleDeviceError(cmdPacket);
+                        break;
+                    case (int)CommandCodes.SERIAL_NUMBER:
+                        deviceSerialNumber = Encoding.ASCII.GetString(cmdPacket.payload);
+                        pauseExecution = true;
+                        while (pauseExecution)
+                            Thread.Yield();
                         break;
                 }
             }
@@ -159,6 +173,11 @@ namespace RFIDCommandCenter
                     {
                         cmdPacket.payload[cmdPacket.payloadSize] = (byte)( (bool)param ? 1 : 0);
                         cmdPacket.payloadSize++;
+                    }
+                    else if(param.GetType() == typeof(byte[]))
+                    {
+                        Array.Copy((byte[])param, 0, cmdPacket.payload, cmdPacket.payloadSize, ((byte[])param).Length);
+                        cmdPacket.payloadSize += ((byte[])param).Length;
                     }
                     else
                         throw new CommandCenterException("Command packet parameter is an invalid type",null);

@@ -12,7 +12,9 @@ namespace RFIDCommandCenter
     {
         List<RFIDDeviceClient> deviceClients = new List<RFIDDeviceClient>();
         List<UIClient> uiClients = new List<UIClient>();
-        
+        SortedList<string,string> systemDevices = new SortedList<string,string>();                    //Device serials that are in the DB as well and connected
+
+        SortedList<string, List<byte[]>> nonSystemDevices = new SortedList<string, List<byte[]>>();   //Device serials that are not in the DB and the tags that have been read from them
 
         void handleRFIDClient(RFIDDeviceClient client, out string deviceError, out string serverError)
         {
@@ -25,7 +27,6 @@ namespace RFIDCommandCenter
                 serverError = "A server error occurred:\n" + client.serverErrorMessage;
                 client.serverErrorMessage = null;
             }
-
             switch ((RFIDDeviceClient.ErrorCodes)client.deviceError)
             {
                 case RFIDDeviceClient.ErrorCodes.DEVICE_FAILED_TO_CONNECT:
@@ -50,6 +51,18 @@ namespace RFIDCommandCenter
                     break;
                 default:
                     client.continueAfterDeviceError = true;
+                    if (client.deviceSerialNumber == null)
+                        break;
+                    if (systemDevices.ContainsKey(client.deviceSerialNumber) || nonSystemDevices.ContainsKey(client.deviceSerialNumber))
+                        break;
+                    List<string> dbSerials = new List<string>();
+                    using (DataContext context = new DataContext())
+                        dbSerials = (new GetAllUniqueSerialNumbers()).Execute(context);
+                    if (dbSerials.Contains(client.deviceSerialNumber))
+                        systemDevices.Add(client.deviceSerialNumber, null);
+                    else
+                        nonSystemDevices.Add(client.deviceSerialNumber, new List<byte[]>());
+                    client.pauseExecution = false;
                     break;
             }
             

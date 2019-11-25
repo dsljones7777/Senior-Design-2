@@ -9,6 +9,8 @@ namespace RFIDDeviceController
 	class RFIDReader
 	{
 	public:
+		char serialNumber[Settings::MAX_STRING_SIZE];				//Serial Number of the reader
+
 		enum class ReaderErrors : int
 		{
 			NONE = 0,
@@ -125,7 +127,7 @@ namespace RFIDDeviceController
 		TMR_Region currentRegion;						//The region that is set by the reader
 		TMR_RegionList regionList;						//Info about list of supported regions
 		TMR_Region supportedRegions[Settings::MAX_STRING_SIZE];	//List of regions supported by the reader
-		char serialNumber[Settings::MAX_STRING_SIZE];				//Serial Number of the reader
+		
 		char softwareVersion[Settings::MAX_STRING_SIZE];			//Software version of the reader
 		char model[Settings::MAX_STRING_SIZE];					//Model of the reader
 		char hardwareVersion[Settings::MAX_STRING_SIZE];			//Hardware version of the reader

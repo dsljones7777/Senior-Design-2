@@ -53,6 +53,8 @@ namespace UIDemo
 
         TagControl tagCtl;
 
+       SystemUserControl userCtl;
+
         public MainWindow(string usrname, bool allowAdminFunctions)
         {
             InitializeComponent();
@@ -60,7 +62,6 @@ namespace UIDemo
 
         private async void viewUsers_Click(object sender, EventArgs e)
         {
-            //RPC call
             ViewUserRPC rpc = new ViewUserRPC();
             try
             {
@@ -90,25 +91,25 @@ namespace UIDemo
 
         private async void addNewUser(object sender, EventArgs e)
         {
-            SystemUserControl ctl = new SystemUserControl("", NetworkLib.Role.BaseUser);
-            DialogWindow window = new DialogWindow("Add New User", null, ctl, true, true);
+            userCtl = new SystemUserControl("", NetworkLib.Role.BaseUser);
+            DialogWindow window = new DialogWindow("Add New User", null, userCtl, true, true);
             window.OkButtonHandler = 
                 () => 
                 {
-                    if (!String.IsNullOrWhiteSpace(ctl.Password) && ctl.Password.Length >= 6)
+                    if (!String.IsNullOrWhiteSpace(userCtl.Password) && userCtl.Password.Length >= 6)
                         return true;
-                    MessageBox.Show(this, "The password must be at least 6 characters", "Bad Password", MessageBoxButtons.OK, MessageBoxIcon.Stop); ;
+                    MessageBox.Show(userCtl, "The password must be at least 6 characters", "Bad Password", MessageBoxButtons.OK, MessageBoxIcon.Stop); ;
                     return false;
                 };
             DialogResult result = window.ShowDialog(this);
             if (result != DialogResult.OK)
                 return;
-            NetworkLib.Role newRole = ctl.UserRole;
+            NetworkLib.Role newRole = userCtl.UserRole;
             AddUserRPC rpc = new AddUserRPC()
             {
-                username = ctl.Username,
-                pass = ctl.Password,
-                userRole = ctl.UserRole
+                username = userCtl.Username,
+                pass = userCtl.Password,
+                userRole = userCtl.UserRole
             };
             await rpc.executeAsync();
         }
@@ -118,7 +119,7 @@ namespace UIDemo
             DataRow[] users = gridCtl.getSelectedItems();
             if (users == null || users.Length == 0)
                 return;
-            DialogResult result = MessageBox.Show(this, "Are you sure you want to remove the selected users?", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            DialogResult result = MessageBox.Show(userCtl, "Are you sure you want to remove the selected users?", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
             if (result != DialogResult.Yes)
                 return;
             foreach(DataRow user in users)
@@ -132,7 +133,7 @@ namespace UIDemo
                 if (task.IsFaulted)
                     return;
             }
-            MessageBox.Show(this, "The users were successfully removed from the system", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            MessageBox.Show(userCtl, "The users were successfully removed from the system", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
         }
 
         private async void editUser(object sender, EventArgs e)
@@ -158,14 +159,12 @@ namespace UIDemo
             if (result != DialogResult.OK)
                 return;
             NetworkLib.Role newRole = ctl.UserRole;
-
             EditUserRPC rpc = new EditUserRPC(ctl.Username, ctl.Password, newRole, newRole != usrRole);
             await rpc.executeAsync();
         }
 
         private async void viewTagsButton_Clock(object sender, EventArgs e)
         {
-            //RPC call
             ViewTagsRPC rpc = new ViewTagsRPC();
             try
             {
@@ -181,7 +180,6 @@ namespace UIDemo
                 string tagVal = BitConverter.ToString(x.TagNumber).Replace("-", "");
                 tagTable.Rows.Add(x.TagName, x.LastLocation ?? "", x.InLocation, tagVal, x.LostTag, x.GuestTag);
             }
-                
             gridCtl = new GridControl(true, true, true, true, true);
             gridCtl.load(tagTable, addNewTag, editTag, removeTags);
             DialogWindow window = new DialogWindow("View Tags", null, gridCtl, false, false);

@@ -127,7 +127,11 @@ namespace SharedLib
                             Thread.Sleep(200);
                             continue;
                         }
-                        object rpc = formatter.Deserialize(serializerStream);
+                        object rpc;
+                        lock(streamLock)
+                        {
+                            rpc = formatter.Deserialize(serializerStream);
+                        }
                         if (rpc.GetType() == typeof(ErrorReplyRPC))
                             handleErrorPromptFromServer((ErrorReplyRPC)rpc);
                         else

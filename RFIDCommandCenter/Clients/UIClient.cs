@@ -15,6 +15,7 @@ namespace RFIDCommandCenter
     {
         public volatile bool exit = false;                          //Signals to the client to exit the program
         public volatile bool threadExited = false;                  //signals to main server that the client thread has exited
+        public volatile UINetworkPacket request;
         public Exception lastException;                             //The last exception that occurred on the thread that caused it to exit
         public string clientUsername = null;                        //Null when no one is logged in
         public int role;                                            //Role of the client. Used to determine access to RPCS
@@ -136,6 +137,12 @@ namespace RFIDCommandCenter
                     viewLocations(context);
                 else if (cmd.GetType() == typeof(ViewTagsRPC))
                     viewTags(context);
+                else if (cmd.GetType() == typeof(EditUserRPC))
+                    editUser((EditUserRPC)cmd, context);
+                else if (cmd.GetType() == typeof(GetUnconnectedDevicesRPC))
+                    getUnconnectedDevices(context);
+                else if (cmd.GetType() == typeof(GetAllDevicesRPC))
+                    getAllDevices(context);
                 else if (cmd.GetType() == typeof(ErrorReplyRPC))
                 {
                     ErrorReplyRPC op = (ErrorReplyRPC)cmd;
@@ -146,7 +153,7 @@ namespace RFIDCommandCenter
                     throw new Exception("Client sent an invalid RPC", null);
             }
         }
-
+        
         public void addErrorMessage(string serial, string message)
         {
             lock (messagesToSend)
@@ -180,6 +187,33 @@ namespace RFIDCommandCenter
             sendRPC(rpc);
         }
 
+        private void getAllDevices(DataContext context)
+        {
+            request = new GetAllDevicesRPC();
+        }
+
+        private void getUnconnectedDevices(DataContext context)
+        {
+            request = new GetUnconnectedDevicesRPC();
+        }
+
+        private void editUser(EditUserRPC cmd, DataContext context)
+        {
+            byte[] pwdBytes = null;
+            if (cmd.pass != null)
+                pwdBytes = Encoding.ASCII.GetBytes(cmd.pass);
+            try
+            {
+                new Logic.EditUser().Execute(cmd.username, pwdBytes, cmd.userRole, context);
+            }
+            catch(Exception x)
+            {
+
+            }
+            
+        }
+
+
         void loginUser(LoginUserRPC loginData, DataContext context)
         {
             var login = new Logic.Login();
@@ -191,7 +225,7 @@ namespace RFIDCommandCenter
                 clientUsername = loginData.username;
                 loginData.isAdmin = (role == (int)NetworkLib.Role.Admin);
             }
-            catch
+            catch(Exception xy)
             {
                 loginData.isValidLogin = false;
             }
@@ -330,14 +364,6 @@ namespace RFIDCommandCenter
             var uniqueSerials = new Logic.GetAllUniqueSerialNumbers();
             sendRPC(new GetUniqueSerialNumbersRPC { serialNumberList = uniqueSerials.Execute(context) });
         }
-
-        //void editUser(object cmd, DataContext context)
-        //{
-        //    EditUserRPC op = (EditUserRPC)cmd;
-        //    var editUser = new Logic.EditUser();
-        //    editUser.Execute(op)
-        //}
-
         #endregion
 
     }

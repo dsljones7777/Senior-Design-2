@@ -31,20 +31,10 @@
             this.button3 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
-            this.button4 = new System.Windows.Forms.Button();
-            this.button6 = new System.Windows.Forms.Button();
-            this.button7 = new System.Windows.Forms.Button();
-            this.button8 = new System.Windows.Forms.Button();
-            this.button9 = new System.Windows.Forms.Button();
-            this.button10 = new System.Windows.Forms.Button();
-            this.button11 = new System.Windows.Forms.Button();
             this.button13 = new System.Windows.Forms.Button();
             this.button14 = new System.Windows.Forms.Button();
             this.button15 = new System.Windows.Forms.Button();
             this.button16 = new System.Windows.Forms.Button();
-            this.button17 = new System.Windows.Forms.Button();
-            this.button18 = new System.Windows.Forms.Button();
-            this.button19 = new System.Windows.Forms.Button();
             this.button12 = new System.Windows.Forms.Button();
             this.button5 = new System.Windows.Forms.Button();
             this.SuspendLayout();
@@ -79,76 +69,6 @@
             this.button1.Text = "View Locations";
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.viewLocationsButton_Click);
-            // 
-            // button4
-            // 
-            this.button4.Location = new System.Drawing.Point(286, 314);
-            this.button4.Margin = new System.Windows.Forms.Padding(2);
-            this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(104, 65);
-            this.button4.TabIndex = 6;
-            this.button4.Text = "Add User";
-            this.button4.UseVisualStyleBackColor = true;
-            // 
-            // button6
-            // 
-            this.button6.Location = new System.Drawing.Point(321, 31);
-            this.button6.Margin = new System.Windows.Forms.Padding(2);
-            this.button6.Name = "button6";
-            this.button6.Size = new System.Drawing.Size(104, 65);
-            this.button6.TabIndex = 8;
-            this.button6.Text = "Add Tag";
-            this.button6.UseVisualStyleBackColor = true;
-            // 
-            // button7
-            // 
-            this.button7.Location = new System.Drawing.Point(183, 31);
-            this.button7.Margin = new System.Windows.Forms.Padding(2);
-            this.button7.Name = "button7";
-            this.button7.Size = new System.Drawing.Size(104, 65);
-            this.button7.TabIndex = 10;
-            this.button7.Text = "Server Statistics";
-            this.button7.UseVisualStyleBackColor = true;
-            // 
-            // button8
-            // 
-            this.button8.Location = new System.Drawing.Point(453, 234);
-            this.button8.Margin = new System.Windows.Forms.Padding(2);
-            this.button8.Name = "button8";
-            this.button8.Size = new System.Drawing.Size(104, 65);
-            this.button8.TabIndex = 11;
-            this.button8.Text = "Edit Location";
-            this.button8.UseVisualStyleBackColor = true;
-            // 
-            // button9
-            // 
-            this.button9.Location = new System.Drawing.Point(321, 116);
-            this.button9.Margin = new System.Windows.Forms.Padding(2);
-            this.button9.Name = "button9";
-            this.button9.Size = new System.Drawing.Size(104, 65);
-            this.button9.TabIndex = 12;
-            this.button9.Text = "Remove Tag";
-            this.button9.UseVisualStyleBackColor = true;
-            // 
-            // button10
-            // 
-            this.button10.Location = new System.Drawing.Point(453, 93);
-            this.button10.Margin = new System.Windows.Forms.Padding(2);
-            this.button10.Name = "button10";
-            this.button10.Size = new System.Drawing.Size(104, 65);
-            this.button10.TabIndex = 13;
-            this.button10.Text = "Remove Location";
-            this.button10.UseVisualStyleBackColor = true;
-            // 
-            // button11
-            // 
-            this.button11.Location = new System.Drawing.Point(453, 162);
-            this.button11.Margin = new System.Windows.Forms.Padding(2);
-            this.button11.Name = "button11";
-            this.button11.Size = new System.Drawing.Size(104, 65);
-            this.button11.TabIndex = 14;
-            this.button11.Text = "Add Location";
-            this.button11.UseVisualStyleBackColor = true;
             // 
             // button13
             // 
@@ -191,36 +111,6 @@
             this.button16.Text = "Restore Lost Tag";
             this.button16.UseVisualStyleBackColor = true;
             // 
-            // button17
-            // 
-            this.button17.Location = new System.Drawing.Point(298, 214);
-            this.button17.Margin = new System.Windows.Forms.Padding(2);
-            this.button17.Name = "button17";
-            this.button17.Size = new System.Drawing.Size(104, 65);
-            this.button17.TabIndex = 20;
-            this.button17.Text = "Remove User";
-            this.button17.UseVisualStyleBackColor = true;
-            // 
-            // button18
-            // 
-            this.button18.Location = new System.Drawing.Point(611, 31);
-            this.button18.Margin = new System.Windows.Forms.Padding(2);
-            this.button18.Name = "button18";
-            this.button18.Size = new System.Drawing.Size(104, 65);
-            this.button18.TabIndex = 21;
-            this.button18.Text = "Add Tag To Location";
-            this.button18.UseVisualStyleBackColor = true;
-            // 
-            // button19
-            // 
-            this.button19.Location = new System.Drawing.Point(624, 116);
-            this.button19.Margin = new System.Windows.Forms.Padding(2);
-            this.button19.Name = "button19";
-            this.button19.Size = new System.Drawing.Size(104, 65);
-            this.button19.TabIndex = 22;
-            this.button19.Text = "Remove Tag From Location";
-            this.button19.UseVisualStyleBackColor = true;
-            // 
             // button12
             // 
             this.button12.Location = new System.Drawing.Point(11, 11);
@@ -249,20 +139,10 @@
             this.ClientSize = new System.Drawing.Size(935, 535);
             this.Controls.Add(this.button5);
             this.Controls.Add(this.button12);
-            this.Controls.Add(this.button19);
-            this.Controls.Add(this.button18);
-            this.Controls.Add(this.button17);
             this.Controls.Add(this.button16);
             this.Controls.Add(this.button15);
             this.Controls.Add(this.button14);
             this.Controls.Add(this.button13);
-            this.Controls.Add(this.button11);
-            this.Controls.Add(this.button10);
-            this.Controls.Add(this.button9);
-            this.Controls.Add(this.button8);
-            this.Controls.Add(this.button7);
-            this.Controls.Add(this.button6);
-            this.Controls.Add(this.button4);
             this.Controls.Add(this.button3);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.button1);
@@ -278,20 +158,10 @@
         private System.Windows.Forms.Button button3;
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.Button button4;
-        private System.Windows.Forms.Button button6;
-        private System.Windows.Forms.Button button7;
-        private System.Windows.Forms.Button button8;
-        private System.Windows.Forms.Button button9;
-        private System.Windows.Forms.Button button10;
-        private System.Windows.Forms.Button button11;
         private System.Windows.Forms.Button button13;
         private System.Windows.Forms.Button button14;
         private System.Windows.Forms.Button button15;
         private System.Windows.Forms.Button button16;
-        private System.Windows.Forms.Button button17;
-        private System.Windows.Forms.Button button18;
-        private System.Windows.Forms.Button button19;
         private System.Windows.Forms.Button button12;
         private System.Windows.Forms.Button button5;
     }

@@ -130,7 +130,7 @@ bool RFIDDeviceController::DeviceController::executeCommand(int expectedCommand)
 		realReadTickRate = realTimeAdjustment;
 	currentTick = buffer.tickTime;
 
-	if (!expectedCommand  && buffer.cmd != expectedCommand)
+	if (expectedCommand  && buffer.cmd != expectedCommand)
 		return false;
 	switch (buffer.cmd)
 	{
@@ -154,7 +154,17 @@ bool RFIDDeviceController::DeviceController::executeCommand(int expectedCommand)
 			break;
 		case (int)CommandCodes::DEVICE_ERROR:
 			return handleDeviceError();
-
+		case (int)CommandCodes::START_READER:
+			reader.initialize(settings.rdrSettings);
+			if (reader.initialized)
+			{
+				turnOffLed(1);
+				turnOffLed(2);
+			}
+			break;
+		case (int)CommandCodes::SERIAL_NUMBER:
+			sendSerialNumberToServer();
+			break;
 		case(int)CommandCodes::START:
 			return true;
 
@@ -207,13 +217,19 @@ void RFIDDeviceController::DeviceController::checkAndExecuteCommand(int expected
 					break;
 			}
 			if (executeCommand(expectedCommand))
-				break;
+			{
+				if (expectedCommand != 0)
+					break;
+				continue;
+			}
 		}
 		else if (!expectedCommand)
 			break;
 		
 	} while (true);
 }
+
+
 
 void RFIDDeviceController::DeviceController::sendStartToServer()
 {
@@ -295,8 +311,20 @@ void RFIDDeviceController::DeviceController::sendWithoutAssurance()
 	resetTicksTillDead();
 }
 
+void RFIDDeviceController::DeviceController::sendSerialNumberToServer()
+{
+	*(ReaderSerialNetParam *)&buffer = ReaderSerialNetParam(reader.serialNumber);
+	buffer.tickTime = currentTick;
+	sendWithoutAssurance();
+}
+
 void RFIDDeviceController::DeviceController::updateTagsWithServer()
 {
+	if (!reader.initialized)
+	{
+		wait(realReadTickRate);
+		return;
+	}
 	//Reset all tags found last read value
 	for (int i = 0; i < REMEMBERANCE_TAG_BUFFER_SIZE; i++)
 		epcMemoryBuffer[i].foundDuringCurrentRead = false;
@@ -406,18 +434,12 @@ int RFIDDeviceController::DeviceController::run()
 	if (!comm || !comm->init())
 		return -1;
 	connectToCommandCenter(false);
-	startReader();
-	turnOffLed(1);
-	turnOffLed(2);/*
-	char epcMsg[] = "u r a bitch";
-	reader.writeTag(epcMsg, 1000, 1000);*/
+	
 
 	//Start main program loop
 	while (!exitProgram)
 	{
 		checkAndExecuteCommand();
-		
-
 		//Poll for tags, descrease ticks till tell server it is dead if no tags are found (update stats)
 		updateTagsWithServer();
 		if (ticksTillDead <= currentTick)
