@@ -13,7 +13,6 @@ namespace RFIDCommandCenter.Logic
             var tagList = context.Tags.ToList();
 
             var locationList = context.Locations.ToList();
-
             return tagList.ConvertAll(x => new SharedLib.SharedModels.ViewTagModel
             {
                 TagName = x.Name,

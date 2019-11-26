@@ -103,17 +103,35 @@ namespace RFIDCommandCenter
                 else if (clientUsername == null)
                     throw new UIClientException("You must be logged in to do that");
                 else if (cmd.GetType() == typeof(SaveTagRPC))
+                {
+                    verifyAdminAccess(role);
                     saveTag(cmd, context);
+                }                
                 else if (cmd.GetType() == typeof(DeleteTagRPC))
+                {
+                    verifyAdminAccess(role);
                     deleteTag(cmd, context);
+                }                  
                 else if (cmd.GetType() == typeof(SaveSystemUserRPC))
+                {
+                    verifyAdminAccess(role);
                     saveSystemUser(cmd, context);
+                }
                 else if (cmd.GetType() == typeof(DeleteSystemUserRPC))
+                {
+                    verifyAdminAccess(role);
                     deleteSystemUser(cmd, context);
+                }  
                 else if (cmd.GetType() == typeof(SaveLocationRPC))
+                {
+                    verifyAdminAccess(role);
                     saveLocation(cmd, context);
+                }
                 else if (cmd.GetType() == typeof(DeleteLocationRPC))
+                {
+                    verifyAdminAccess(role);
                     deleteLocation(cmd, context);
+                }
                 else if (cmd.GetType() == typeof(EditLocationRPC))
                     editLocation(cmd, context);
                 else if (cmd.GetType() == typeof(EditTagRPC))
@@ -121,7 +139,10 @@ namespace RFIDCommandCenter
                 else if (cmd.GetType() == typeof(RemoveConnectedDevicesRPC))
                     removeConnectedDevices(context);
                 else if (cmd.GetType() == typeof(SaveAllowedLocationsRPC))
+                {
+                    verifyAdminAccess(role);
                     saveAllowedTagLocation(cmd, context);
+                }
                 else if (cmd.GetType() == typeof(SaveConnectedDeviceRPC))
                     saveConnectedDevice(cmd, context);
                 else if (cmd.GetType() == typeof(TagArriveRPC))
@@ -364,6 +385,12 @@ namespace RFIDCommandCenter
             GetUniqueSerialNumbersRPC op = (GetUniqueSerialNumbersRPC)cmd;
             var uniqueSerials = new Logic.GetAllUniqueSerialNumbers();
             sendRPC(new GetUniqueSerialNumbersRPC { serialNumberList = uniqueSerials.Execute(context) });
+        }
+
+        void verifyAdminAccess(int role)
+        {
+            if (role != (int)NetworkLib.Role.Admin)
+                throw new UIClientException("The user does not have access to perform this action");
         }
         #endregion
 
