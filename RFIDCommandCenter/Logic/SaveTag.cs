@@ -21,8 +21,7 @@ namespace RFIDCommandCenter.Logic
             {
                 TagNumber = tagNumber,
                 Name = name,
-                Guest = guest,
-                Active = true
+                Guest = guest
             };
 
             context.Tags.Add(tageEntity);

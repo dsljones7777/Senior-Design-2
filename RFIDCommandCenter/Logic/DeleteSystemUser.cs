@@ -15,7 +15,7 @@ namespace RFIDCommandCenter.Logic
             if (userToDelete == null)
                 throw new UIClientException("There is no system user with that username");
 
-            userToDelete.Active = false;
+            context.SystemUsers.Remove(userToDelete);
 
             context.SaveChanges();
         }

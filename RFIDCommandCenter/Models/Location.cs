@@ -21,8 +21,5 @@ namespace RFIDCommandCenter
 
         [StringLength(50)]
         public string ReaderSerialOut { get; set; }
-
-        [Required]
-        public bool Active { get; set; }
     }
 }
