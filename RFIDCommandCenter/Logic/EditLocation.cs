@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SharedLib;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,12 +14,12 @@ namespace RFIDCommandCenter.Logic
             var locationToEdit = context.Locations.SingleOrDefault(l => l.LocationName == currentLocationName);
 
             if (locationToEdit == null)
-                throw new Exception("There is no location in the system with that name");
+                throw new UIClientException("There is no location in the system with that name");
 
             if (newLocationName != null)
             {
                 if (context.Locations.Any(l => l.LocationName == newLocationName))
-                    throw new Exception("A location with that name already exists");
+                    throw new UIClientException("A location with that name already exists");
                 else
                     locationToEdit.LocationName = newLocationName;
             }
@@ -26,7 +27,7 @@ namespace RFIDCommandCenter.Logic
             if(readerSerialIn != null)
             {
                 if (context.Locations.Any(l => l.ReaderSerialIn == readerSerialIn))
-                    throw new Exception("A location with that reader serial in already exists");
+                    throw new UIClientException("A location with that reader serial in already exists");
                 else
                     locationToEdit.ReaderSerialIn = readerSerialIn;
             }

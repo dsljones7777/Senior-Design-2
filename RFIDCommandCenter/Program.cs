@@ -181,6 +181,11 @@ namespace RFIDCommandCenter
             {
                 try
                 {
+                    //try to improve performance of the first db connection
+                    using (var context = new DataContext())
+                    {
+
+                    }
                     netObj.start();
                 }
                 catch (Exception e)

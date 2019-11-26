@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SharedLib;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,7 +13,7 @@ namespace RFIDCommandCenter.Logic
         {
             var existingTag = context.Tags.SingleOrDefault(x => x.TagNumber == tagNumber || x.Name == tagName);
             if (existingTag == null)
-                throw new Exception("No tag with the specified TagNumber/Name exists in the system.");
+                throw new UIClientException("No tag with the specified TagNumber/Name exists in the system.");
             if (tagNumber != null)
                 existingTag.TagNumber = tagNumber;
             if (tagName != null)

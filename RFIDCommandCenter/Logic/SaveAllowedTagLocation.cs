@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SharedLib;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,7 +13,7 @@ namespace RFIDCommandCenter.Logic
             var allowedLocation = context.AllowedLocations.SingleOrDefault(a => a.TagID == tagId && a.LocationID == locationId);
 
             if (allowedLocation != null)
-                throw new ApplicationException("An allowed location with that ID and Location already exists");
+                throw new UIClientException("An allowed location with that ID and Location already exists");
 
             context.AllowedLocations.Add(new Models.TagLocationBridge { TagID = tagId, LocationID = locationId });
 
