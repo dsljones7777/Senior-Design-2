@@ -71,9 +71,8 @@ namespace SharedLib
         {
             public List<string> serialNumbers;
 
-            public GetUnconnectedDevicesRPC()
+            public GetAllConnectedDevicesRPC()
             {
-                this.bothWay = true;
             }
         }
 
@@ -85,7 +84,6 @@ namespace SharedLib
 
             public GetUnconnectedDevicesRPC()
             {
-                this.bothWay = true;
             }
         }
 
@@ -106,7 +104,6 @@ namespace SharedLib
 
             public GetAllDevicesRPC()
             {
-                this.bothWay = true;
             }
         }
 
@@ -120,16 +117,7 @@ namespace SharedLib
 
             public LoginUserRPC()
             {
-                this.bothWay = true;
             }
-        }
-
-        [Serializable]
-        public class AddUserRPC : UINetworkPacket
-        {
-            public string username;
-            public string pass;
-            public Role userRole;
         }
 
         [Serializable]
@@ -155,7 +143,6 @@ namespace SharedLib
             public List<SharedModels.SharedUsers> userList;
             public ViewUserRPC()
             {
-                this.bothWay = true;
             }
         }
 
@@ -165,7 +152,6 @@ namespace SharedLib
             public List<SharedModels.ViewTagModel> tagList;
             public ViewTagsRPC()
             {
-                this.bothWay = true;
             }
         }
 
@@ -175,7 +161,6 @@ namespace SharedLib
             public List<SharedModels.LocationModel> locationList;
             public ViewLocationsRPC()
             {
-                this.bothWay = true;
             }
         }
 
@@ -244,7 +229,6 @@ namespace SharedLib
 
             public ViewAllowedLocationsRPC()
             {
-                this.bothWay = true;
             }
         }
 
@@ -255,7 +239,6 @@ namespace SharedLib
 
             public ViewGuestTagsRPC()
             {
-                this.bothWay = true;
             }
         }
 
@@ -266,8 +249,13 @@ namespace SharedLib
 
             public GetUniqueSerialNumbersRPC()
             {
-                this.bothWay = true;
             }
+        }
+
+        [Serializable]
+        public class FunctionCallStatusRPC : UINetworkPacket
+        {
+            public string error;
         }
     }
     

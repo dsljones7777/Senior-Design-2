@@ -17,7 +17,7 @@ namespace RFIDCommandCenter
         public volatile bool exit = false;                          //Signals to the client to exit the program
         public volatile bool threadExited = false;                  //signals to main server that the client thread has exited
         public volatile UINetworkPacket request;
-        public List<UINetworkPacket> responses; 
+        public List<UINetworkPacket> responses = new List<UINetworkPacket>(); 
         public Exception lastException;                             //The last exception that occurred on the thread that caused it to exit
         public string clientUsername = null;                        //Null when no one is logged in
         public int role;                                            //Role of the client. Used to determine access to RPCS
@@ -42,6 +42,7 @@ namespace RFIDCommandCenter
                 while(responses.Count > 0)
                 {
                     sendRPC(responses[0]);
+                    sendRPC(new FunctionCallStatusRPC());
                     responses.Remove(responses[0]);
                 }
             }
@@ -52,10 +53,16 @@ namespace RFIDCommandCenter
             try
             {
                 executeRPC(cmd);
+                FunctionCallStatusRPC status = new FunctionCallStatusRPC();
+                sendRPC(status);
             }
             catch(UIClientException e)
             {
-                sendRPC(e);
+                FunctionCallStatusRPC rpc = new FunctionCallStatusRPC()
+                {
+                    error = e.Message
+                };
+                sendRPC(rpc);
             }
             return true;
         }
@@ -239,17 +246,9 @@ namespace RFIDCommandCenter
         {
             var login = new Logic.Login();
             var pwdBytes = Encoding.ASCII.GetBytes(loginData.password);
-            try
-            {
-                login.Execute(loginData.username, pwdBytes, out role, context);
-                loginData.isValidLogin = true;
-                clientUsername = loginData.username;
-                loginData.isAdmin = (role == (int)NetworkLib.Role.Admin);
-            }
-            catch(Exception xy)
-            {
-                loginData.isValidLogin = false;
-            }
+            login.Execute(loginData.username, pwdBytes, out role, context);
+            clientUsername = loginData.username;
+            loginData.isAdmin = (role == (int)NetworkLib.Role.Admin);
             sendRPC(loginData);
         }
 

@@ -62,17 +62,17 @@
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(277, 397);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(277, 361);
             this.tableLayoutPanel1.TabIndex = 0;
             // 
             // pwdTextbox
             // 
             this.pwdTextbox.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.pwdTextbox.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.pwdTextbox.Location = new System.Drawing.Point(8, 278);
+            this.pwdTextbox.Location = new System.Drawing.Point(8, 251);
             this.pwdTextbox.Margin = new System.Windows.Forms.Padding(8, 3, 8, 8);
             this.pwdTextbox.Name = "pwdTextbox";
-            this.pwdTextbox.Size = new System.Drawing.Size(261, 34);
+            this.pwdTextbox.Size = new System.Drawing.Size(261, 25);
             this.pwdTextbox.TabIndex = 6;
             // 
             // label1
@@ -80,10 +80,10 @@
             this.label1.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Segoe UI Semibold", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(86, 160);
+            this.label1.Location = new System.Drawing.Point(103, 160);
             this.label1.Margin = new System.Windows.Forms.Padding(10, 10, 10, 2);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(104, 28);
+            this.label1.Size = new System.Drawing.Size(71, 19);
             this.label1.TabIndex = 0;
             this.label1.Text = "Username";
             // 
@@ -91,10 +91,10 @@
             // 
             this.usrnameTextbox.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.usrnameTextbox.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.usrnameTextbox.Location = new System.Drawing.Point(8, 193);
+            this.usrnameTextbox.Location = new System.Drawing.Point(8, 184);
             this.usrnameTextbox.Margin = new System.Windows.Forms.Padding(8, 3, 8, 8);
             this.usrnameTextbox.Name = "usrnameTextbox";
-            this.usrnameTextbox.Size = new System.Drawing.Size(261, 34);
+            this.usrnameTextbox.Size = new System.Drawing.Size(261, 25);
             this.usrnameTextbox.TabIndex = 4;
             // 
             // label2
@@ -102,17 +102,17 @@
             this.label2.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Segoe UI Semibold", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.Location = new System.Drawing.Point(90, 245);
+            this.label2.Location = new System.Drawing.Point(104, 227);
             this.label2.Margin = new System.Windows.Forms.Padding(10, 10, 10, 2);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(97, 28);
+            this.label2.Size = new System.Drawing.Size(68, 19);
             this.label2.TabIndex = 5;
             this.label2.Text = "Password";
             // 
             // loginButton
             // 
             this.loginButton.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.loginButton.Location = new System.Drawing.Point(92, 328);
+            this.loginButton.Location = new System.Drawing.Point(92, 292);
             this.loginButton.Margin = new System.Windows.Forms.Padding(8);
             this.loginButton.Name = "loginButton";
             this.loginButton.Size = new System.Drawing.Size(92, 61);
@@ -134,7 +134,7 @@
             // 
             // LoginScreen
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(14F, 32F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 21F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
@@ -146,6 +146,7 @@
             this.Name = "LoginScreen";
             this.ShowInTaskbar = false;
             this.Text = "SecureID";
+            this.Load += new System.EventHandler(this.LoginScreen_Load);
             this.Shown += new System.EventHandler(this.Form1_Shown);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();

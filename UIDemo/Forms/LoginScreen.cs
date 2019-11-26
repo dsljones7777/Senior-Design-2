@@ -48,7 +48,16 @@ namespace UIDemo
                 retry = e.retry,
                 serialNumber = e.deviceSerial
             };
-            error.executeAsync();
+            try
+            {
+                error.executeAsync();
+            }
+            catch(Exception except)
+            {
+                MessageBox.Show(this, except.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+
+            
         }
 
         private void OnServerMessageReceived(object sender, Network.NetworkLib.ServerMessage e)
@@ -134,31 +143,27 @@ namespace UIDemo
         {
             //Change logo to blinking
             loginLogoPictureBox.Image = UIDemo.Properties.Resources.SecureID_Blink;
-
-            //Connect to server
-            await connection.connect("127.0.0.1", 52437);
-
             //Send login user rpc
             LoginUserRPC rpc = new LoginUserRPC()
             {
                 username = usrnameTextbox.Text,
                 password = pwdTextbox.Text
             };
-            pwdTextbox.Text = "";
-            var loginTask = rpc.executeAsync();
-            await loginTask;
 
-            //Change logo back
-            loginLogoPictureBox.Image = UIDemo.Properties.Resources.SecureID_Static;
-
-            //Ensure a proper login was done
-            if (loginTask.IsFaulted)
-                return;
-            rpc = (LoginUserRPC)loginTask.Result;
-            if(!rpc.isValidLogin)
+            try
             {
-                MessageBox.Show(this, "The username or password is not valid", "Incorrect Login", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                rpc = (LoginUserRPC) await rpc.executeAsync();
+            }
+            catch(Exception except)
+            {
+                MessageBox.Show(this, except.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
+            }
+            finally
+            {
+                //Change logo back
+                loginLogoPictureBox.Image = UIDemo.Properties.Resources.SecureID_Static;
+                pwdTextbox.Text = "";
             }
 
             //Load the main
@@ -166,6 +171,27 @@ namespace UIDemo
             this.Hide();
             mainWindow.ShowDialog(this);
             this.Show();
+        }
+
+        private async void LoginScreen_Load(object sender, EventArgs e)
+        {
+            while(true)
+            {
+                //Connect to server
+                try
+                {
+                    await connection.connect("127.0.0.1", 52437);
+                    return;
+                }
+                catch (Exception except)
+                {
+                    if (MessageBox.Show(this, except.Message, "Error", MessageBoxButtons.RetryCancel, MessageBoxIcon.Error) != DialogResult.Retry)
+                    {
+                        this.Close();
+                        return;
+                    }
+                }
+            }
         }
     }
 }

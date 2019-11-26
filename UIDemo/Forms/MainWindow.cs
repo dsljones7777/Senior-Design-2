@@ -67,8 +67,9 @@ namespace UIDemo
             {
                 rpc = (ViewUserRPC)await rpc.executeAsync();
             }
-            catch
+            catch(Exception except)
             {
+                MessageBox.Show(this, except.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
             userTable.Clear();
@@ -105,13 +106,22 @@ namespace UIDemo
             if (result != DialogResult.OK)
                 return;
             NetworkLib.Role newRole = userCtl.UserRole;
-            AddUserRPC rpc = new AddUserRPC()
+            SaveSystemUserRPC rpc = new SaveSystemUserRPC()
             {
                 username = userCtl.Username,
-                pass = userCtl.Password,
-                userRole = userCtl.UserRole
+                password = userCtl.Password,
+                role = (int)userCtl.UserRole
             };
-            await rpc.executeAsync();
+            try
+            {
+                await rpc.executeAsync();
+            }
+            catch(Exception except)
+            {
+                MessageBox.Show(this, except.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            
         }
 
         private async void removeUser(object sender, EventArgs e)
@@ -128,10 +138,15 @@ namespace UIDemo
                 {
                     username = user["User Name"] as string
                 };
-                var task = rpc.executeAsync();
-                await task;
-                if (task.IsFaulted)
+                try
+                {
+                    await rpc.executeAsync();
+                }
+                catch (Exception except)
+                {
+                    MessageBox.Show(this, except.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
+                }
             }
             MessageBox.Show(userCtl, "The users were successfully removed from the system", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
         }
@@ -160,7 +175,15 @@ namespace UIDemo
                 return;
             NetworkLib.Role newRole = ctl.UserRole;
             EditUserRPC rpc = new EditUserRPC(ctl.Username, ctl.Password, newRole, newRole != usrRole);
-            await rpc.executeAsync();
+            try
+            {
+                await rpc.executeAsync();
+            }
+            catch (Exception except)
+            {
+                MessageBox.Show(this, except.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
         }
 
         private async void viewTagsButton_Clock(object sender, EventArgs e)
@@ -170,8 +193,9 @@ namespace UIDemo
             {
                 rpc = (ViewTagsRPC)await rpc.executeAsync();
             }
-            catch
+            catch (Exception except)
             {
+                MessageBox.Show(this, except.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
             tagTable.Clear();
@@ -220,11 +244,12 @@ namespace UIDemo
             {
                 await rpc.executeAsync();
             }
-            catch(Exception e1)
+            catch (Exception except)
             {
-
+                MessageBox.Show(this, except.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
             }
-            
+
         }
 
         private async void removeTags(object sender, EventArgs e)
@@ -241,10 +266,15 @@ namespace UIDemo
                 {
                     tagNumber = Convert.FromBase64String(tag["Tag Number"] as string)
                 };
-                var task = rpc.executeAsync();
-                await task;
-                if (task.IsFaulted)
+                try
+                {
+                    await rpc.executeAsync();
+                }
+                catch (Exception except)
+                {
+                    MessageBox.Show(this, except.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
+                }
                 gridCtl.removeRow(tag);
             };
             MessageBox.Show(tagCtl, "The tags were successfully removed from the system", "Removed Tags", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -275,8 +305,15 @@ namespace UIDemo
                 rpc.guest = tagCtl.IsGuest;
             if (isLost != tagCtl.IsLost)
                 rpc.lost = tagCtl.IsLost;
-            var task = rpc.executeAsync();
-            await task;
+            try
+            {
+                await rpc.executeAsync();
+            }
+            catch (Exception except)
+            {
+                MessageBox.Show(this, except.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
 
         }
 
@@ -287,8 +324,9 @@ namespace UIDemo
             {
                 rpc = (ViewLocationsRPC)await rpc.executeAsync();
             }
-            catch
+            catch (Exception except)
             {
+                MessageBox.Show(this, except.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
             locationTable.Clear();
@@ -313,7 +351,15 @@ namespace UIDemo
                 readerSerialIn = locationCtl.SerialIn,
                 readerSerialOut = locationCtl.SerialOut
             };
-            await rpc.executeAsync();
+            try
+            {
+                await rpc.executeAsync();
+            }
+            catch (Exception except)
+            {
+                MessageBox.Show(this, except.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
         }
 
         private async void removeLocation(object sender, EventArgs e)
@@ -330,10 +376,15 @@ namespace UIDemo
                 {
                     locationName = loc["Location Name"] as string
                 };
-                var task = rpc.executeAsync();
-                await task;
-                if (task.IsFaulted)
+                try
+                {
+                    await rpc.executeAsync();
+                }
+                catch (Exception except)
+                {
+                    MessageBox.Show(this, except.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
+                }
                 gridCtl.removeRow(loc);
             }
             MessageBox.Show(locationCtl, "The locations were successfully removed from the system", "Locations Removed", MessageBoxButtons.OK, MessageBoxIcon.Information);

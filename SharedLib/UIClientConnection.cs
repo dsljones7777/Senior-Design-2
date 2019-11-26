@@ -18,6 +18,13 @@ namespace SharedLib
 
         public class UIClientConnection
         {
+            public class FunctionException : Exception
+            {
+                public FunctionException(string msg) : base(msg)
+                {
+
+                }
+            }
             public event EventHandler Connected;
             public event EventHandler<Exception> FailedConnecting;
             public static event EventHandler<Exception> NetworkError;
@@ -25,20 +32,33 @@ namespace SharedLib
             [Serializable]
             public abstract class UINetworkPacket
             {
-                protected bool bothWay = false;
                 public UINetworkPacket execute()
                 {
                     BinaryFormatter formatter = new BinaryFormatter();
+                    FunctionCallStatusRPC status = null;
                     UINetworkPacket returnval = null;
                     try
                     {
                         lock (UIClientConnection.streamLock)
                         {
                             formatter.Serialize(serializerStream, this);
-                            if (bothWay)
-                                returnval = (UINetworkPacket)formatter.Deserialize(serializerStream);
+                            UINetworkPacket response = (UINetworkPacket)formatter.Deserialize(serializerStream);
+                            status = response as FunctionCallStatusRPC;
+                            if (status != null && status.error != null)
+                                throw new FunctionException(status.error);
+                            else if (status == null)
+                            {
+                                returnval = (UINetworkPacket)response;
+                                status = (FunctionCallStatusRPC)formatter.Deserialize(serializerStream);
+                                if (status.error != null)
+                                    throw new FunctionException(status.error);
+                            }
                             return returnval;
                         }
+                    }
+                    catch (FunctionException e)
+                    {
+                        throw e;
                     }
                     catch (Exception e)
                     {
@@ -122,14 +142,15 @@ namespace SharedLib
                 {
                     try
                     {
-                        if (myServerConnection.Available <= 0)
-                        {
-                            Thread.Sleep(200);
-                            continue;
-                        }
+                        
                         object rpc;
                         lock(streamLock)
                         {
+                            if (myServerConnection.Available <= 0)
+                            {
+                                Thread.Sleep(200);
+                                continue;
+                            }
                             rpc = formatter.Deserialize(serializerStream);
                         }
                         if (rpc.GetType() == typeof(ErrorReplyRPC))
@@ -137,7 +158,7 @@ namespace SharedLib
                         else
                             throw new Exception("Could not determine the RPC from the server");
                     }
-                    catch
+                    catch(Exception e)
                     {
 
                     }
