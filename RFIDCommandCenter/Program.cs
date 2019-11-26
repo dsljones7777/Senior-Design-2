@@ -184,7 +184,7 @@ namespace RFIDCommandCenter
                     //try to improve performance of the first db connection
                     using (var context = new DataContext())
                     {
-
+                        var dummyQuery = context.Tags.Select(x => x.ID).FirstOrDefault();
                     }
                     netObj.start();
                 }
