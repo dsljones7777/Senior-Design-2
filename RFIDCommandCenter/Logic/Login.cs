@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SharedLib;
+using System;
 using System.Linq;
 
 namespace RFIDCommandCenter.Logic
@@ -9,11 +10,11 @@ namespace RFIDCommandCenter.Logic
         {            
             var existingSysUser = context.SystemUsers.SingleOrDefault(s => s.Username == username);
             if(existingSysUser == null)
-                throw new ApplicationException("The username/password entered was incrorrect");
+                throw new UIClientException("The username/password entered was incrorrect");
             userRole = existingSysUser.UserRole;
            
             if (!existingSysUser.Pass.SequenceEqual(pass))
-                throw new ApplicationException("The username/password entered was incrorrect");
+                throw new UIClientException("The username/password entered was incrorrect");
         }
     }
 }

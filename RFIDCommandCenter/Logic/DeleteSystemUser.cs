@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SharedLib;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,7 +13,7 @@ namespace RFIDCommandCenter.Logic
             var userToDelete = context.SystemUsers.SingleOrDefault(s => string.Equals(username, s.Username, StringComparison.InvariantCultureIgnoreCase));
 
             if (userToDelete == null)
-                throw new ApplicationException("There is no system user with that username");
+                throw new UIClientException("There is no system user with that username");
 
             userToDelete.Active = false;
 

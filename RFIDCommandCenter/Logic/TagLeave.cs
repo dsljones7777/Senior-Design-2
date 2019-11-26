@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SharedLib;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,7 +14,7 @@ namespace RFIDCommandCenter.Logic
             var tagLeaving = context.Tags.SingleOrDefault(t => t.TagNumber == tagNum);
 
             if (tagLeaving == null)
-                throw new ApplicationException("The Tag marked for leaving does not exist in the system");
+                throw new UIClientException("The Tag marked for leaving does not exist in the system");
             
             tagLeaving.InLocation = false;
 

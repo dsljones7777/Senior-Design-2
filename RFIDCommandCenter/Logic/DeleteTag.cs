@@ -1,7 +1,9 @@
-﻿using System;
+﻿using SharedLib;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using static SharedLib.Network.UIClientConnection;
 
 namespace RFIDCommandCenter.Logic
 {
@@ -12,7 +14,7 @@ namespace RFIDCommandCenter.Logic
             var tagToDelete = context.Tags.SingleOrDefault(t => t.TagNumber == tagNumber);
 
             if (tagToDelete == null)
-                throw new ApplicationException("A Tag that ID does not exist");
+                throw new UIClientException("A Tag that ID does not exist");
 
             var allowedLocationsWithTagId = context.AllowedLocations.Where(l => l.TagID == tagToDelete.ID).ToList();
 
