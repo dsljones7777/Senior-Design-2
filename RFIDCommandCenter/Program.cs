@@ -1,4 +1,5 @@
 ﻿using RFIDCommandCenter.Logic;
+using SharedLib.Network;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -59,18 +60,52 @@ namespace RFIDCommandCenter
                     using (DataContext context = new DataContext())
                         dbSerials = (new GetAllUniqueSerialNumbers()).Execute(context);
                     if (dbSerials.Contains(client.deviceSerialNumber))
+                    {
                         systemDevices.Add(client.deviceSerialNumber, null);
+                        client.isSystemDevice = true;
+                    }  
                     else
+                    {
                         nonSystemDevices.Add(client.deviceSerialNumber, new List<byte[]>());
+                        client.isSystemDevice = false;
+                    }
+                        
                     client.pauseExecution = false;
                     break;
             }
             
         }
 
-        void handleUIClient(UIClient client)
+        //Return true if thread should be removed
+        bool handleUIClient(UIClient client)
         {
-            
+
+            if (client.threadExited)
+                return true;
+            if (client.request == null)
+                return false;
+            if(client.request.GetType()== typeof(GetUnconnectedDevicesRPC))
+            {
+                GetUnconnectedDevicesRPC rpc = new GetUnconnectedDevicesRPC()
+                {
+                    serialNumbers = nonSystemDevices.Keys.ToList()
+                };
+                lock(client.responses)
+                {
+                    client.responses.Add(rpc);
+                }
+            }
+            if(client.request.GetType() == typeof(GetAllConnectedDevicesRPC))
+            {
+                GetAllConnectedDevicesRPC rpc = new GetAllConnectedDevicesRPC();
+                rpc.serialNumbers = systemDevices.Keys.Union(nonSystemDevices.Keys).ToList();
+                lock(client.responses)
+                {
+                    client.responses.Add(rpc);
+                }
+            }
+            client.request = null;
+            return false;
         }
 
         public void AddClient(Client who)
@@ -84,10 +119,23 @@ namespace RFIDCommandCenter
         public void HandleClients()
         {
             string devError, serverError;
-            foreach (var dev in deviceClients)
-                handleRFIDClient(dev,out devError,out serverError);
-            foreach (var ui in uiClients)
-                handleUIClient(ui);
+            for(int i = 0; i < deviceClients.Count;i ++)
+            {
+                var dev = deviceClients[i];
+                handleRFIDClient(dev, out devError, out serverError);
+                if(devError != null)
+                {
+                    foreach (var ui in uiClients)
+                        ui.addErrorMessage(dev.deviceSerialNumber, devError);
+                }
+                if(serverError != null)
+                {
+                    foreach (var ui in uiClients)
+                        ui.addErrorMessage(dev.deviceSerialNumber, serverError);
+                }
+            }  
+            for(int i = 0; i < uiClients.Count; i ++)
+                handleUIClient(uiClients[i]);
         }
 
         private void addRFIDDeviceClient(RFIDDeviceClient deviceClient)

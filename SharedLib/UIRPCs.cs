@@ -67,6 +67,17 @@ namespace SharedLib
         }
 
         [Serializable]
+        public class GetAllConnectedDevicesRPC : UINetworkPacket
+        {
+            public List<string> serialNumbers;
+
+            public GetUnconnectedDevicesRPC()
+            {
+                this.bothWay = true;
+            }
+        }
+
+        [Serializable]
         public class GetUnconnectedDevicesRPC : UINetworkPacket
         {
             //TODO: Implement server side

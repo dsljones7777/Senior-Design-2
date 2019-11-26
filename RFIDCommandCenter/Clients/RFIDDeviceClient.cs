@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
@@ -20,12 +21,14 @@ namespace RFIDCommandCenter
 
 
         long tickRateOffset;
+        internal volatile bool isSystemDevice;              //Does the device exist in the database
         internal volatile bool exit;
         internal volatile bool pauseExecution;
         internal volatile int deviceError;
         internal volatile bool continueAfterDeviceError;
         internal volatile string serverErrorMessage;
         internal string deviceSerialNumber;
+        List<string> readTags = new List<string>();
         
         public enum CommandCodes
         {
@@ -116,21 +119,35 @@ namespace RFIDCommandCenter
                     case (int)CommandCodes.TAG_ARRIVE:
                         byte[] tagArriveNum = new byte[12];
                         Array.Copy(cmdPacket.payload, tagArriveNum, 12);
-                        if (tagArriveNum == null)
-                            throw new ApplicationException("Invalid payload data");
-                        var tagArrive = new Logic.TagArrive();
-                        //tagArrive.Execute(tagArriveNum, deviceSerialNumber,context);
-                        //If allowed location exits then
-                        cmdPacket.command = (int)CommandCodes.UNLOCK;
-                        //else
-                            //break;
+                        if(isSystemDevice)
+                        {
+                            var tagArrive = new Logic.TagArrive();
+                            tagArrive.Execute(tagArriveNum, deviceSerialNumber, context);
+                            cmdPacket.command = (int)CommandCodes.UNLOCK;
+                        }
+                        else
+                        {
+                            lock(readTags)
+                            {
+                                readTags.Add(BitConverter.ToString(tagArriveNum));
+                            }
+                        }
                         break;
                     case (int)CommandCodes.TAG_LEAVE:
-                        var tagLeavingNum = (byte[])cmdPacket.payload;
-                        if (tagLeavingNum == null)
-                            throw new ApplicationException("Invalid payload data");
-                        //var tagLeave = new Logic.TagLeave();
-                        //tagLeave.Execute(tagLeavingNum, context);
+                        var tagLeavingNum = new byte[12];
+                        Array.Copy(cmdPacket.payload, tagLeavingNum, 12);
+                        if(isSystemDevice)
+                        {
+                            var tagLeave = new Logic.TagLeave();
+                            tagLeave.Execute(tagLeavingNum, context);
+                        }
+                        else
+                        {
+                            lock(readTags)
+                            {
+                                readTags.Remove(BitConverter.ToString(tagLeavingNum));
+                            }
+                        }
                         break;
                     case (int)CommandCodes.ALIVE:
                         //Write to db

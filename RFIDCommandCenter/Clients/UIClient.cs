@@ -16,6 +16,7 @@ namespace RFIDCommandCenter
         public volatile bool exit = false;                          //Signals to the client to exit the program
         public volatile bool threadExited = false;                  //signals to main server that the client thread has exited
         public volatile UINetworkPacket request;
+        public List<UINetworkPacket> responses; 
         public Exception lastException;                             //The last exception that occurred on the thread that caused it to exit
         public string clientUsername = null;                        //Null when no one is logged in
         public int role;                                            //Role of the client. Used to determine access to RPCS
@@ -35,6 +36,14 @@ namespace RFIDCommandCenter
         
         bool tendToClientRequests()
         {
+            lock(responses)
+            {
+                while(responses.Count > 0)
+                {
+                    sendRPC(responses[0]);
+                    responses.Remove(responses[0]);
+                }
+            }
             if (!clientStream.DataAvailable)
                 return false;
             BinaryFormatter formatter = new BinaryFormatter();
@@ -43,20 +52,9 @@ namespace RFIDCommandCenter
             {
                 executeRPC(cmd);
             }
-            catch (CommandCenterException e)
+            catch(UIClientException e)
             {
-                try
-                {
-                    tellClient(null, e.Message);
-                }
-                catch
-                {
-
-                }
-            }
-            catch(Exception e)
-            {
-
+                sendRPC(e);
             }
             return true;
         }
@@ -76,6 +74,7 @@ namespace RFIDCommandCenter
 
         public override void serverThreadRoutine(object state)
         {
+            
             while (!exit)
             {
                 try
@@ -277,7 +276,7 @@ namespace RFIDCommandCenter
             saveTag.Execute(op.tagNumber, op.name, op.guest, context);
         }
 
-        void sendRPC(UINetworkPacket packet)
+        internal void sendRPC(UINetworkPacket packet)
         {
             BinaryFormatter formatSerializer = new BinaryFormatter();
             formatSerializer.Serialize(clientStream, packet);
