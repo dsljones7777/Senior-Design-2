@@ -279,7 +279,7 @@ namespace RFIDCommandCenter
             SaveSystemUserRPC op = (SaveSystemUserRPC)cmd;
             var saveSysUser = new Logic.SaveSystemUser();
             //TODO: Implement hashing
-            byte[] passBytes = null;
+            byte[] passBytes = Encoding.ASCII.GetBytes(op.password);
             saveSysUser.Execute(op.username, passBytes, op.role, context);
         }
 
