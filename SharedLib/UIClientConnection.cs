@@ -45,6 +45,14 @@ namespace SharedLib
                             status = response as FunctionCallStatusRPC;
                             if (status != null && status.error != null)
                                 throw new FunctionException(status.error);
+                            else if(status != null && status.waitForResponse)
+                            {
+                                returnval = (UINetworkPacket)formatter.Deserialize(serializerStream);
+                                status = (FunctionCallStatusRPC)formatter.Deserialize(serializerStream);
+                                if (status.error != null)
+                                    throw new FunctionException(status.error);
+
+                            }
                             else if (status == null)
                             {
                                 returnval = (UINetworkPacket)response;

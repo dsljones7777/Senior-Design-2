@@ -109,15 +109,25 @@ namespace RFIDCommandCenter
                 foreach(var x in rpc.devices)
                 {
                     x.inDB = true;
-                    x.connected = systemDevices.ContainsKey(x.serialNumber);
-                }
-                rpc.devices.Union(nonSystemDevices.ToList().ConvertAll(
-                    a => new DeviceStatus()
+                    lock(systemDevices)
                     {
-                        connected = true,
-                        inDB = false,
-                        serialNumber = a.Key
-                    }));
+                        x.connected = systemDevices.ContainsKey(x.serialNumber);
+                    }
+                    
+                }
+                lock(nonSystemDevices)
+                {
+                    foreach (var x in nonSystemDevices)
+                    {
+                        rpc.devices.Add(
+                            new DeviceStatus()
+                            {
+                                connected = true,
+                                inDB = false,
+                                serialNumber = x.Key
+                            });
+                    }
+                }
                 lock(client.responses)
                 {
                     client.responses.Add(rpc);

@@ -215,8 +215,10 @@ namespace RFIDDeviceController
 			{
 				cmd = (int)CommandCodes::SERIAL_NUMBER;
 				payloadSize = sizeof(ReaderSerialNetParam) - sizeof(NetworkBytecode);
-				for (int i = 0; serialNumber[i]; i++)
+				int i;
+				for (i = 0; serialNumber[i]; i++)
 					devSerial[i] = serialNumber[i];
+				devSerial[i] = 0;
 			}
 		};
 #pragma pack()

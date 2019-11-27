@@ -256,6 +256,7 @@ namespace SharedLib
         public class FunctionCallStatusRPC : UINetworkPacket
         {
             public string error;
+            public bool waitForResponse;
         }
     }
     

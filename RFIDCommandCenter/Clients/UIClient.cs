@@ -42,7 +42,7 @@ namespace RFIDCommandCenter
                 while(responses.Count > 0)
                 {
                     sendRPC(responses[0]);
-                    sendRPC(new FunctionCallStatusRPC());
+                    sendRPC(new FunctionCallStatusRPC() { });
                     responses.Remove(responses[0]);
                 }
             }
@@ -52,8 +52,8 @@ namespace RFIDCommandCenter
             object cmd = formatter.Deserialize(clientStream);
             try
             {
-                executeRPC(cmd);
-                sendRPC(new FunctionCallStatusRPC());
+                bool needsDelay = executeRPC(cmd);
+                sendRPC(new FunctionCallStatusRPC() { waitForResponse = needsDelay});
             }
             catch(UIClientException e)
             {
@@ -94,8 +94,10 @@ namespace RFIDCommandCenter
             }
         }
         
-        void executeRPC(object cmd)
+        //Returns true if delayed response is needed
+        bool executeRPC(object cmd)
         {
+            bool needsDelayedResponse = false;
             using (var context = new DataContext())
             {
                 if (cmd.GetType() == typeof(LoginUserRPC))
@@ -162,11 +164,21 @@ namespace RFIDCommandCenter
                 else if (cmd.GetType() == typeof(EditUserRPC))
                     editUser((EditUserRPC)cmd, context);
                 else if (cmd.GetType() == typeof(GetUnconnectedDevicesRPC))
+                {
+                    needsDelayedResponse = true;
                     getUnconnectedDevices(context);
+                }
+                    
                 else if (cmd.GetType() == typeof(GetAllConnectedDevicesRPC))
+                {
+                    needsDelayedResponse = true;
                     getConnectedDevices(context);
+                } 
                 else if (cmd.GetType() == typeof(GetAllDevicesRPC))
+                {
+                    needsDelayedResponse = true;
                     getAllDevices(context);
+                }
                 else if (cmd.GetType() == typeof(ErrorReplyRPC))
                 {
                     ErrorReplyRPC op = (ErrorReplyRPC)cmd;
@@ -176,6 +188,7 @@ namespace RFIDCommandCenter
                 else
                     throw new Exception("Client sent an invalid RPC");
             }
+            return needsDelayedResponse;
         }
 
         private void getConnectedDevices(DataContext context)

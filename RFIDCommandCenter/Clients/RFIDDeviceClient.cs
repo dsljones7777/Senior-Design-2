@@ -159,7 +159,10 @@ namespace RFIDCommandCenter
                         handleDeviceError(cmdPacket);
                         break;
                     case (int)CommandCodes.SERIAL_NUMBER:
-                        deviceSerialNumber = Encoding.ASCII.GetString(cmdPacket.payload);
+                        StringBuilder builder = new StringBuilder();
+                        for(int i = 0; cmdPacket.payload[i] != 0; i ++)
+                            builder.Append((char)cmdPacket.payload[i]);
+                        deviceSerialNumber = builder.ToString();
                         pauseExecution = true;
                         while (pauseExecution)
                             Thread.Yield();
