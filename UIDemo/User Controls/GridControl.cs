@@ -15,8 +15,8 @@ namespace UIDemo
         bool selectionAllowed = false;
         bool multiSelectionAllowed = false;
         bool isChangingValue = false;       //Is a grid cell value changing programmatically (disables reentry of event handler)
-
-        public GridControl(bool allowSelect, bool singleSelect, bool allowAdd,bool allowRemove, bool allowEdit)
+        string selectedColumnName = "Select";
+        public GridControl(bool allowSelect, bool singleSelect, bool allowAdd,bool allowRemove, bool allowEdit,string selectColumnName = "Select")
         {
             InitializeComponent();
             selectionAllowed = allowSelect;
@@ -26,6 +26,7 @@ namespace UIDemo
             editButton.Visible = allowEdit;
             removeButton.Enabled = false;
             editButton.Enabled = false;
+            selectedColumnName = selectColumnName;
         }
 
         public void load(DataTable tbl, EventHandler addNewHandler, EventHandler editHandler, EventHandler removeHandler)
@@ -33,7 +34,7 @@ namespace UIDemo
             DataTable dataToLoad = new DataTable();
             if (selectionAllowed)
             {
-                DataColumn newColumn = new DataColumn("Select", typeof(Boolean));
+                DataColumn newColumn = new DataColumn(selectedColumnName, typeof(Boolean));
                 newColumn.ReadOnly = false;
                 dataToLoad.Columns.Add(newColumn);
             }
@@ -63,6 +64,7 @@ namespace UIDemo
                 else
                     dataToLoad.Rows.Add(items);
             }
+            dataToLoad.DefaultView.RowFilter = tbl.DefaultView.RowFilter;
             controlGrid.DataSource = dataToLoad;
             fitSize();
 
@@ -83,7 +85,7 @@ namespace UIDemo
         public DataRow[] getSelectedItems()
         {
             DataTable tbl = (DataTable)controlGrid.DataSource;
-            return tbl.Select("Select=TRUE");
+            return tbl.Select(selectedColumnName + "=TRUE");
         }
 
         private void controlGrid_CellValueChanging(object sender, DataGridViewCellEventArgs e)
@@ -226,6 +228,29 @@ namespace UIDemo
             if (controlGrid.IsCurrentCellDirty)
             {
                 controlGrid.CommitEdit(DataGridViewDataErrorContexts.Commit);
+            }
+        }
+        
+        public void selectRows(List<DataRow> rows)
+        {
+            DataTable tbl = (DataTable)controlGrid.DataSource;
+            string expression = "";
+            int argIndex = 0;
+            foreach(DataColumn column in tbl.Columns)
+            {
+                if (column.ColumnName == selectedColumnName)
+                    continue;
+                expression += column.ColumnName + "={" + argIndex + "} AND ";
+                argIndex++;
+            }
+            expression = expression.Substring(0, expression.Length - 5);
+            foreach(DataRow row in rows)
+            {
+                string selectExpression = String.Format(expression, row.ItemArray);
+                DataRow[] foundRows = tbl.Select(selectExpression);
+                if (foundRows == null || foundRows.Length == 0)
+                    continue;
+                foundRows[0][selectedColumnName] = true;
             }
         }
     }

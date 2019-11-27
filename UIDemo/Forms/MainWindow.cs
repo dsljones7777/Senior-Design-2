@@ -1,4 +1,5 @@
 ﻿using Network;
+using SharedLib;
 using SharedLib.Network;
 using System;
 using System.Collections.Generic;
@@ -54,6 +55,14 @@ namespace UIDemo
                 new DataColumn("Device Serial",typeof(string)),
                 new DataColumn("Connected",typeof(bool)),
                 new DataColumn("Is System Device",typeof(bool))
+            }
+        };
+
+        DataTable allowedLocationTable = new DataTable()
+        {
+            Columns =
+            {
+                new DataColumn("Location Name",typeof(string))
             }
         };
 
@@ -209,6 +218,9 @@ namespace UIDemo
                 return;
             }
             tagTable.Clear();
+            tagTable.DefaultView.RowFilter = "";
+            foreach (DataColumn column in tagTable.Columns)
+                column.ColumnMapping = MappingType.Element;
             foreach (var x in rpc.tagList)
             {
                 string tagVal = BitConverter.ToString(x.TagNumber).Replace("-", "");
@@ -429,6 +441,90 @@ namespace UIDemo
             gridCtl.load(deviceTabls,null,null,null);
             DialogWindow window = new DialogWindow("View Devices", null, gridCtl, true, false);
             window.ShowDialog(this);
+        }
+
+        class LocationEqualityComparer : IEqualityComparer<SharedLib.SharedModels.ViewAllowedLocationsModel>
+        {
+            public bool Equals(SharedModels.ViewAllowedLocationsModel x, SharedModels.ViewAllowedLocationsModel y)
+            {
+                return String.Equals(x.LocationName, y.LocationName, StringComparison.CurrentCultureIgnoreCase);
+            }
+
+            public int GetHashCode(SharedModels.ViewAllowedLocationsModel obj)
+            {
+                return obj.LocationName.GetHashCode();
+            }
+        }
+        private async void allowedLocations_Click(object sender, EventArgs e)
+        {
+            ViewTagsRPC rpc = new ViewTagsRPC();
+            try
+            {
+                rpc = (ViewTagsRPC)await rpc.executeAsync();
+            }
+            catch (Exception except)
+            {
+                MessageBox.Show(this, except.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            tagTable.Clear();
+            tagTable.Columns["Last Location"].ColumnMapping = MappingType.Hidden;
+            tagTable.Columns["Present"].ColumnMapping = MappingType.Hidden;
+            tagTable.Columns["Lost"].ColumnMapping = MappingType.Hidden;
+            foreach (var x in rpc.tagList)
+            {
+                string tagVal = BitConverter.ToString(x.TagNumber).Replace("-", "");
+                tagTable.Rows.Add(x.TagName, x.LastLocation ?? "", x.InLocation, tagVal, x.LostTag, x.GuestTag);
+            }
+            gridCtl = new GridControl(true,true,false,false,false);
+            gridCtl.load(tagTable,null,null,null);
+            DialogWindow window = new DialogWindow("Select A Tag", null, gridCtl, true, true);
+            window.ShowDialog(this);
+            if (window.DialogResult != DialogResult.OK)
+                return;
+            DataRow[] selectedRows = gridCtl.getSelectedItems();
+            if (selectedRows == null || selectedRows.Length == 0)
+                return;
+            ViewLocationsRPC locationsRPC = new ViewLocationsRPC();
+            try
+            {
+                locationsRPC = (ViewLocationsRPC)await locationsRPC.executeAsync();
+            }
+            catch (Exception except)
+            {
+                MessageBox.Show(this, except.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            ViewAllowedLocationsRPC allowedRPC = new ViewAllowedLocationsRPC()
+            {
+                TagName = selectedRows[0]["Tag Name"] as string
+            };
+            try
+            {
+                allowedRPC = (ViewAllowedLocationsRPC)await allowedRPC.executeAsync();
+            }
+            catch (Exception except)
+            {
+                MessageBox.Show(this, except.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            allowedLocationTable.Clear();
+            List<DataRow> rowsToSelect = new List<DataRow>();
+            foreach(var x in locationsRPC.locationList)
+            {
+                bool exists = allowedRPC.allowedLocationList.Contains(new SharedModels.ViewAllowedLocationsModel() { LocationName = x.LocationName }, new LocationEqualityComparer());
+                DataRow row = allowedLocationTable.Rows.Add(x.LocationName);
+                if (exists)
+                    rowsToSelect.Add(row);
+            }
+            gridCtl = new GridControl(true, false, false, false, false, "Allowed");
+            gridCtl.load(allowedLocationTable, null, null, null);
+            gridCtl.selectRows(rowsToSelect);
+            window = new DialogWindow("Select Tag Allowed Permissions", null, gridCtl, true,true);
+            window.ShowDialog(this);
+            if (window.DialogResult != DialogResult.OK)
+                return;
         }
     }
 }
