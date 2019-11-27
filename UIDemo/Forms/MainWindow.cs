@@ -525,6 +525,27 @@ namespace UIDemo
             window.ShowDialog(this);
             if (window.DialogResult != DialogResult.OK)
                 return;
+            DataRow[] allowed = gridCtl.getSelectedItems();
+            SaveAllowedLocationsRPC rpc2 = new SaveAllowedLocationsRPC()
+            {
+                locationNames = new List<string>(),
+                tagName = selectedRows[0]["Tag Name"] as string
+            };
+            if(allowed != null)
+                foreach(DataRow row in allowed)
+                {
+                    rpc2.locationNames.Add(row["Location Name"] as string);
+                }
+            try
+            {
+                await rpc2.executeAsync();
+            }
+            catch (Exception except)
+            {
+                MessageBox.Show(this, except.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
         }
     }
 }
