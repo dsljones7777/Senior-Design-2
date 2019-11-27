@@ -198,8 +198,8 @@ namespace SharedLib
         [Serializable]
         public class SaveAllowedLocationsRPC : UINetworkPacket
         {
-            public int tagID;
-            public int locationID;
+            public string tagName;
+            public List<string> locationNames;
         }   
         
         [Serializable]

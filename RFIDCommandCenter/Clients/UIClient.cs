@@ -362,7 +362,7 @@ namespace RFIDCommandCenter
         {
             SaveAllowedLocationsRPC op = (SaveAllowedLocationsRPC) cmd;
             var saveAllowedLocations = new Logic.SaveAllowedTagLocation();
-            saveAllowedLocations.Execute(op.tagID, op.locationID, context);
+            saveAllowedLocations.Execute(op.tagName, op.locationNames, context);
         }
 
         private static void saveConnectedDevice(object cmd, DataContext context)
