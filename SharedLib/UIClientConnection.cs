@@ -26,7 +26,6 @@ namespace SharedLib
                 }
             }
             public event EventHandler Connected;
-            public event EventHandler<Exception> FailedConnecting;
             public static event EventHandler<Exception> NetworkError;
             public event EventHandler<ServerMessage> ServerMessageReceived;
             [Serializable]
@@ -88,22 +87,14 @@ namespace SharedLib
                             serverCallbackThread.Dispose();
                             serverCallbackThread = null;
                         }
-                        try
+                        lock (streamLock)
                         {
-                            lock(streamLock)
-                            {
-                                myServerConnection = new TcpClient(ipOrHostName, port);
-                                serializerStream = myServerConnection.GetStream();
-                                myServerConnection.Client.Send(BitConverter.GetBytes((int)1));
-                                serverCallbackThread = new Task(serverCallbackThreadRoutine);
-                                exitCallbackThread = false;
-                                serverCallbackThread.Start();
-                            }
-                        }
-                        catch (Exception e)
-                        {
-                            FailedConnecting?.Invoke(this, e);
-                            return false;
+                            myServerConnection = new TcpClient(ipOrHostName, port);
+                            serializerStream = myServerConnection.GetStream();
+                            myServerConnection.Client.Send(BitConverter.GetBytes((int)1));
+                            serverCallbackThread = new Task(serverCallbackThreadRoutine);
+                            exitCallbackThread = false;
+                            serverCallbackThread.Start();
                         }
                         Connected?.Invoke(this, null);
                         return true;
@@ -142,9 +133,8 @@ namespace SharedLib
                 {
                     try
                     {
-                        
                         object rpc;
-                        lock(streamLock)
+                        lock (streamLock)
                         {
                             if (myServerConnection.Available <= 0)
                             {

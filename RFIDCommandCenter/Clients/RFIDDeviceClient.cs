@@ -122,8 +122,8 @@ namespace RFIDCommandCenter
                         if(isSystemDevice)
                         {
                             var tagArrive = new Logic.TagArrive();
-                            tagArrive.Execute(tagArriveNum, deviceSerialNumber, context);
-                            cmdPacket.command = (int)CommandCodes.UNLOCK;
+                            if(tagArrive.Execute(tagArriveNum, deviceSerialNumber, context))
+                                cmdPacket.command = (int)CommandCodes.UNLOCK;
                         }
                         else
                         {

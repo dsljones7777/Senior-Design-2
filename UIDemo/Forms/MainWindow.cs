@@ -47,6 +47,16 @@ namespace UIDemo
             }
         };
 
+        DataTable deviceTabls = new DataTable()
+        {
+            Columns =
+            {
+                new DataColumn("Device Serial",typeof(string)),
+                new DataColumn("Connected",typeof(bool)),
+                new DataColumn("Is System Device",typeof(bool))
+            }
+        };
+
         GridControl gridCtl;
 
         LocationControl locationCtl;
@@ -398,6 +408,27 @@ namespace UIDemo
         private void MainWindow_Load(object sender, EventArgs e)
         {
 
+        }
+
+        private async void viewDevicesRPC(object sender, EventArgs e)
+        {
+            GetAllDevicesRPC rpc = new GetAllDevicesRPC();
+            try
+            {
+                rpc = (GetAllDevicesRPC)await rpc.executeAsync();
+            }
+            catch (Exception except)
+            {
+                MessageBox.Show(this, except.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            deviceTabls.Clear();
+            foreach (var x in rpc.devices)
+                deviceTabls.Rows.Add(x.serialNumber, x.connected, x.inDB);
+            gridCtl = new GridControl(false, false, false, false, false);
+            gridCtl.load(deviceTabls,null,null,null);
+            DialogWindow window = new DialogWindow("View Devices", null, gridCtl, true, false);
+            window.ShowDialog(this);
         }
     }
 }

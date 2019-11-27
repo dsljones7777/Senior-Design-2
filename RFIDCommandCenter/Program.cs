@@ -79,7 +79,6 @@ namespace RFIDCommandCenter
         //Return true if thread should be removed
         bool handleUIClient(UIClient client)
         {
-
             if (client.threadExited)
                 return true;
             if (client.request == null)
@@ -95,10 +94,30 @@ namespace RFIDCommandCenter
                     client.responses.Add(rpc);
                 }
             }
-            if(client.request.GetType() == typeof(GetAllConnectedDevicesRPC))
+            else if(client.request.GetType() == typeof(GetAllConnectedDevicesRPC))
             {
                 GetAllConnectedDevicesRPC rpc = new GetAllConnectedDevicesRPC();
                 rpc.serialNumbers = systemDevices.Keys.Union(nonSystemDevices.Keys).ToList();
+                lock(client.responses)
+                {
+                    client.responses.Add(rpc);
+                }
+            }
+            else if(client.request.GetType() == typeof(GetAllDevicesRPC))
+            {
+                GetAllDevicesRPC rpc = (GetAllDevicesRPC)client.request;
+                foreach(var x in rpc.devices)
+                {
+                    x.inDB = true;
+                    x.connected = systemDevices.ContainsKey(x.serialNumber);
+                }
+                rpc.devices.Union(nonSystemDevices.ToList().ConvertAll(
+                    a => new DeviceStatus()
+                    {
+                        connected = true,
+                        inDB = false,
+                        serialNumber = a.Key
+                    }));
                 lock(client.responses)
                 {
                     client.responses.Add(rpc);
@@ -184,7 +203,7 @@ namespace RFIDCommandCenter
                     //try to improve performance of the first db connection
                     using (var context = new DataContext())
                     {
-
+                        var dummyQuery = context.Tags.Select(x => x.ID == 0);
                     }
                     netObj.start();
                 }

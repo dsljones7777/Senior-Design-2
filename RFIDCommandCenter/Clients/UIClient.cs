@@ -53,16 +53,11 @@ namespace RFIDCommandCenter
             try
             {
                 executeRPC(cmd);
-                FunctionCallStatusRPC status = new FunctionCallStatusRPC();
-                sendRPC(status);
+                sendRPC(new FunctionCallStatusRPC());
             }
             catch(UIClientException e)
             {
-                FunctionCallStatusRPC rpc = new FunctionCallStatusRPC()
-                {
-                    error = e.Message
-                };
-                sendRPC(rpc);
+                sendRPC(new FunctionCallStatusRPC() { error = e.Message});
             }
             return true;
         }
@@ -82,7 +77,6 @@ namespace RFIDCommandCenter
 
         public override void serverThreadRoutine(object state)
         {
-            
             while (!exit)
             {
                 try
@@ -112,12 +106,12 @@ namespace RFIDCommandCenter
                 {
                     verifyAdminAccess(role);
                     saveTag(cmd, context);
-                }                
+                }
                 else if (cmd.GetType() == typeof(DeleteTagRPC))
                 {
                     verifyAdminAccess(role);
                     deleteTag(cmd, context);
-                }                  
+                }
                 else if (cmd.GetType() == typeof(SaveSystemUserRPC))
                 {
                     verifyAdminAccess(role);
@@ -127,7 +121,7 @@ namespace RFIDCommandCenter
                 {
                     verifyAdminAccess(role);
                     deleteSystemUser(cmd, context);
-                }  
+                }
                 else if (cmd.GetType() == typeof(SaveLocationRPC))
                 {
                     verifyAdminAccess(role);
@@ -169,6 +163,8 @@ namespace RFIDCommandCenter
                     editUser((EditUserRPC)cmd, context);
                 else if (cmd.GetType() == typeof(GetUnconnectedDevicesRPC))
                     getUnconnectedDevices(context);
+                else if (cmd.GetType() == typeof(GetAllConnectedDevicesRPC))
+                    getConnectedDevices(context);
                 else if (cmd.GetType() == typeof(GetAllDevicesRPC))
                     getAllDevices(context);
                 else if (cmd.GetType() == typeof(ErrorReplyRPC))
@@ -178,10 +174,17 @@ namespace RFIDCommandCenter
                         msgRecevied(op.serialNumber, op.retry);
                 }
                 else
-                    throw new UIClientException("Client sent an invalid RPC");
+                    throw new Exception("Client sent an invalid RPC");
             }
         }
-        
+
+        private void getConnectedDevices(DataContext context)
+        {
+            while (request != null)
+                Thread.Yield();
+            request = new GetAllConnectedDevicesRPC();
+        }
+
         public void addErrorMessage(string serial, string message)
         {
             lock (messagesToSend)
@@ -217,11 +220,19 @@ namespace RFIDCommandCenter
 
         private void getAllDevices(DataContext context)
         {
-            request = new GetAllDevicesRPC();
+            while (request != null)
+                Thread.Yield();
+            GetAllDevicesRPC rpc = new GetAllDevicesRPC()
+            {
+                devices = (new Logic.GetAllUniqueSerialNumbers()).Execute(context).ConvertAll(s => new DeviceStatus { serialNumber = s })
+            };
+            request = rpc;
         }
 
         private void getUnconnectedDevices(DataContext context)
         {
+            while (request != null)
+                Thread.Yield();
             request = new GetUnconnectedDevicesRPC();
         }
 

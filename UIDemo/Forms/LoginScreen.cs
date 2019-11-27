@@ -23,7 +23,6 @@ namespace UIDemo
         {
             InitializeComponent();
             connection.Connected += OnConnected;
-            connection.FailedConnecting += OnConnectingError;
             connection.ServerMessageReceived += OnServerMessageReceived;
         }
 
@@ -108,23 +107,24 @@ namespace UIDemo
             loginLogoPictureBox.Image = UIDemo.Properties.Resources.SecureID_Static;
         }
 
-        void OnConnectingError(object sender, Exception error)
-        {
-            Action uiAction = new Action(
-                () => 
-                {
-                    this.Enabled = false;
-                    DialogResult msgResult = MessageBox.Show(this, error.Message, "Failed to Connect", MessageBoxButtons.RetryCancel, MessageBoxIcon.Error);
-                    if (msgResult != DialogResult.Retry)
-                        this.Close();
-                    else
-                        this.Enabled = true;
-                });
-            if (InvokeRequired)
-                Invoke(uiAction);
-            else
-                uiAction.Invoke();
-        }
+        //void OnConnectingError(object sender, Exception error)
+        //{
+        //    Action uiAction = new Action(
+        //        () => 
+        //        {
+        //            this.Enabled = false;
+        //            DialogResult msgResult = MessageBox.Show(this, error.Message, "Failed to Connect", MessageBoxButtons.RetryCancel, MessageBoxIcon.Error);
+        //            if (msgResult != DialogResult.Retry)
+        //                this.Close();
+        //            else
+        //                this.Enabled = true;
+
+        //        });
+        //    if (InvokeRequired)
+        //        Invoke(uiAction);
+        //    else
+        //        uiAction.Invoke();
+        //}
 
         void OnConnected(object sender, EventArgs args)
         {
