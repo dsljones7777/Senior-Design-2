@@ -35,8 +35,8 @@
             this.usernameLabel = new System.Windows.Forms.Label();
             this.roleLabel = new System.Windows.Forms.Label();
             this.passwordLabel = new System.Windows.Forms.Label();
-            this.tagDataTextbox = new System.Windows.Forms.TextBox();
             this.guestCheckbox = new System.Windows.Forms.CheckBox();
+            this.tagDataCombobox = new System.Windows.Forms.ComboBox();
             this.tableLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -53,8 +53,8 @@
             this.tableLayoutPanel1.Controls.Add(this.usernameLabel, 0, 0);
             this.tableLayoutPanel1.Controls.Add(this.roleLabel, 0, 2);
             this.tableLayoutPanel1.Controls.Add(this.passwordLabel, 0, 1);
-            this.tableLayoutPanel1.Controls.Add(this.tagDataTextbox, 1, 1);
             this.tableLayoutPanel1.Controls.Add(this.guestCheckbox, 1, 2);
+            this.tableLayoutPanel1.Controls.Add(this.tagDataCombobox, 1, 1);
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
@@ -63,14 +63,14 @@
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(320, 124);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(320, 116);
             this.tableLayoutPanel1.TabIndex = 1;
             // 
             // lostLabel
             // 
             this.lostLabel.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.lostLabel.AutoSize = true;
-            this.lostLabel.Location = new System.Drawing.Point(39, 102);
+            this.lostLabel.Location = new System.Drawing.Point(39, 94);
             this.lostLabel.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
             this.lostLabel.Name = "lostLabel";
             this.lostLabel.Size = new System.Drawing.Size(32, 17);
@@ -81,7 +81,7 @@
             // 
             this.lostCheckbox.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lostCheckbox.AutoSize = true;
-            this.lostCheckbox.Location = new System.Drawing.Point(77, 103);
+            this.lostCheckbox.Location = new System.Drawing.Point(77, 95);
             this.lostCheckbox.Name = "lostCheckbox";
             this.lostCheckbox.Size = new System.Drawing.Size(15, 14);
             this.lostCheckbox.TabIndex = 7;
@@ -110,7 +110,7 @@
             // 
             this.roleLabel.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.roleLabel.AutoSize = true;
-            this.roleLabel.Location = new System.Drawing.Point(5, 75);
+            this.roleLabel.Location = new System.Drawing.Point(5, 67);
             this.roleLabel.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
             this.roleLabel.Name = "roleLabel";
             this.roleLabel.Size = new System.Drawing.Size(66, 17);
@@ -121,30 +121,29 @@
             // 
             this.passwordLabel.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.passwordLabel.AutoSize = true;
-            this.passwordLabel.Location = new System.Drawing.Point(11, 44);
+            this.passwordLabel.Location = new System.Drawing.Point(11, 40);
             this.passwordLabel.Name = "passwordLabel";
             this.passwordLabel.Size = new System.Drawing.Size(60, 17);
             this.passwordLabel.TabIndex = 4;
             this.passwordLabel.Text = "Tag Data";
             // 
-            // tagDataTextbox
-            // 
-            this.tagDataTextbox.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.tagDataTextbox.Location = new System.Drawing.Point(77, 40);
-            this.tagDataTextbox.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
-            this.tagDataTextbox.Name = "tagDataTextbox";
-            this.tagDataTextbox.Size = new System.Drawing.Size(240, 25);
-            this.tagDataTextbox.TabIndex = 1;
-            // 
             // guestCheckbox
             // 
             this.guestCheckbox.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.guestCheckbox.AutoSize = true;
-            this.guestCheckbox.Location = new System.Drawing.Point(77, 76);
+            this.guestCheckbox.Location = new System.Drawing.Point(77, 68);
             this.guestCheckbox.Name = "guestCheckbox";
             this.guestCheckbox.Size = new System.Drawing.Size(15, 14);
             this.guestCheckbox.TabIndex = 6;
             this.guestCheckbox.UseVisualStyleBackColor = true;
+            // 
+            // tagDataCombobox
+            // 
+            this.tagDataCombobox.FormattingEnabled = true;
+            this.tagDataCombobox.Location = new System.Drawing.Point(77, 38);
+            this.tagDataCombobox.Name = "tagDataCombobox";
+            this.tagDataCombobox.Size = new System.Drawing.Size(240, 25);
+            this.tagDataCombobox.TabIndex = 9;
             // 
             // TagControl
             // 
@@ -156,7 +155,7 @@
             this.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.Name = "TagControl";
-            this.Size = new System.Drawing.Size(323, 129);
+            this.Size = new System.Drawing.Size(323, 121);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
             this.ResumeLayout(false);
@@ -170,10 +169,10 @@
         private System.Windows.Forms.TextBox tagNameTextbox;
         private System.Windows.Forms.Label usernameLabel;
         private System.Windows.Forms.Label passwordLabel;
-        private System.Windows.Forms.TextBox tagDataTextbox;
         private System.Windows.Forms.CheckBox guestCheckbox;
         private System.Windows.Forms.Label lostLabel;
         private System.Windows.Forms.CheckBox lostCheckbox;
         private System.Windows.Forms.Label roleLabel;
+        private System.Windows.Forms.ComboBox tagDataCombobox;
     }
 }

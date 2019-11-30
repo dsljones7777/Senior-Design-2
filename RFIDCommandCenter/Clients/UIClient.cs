@@ -311,7 +311,7 @@ namespace RFIDCommandCenter
         {
             DeleteTagRPC op = (DeleteTagRPC)cmd;
             var deleteTag = new Logic.DeleteTag();
-            deleteTag.Execute(op.tagNumber, context);
+            deleteTag.Execute(op.name, context);
         }
 
         private static void saveTag(object cmd, DataContext context)
@@ -338,27 +338,31 @@ namespace RFIDCommandCenter
             formatSerializer.Serialize(clientStream, errorRpc);
         }
 
-        private static void editLocation(object cmd, DataContext context)
+        private void editLocation(object cmd, DataContext context)
         {
             EditLocationRPC op = (EditLocationRPC)cmd;
             var editLocation = new Logic.EditLocation();
             editLocation.Execute(op.currentLocationName, op.newLocationName, op.readerSerialIn, op.readerSerialOut, context);
+            while (request != null)
+                Thread.Yield();
+            request = op;
+
         }
 
-        private static void editTag(object cmd, DataContext context)
+        private void editTag(object cmd, DataContext context)
         {
             EditTagRPC op = (EditTagRPC)cmd;
             var editTag = new Logic.EditTag();
             editTag.Execute(op.tagNumber, op.name, op.lost,op.guest, context);
         }
 
-        private static void removeConnectedDevices(DataContext context)
+        private void removeConnectedDevices(DataContext context)
         {
             var removeDevices = new Logic.RemoveAllConnectedDevices();
             removeDevices.Execute(context);
         }
 
-        private static void saveAllowedTagLocation(object cmd, DataContext context)
+        private void saveAllowedTagLocation(object cmd, DataContext context)
         {
             SaveAllowedLocationsRPC op = (SaveAllowedLocationsRPC) cmd;
             var saveAllowedLocations = new Logic.SaveAllowedTagLocation();
@@ -372,14 +376,14 @@ namespace RFIDCommandCenter
             saveConnectedDevice.Execute(op.serialNumber, context);
         }
 
-        private static void tagArrive(object cmd, DataContext context)
+        private void tagArrive(object cmd, DataContext context)
         {
             TagArriveRPC op = (TagArriveRPC)cmd;
             var tagArrive = new Logic.TagArrive();
             tagArrive.Execute(op.tagNumber, op.deviceSerialNumber, context);
         }
 
-        private static void tagLeave(object cmd, DataContext context)
+        private void tagLeave(object cmd, DataContext context)
         {
             TagLeaveRPC op = (TagLeaveRPC)cmd;
             var tagArrive = new Logic.TagLeave();

@@ -16,7 +16,7 @@ namespace UIDemo.User_Controls
         {
             InitializeComponent();
             tagNameTextbox.Text = tagName;
-            tagDataTextbox.Text = tagBytes;
+            tagDataCombobox.Text = tagBytes;
             lostCheckbox.Checked = isLost;
             guestCheckbox.Checked = isGuest;
         }
@@ -29,7 +29,7 @@ namespace UIDemo.User_Controls
             }
         }
 
-        byte[] hexStringToByteArray(string hexString)
+        internal static byte[] hexStringToByteArray(string hexString)
         {
             return Enumerable.Range(0, hexString.Length)
                              .Where(x => x % 2 == 0)
@@ -41,7 +41,7 @@ namespace UIDemo.User_Controls
         {
             get
             {
-                return tagDataTextbox.Text;
+                return tagDataCombobox.Text ;
             }
         }
 
@@ -49,9 +49,9 @@ namespace UIDemo.User_Controls
         {
             get
             {
-                if (String.IsNullOrWhiteSpace(tagDataTextbox.Text))
+                if (String.IsNullOrWhiteSpace(tagDataCombobox.Text))
                     return null;
-                return hexStringToByteArray(tagDataTextbox.Text);
+                return hexStringToByteArray(tagDataCombobox.Text);
             }
         }
 
@@ -78,7 +78,7 @@ namespace UIDemo.User_Controls
 
         public void disableTagByteEditing()
         {
-            tagDataTextbox.Enabled = false;
+            tagDataCombobox.Enabled = false;
         }
     }
 }

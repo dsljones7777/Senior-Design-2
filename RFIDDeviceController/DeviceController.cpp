@@ -132,6 +132,7 @@ bool RFIDDeviceController::DeviceController::executeCommand(int expectedCommand)
 
 	if (expectedCommand  && buffer.cmd != expectedCommand)
 		return false;
+	WriteTagNetParam * pCmd;
 	switch (buffer.cmd)
 	{
 		case (int)CommandCodes::CONFIRMATION_SYNC_TICK_COUNT:
@@ -139,9 +140,12 @@ bool RFIDDeviceController::DeviceController::executeCommand(int expectedCommand)
 			break;
 		case (int)CommandCodes::LOCK:
 			//lock door
+			turnOffLed(1);
+			turnOnLed(2);
 			break;
 		case (int)CommandCodes::UNLOCK:
-			//unlock door
+			turnOnLed(1);
+			turnOffLed(2);
 			break;
 		case (int)CommandCodes::UPDATE:
 			//update device params 
@@ -151,6 +155,8 @@ bool RFIDDeviceController::DeviceController::executeCommand(int expectedCommand)
 			break;
 		case (int)CommandCodes::WRITE_TAG:
 			//write to a tag
+			pCmd = (WriteTagNetParam *)&buffer;
+			reader.writeTag(pCmd->epc, pCmd->readTickTime, 1000);
 			break;
 		case (int)CommandCodes::DEVICE_ERROR:
 			return handleDeviceError();

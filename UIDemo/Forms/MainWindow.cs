@@ -226,7 +226,7 @@ namespace UIDemo
                 string tagVal = BitConverter.ToString(x.TagNumber).Replace("-", "");
                 tagTable.Rows.Add(x.TagName, x.LastLocation ?? "", x.InLocation, tagVal, x.LostTag, x.GuestTag);
             }
-            gridCtl = new GridControl(true, true, true, true, true);
+            gridCtl = new GridControl(true, false, true, true, true);
             gridCtl.load(tagTable, addNewTag, editTag, removeTags);
             DialogWindow window = new DialogWindow("View Tags", null, gridCtl, false, false);
             window.ShowDialog(this);
@@ -286,7 +286,8 @@ namespace UIDemo
             {
                 DeleteTagRPC rpc = new DeleteTagRPC()
                 {
-                    tagNumber = Convert.FromBase64String(tag["Tag Number"] as string)
+                    
+                    name = tag["Tag Name"] as string
                 };
                 try
                 {
@@ -571,6 +572,37 @@ namespace UIDemo
                 return;
             }
 
+        }
+
+        private async void writeTagButton_Click(object sender, EventArgs e)
+        {
+            WriteTag ctl = new WriteTag();
+            DialogWindow window = new DialogWindow("Write A Tag", null, ctl, true, true);
+            window.ShowDialog(this);
+            if (window.DialogResult != DialogResult.OK)
+                return;
+            WriteTagRPC rpc = new WriteTagRPC()
+            {
+                newTagBytes = ctl.TagBytes,
+                targetSerialNumber = ctl.DeviceSerialNumber
+            };
+            if (rpc.newTagBytes == null)
+                return;
+            if(rpc.newTagBytes.Length < 12)
+            {
+                byte[] tmp = new byte[12];
+                Array.Copy(rpc.newTagBytes, tmp, rpc.newTagBytes.Length);
+                rpc.newTagBytes = tmp;
+            }
+            try
+            {
+                await rpc.executeAsync();
+            }
+            catch(Exception except)
+            {
+                MessageBox.Show(this, except.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
         }
     }
 }

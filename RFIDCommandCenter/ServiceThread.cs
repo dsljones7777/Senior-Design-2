@@ -12,10 +12,10 @@ namespace RFIDCommandCenter
     {
         List<RFIDDeviceClient> deviceClients = new List<RFIDDeviceClient>();
         List<UIClient> uiClients = new List<UIClient>();
-        SortedList<string,string> systemDevices = new SortedList<string,string>();                    //Device serials that are in the DB as well and connected
+        SortedList<string,RFIDDeviceClient> systemDevices = new SortedList<string,RFIDDeviceClient>();                    //Device serials that are in the DB as well and connected
 
-        SortedList<string, List<byte[]>> nonSystemDevices = new SortedList<string, List<byte[]>>();   //Device serials that are not in the DB and the tags that have been read from them
-
+        SortedList<string,RFIDDeviceClient> nonSystemDevices = new SortedList<string, RFIDDeviceClient>();   //Device serials that are not in the DB and the tags that have been read from them
+        
         bool handleRFIDClient(RFIDDeviceClient client, out string deviceError, out string serverError)
         {
             deviceError = null;
@@ -69,12 +69,12 @@ namespace RFIDCommandCenter
                         dbSerials = (new GetAllUniqueSerialNumbers()).Execute(context);
                     if (dbSerials.Contains(client.deviceSerialNumber))
                     {
-                        systemDevices.Add(client.deviceSerialNumber, null);
+                        systemDevices.Add(client.deviceSerialNumber, client);
                         client.isSystemDevice = true;
                     }  
                     else
                     {
-                        nonSystemDevices.Add(client.deviceSerialNumber, new List<byte[]>());
+                        nonSystemDevices.Add(client.deviceSerialNumber, client);
                         client.isSystemDevice = false;
                     }
                     client.pauseExecution = false;
@@ -90,12 +90,16 @@ namespace RFIDCommandCenter
                 return true;
             if (client.request == null)
                 return false;
-            if(client.request.GetType()== typeof(GetUnconnectedDevicesRPC))
+            if (client.request.GetType() == typeof(GetUnconnectedDevicesRPC))
                 getUnconnectedDevices(client);
-            else if(client.request.GetType() == typeof(GetAllConnectedDevicesRPC))
+            else if (client.request.GetType() == typeof(GetAllConnectedDevicesRPC))
                 getAllConnectedDevices(client);
-            else if(client.request.GetType() == typeof(GetAllDevicesRPC))
+            else if (client.request.GetType() == typeof(GetAllDevicesRPC))
                 getAllDevices(client);
+            else if (client.request.GetType() == typeof(EditLocationRPC))
+                editLocation(client);
+            else if (client.request.GetType() == typeof(WriteTagRPC))
+                writeTag(client);
             client.request = null;
             lock(client.messagesRcvd)
             {
@@ -107,6 +111,27 @@ namespace RFIDCommandCenter
                 client.messagesRcvd.Clear();
             }
             return false;
+        }
+
+        private void writeTag(UIClient client)
+        {
+            WriteTagRPC rpc = (WriteTagRPC)client.request;
+            if(!nonSystemDevices.ContainsKey(rpc.targetSerialNumber))
+                return;
+            nonSystemDevices[rpc.targetSerialNumber].tagToWrite = rpc.newTagBytes;
+        }
+
+        private void editLocation(UIClient client)
+        {
+            EditLocationRPC editRpc = (EditLocationRPC)client.request;
+            if(systemDevices.ContainsKey(editRpc.currentLocationName))
+            {
+                //TODO: update device serial in and out whther system device or not
+            }
+            else if (nonSystemDevices.ContainsKey(editRpc.currentLocationName))
+            {
+
+            }
         }
 
         private void getAllDevices(UIClient client)

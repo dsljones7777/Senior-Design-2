@@ -18,8 +18,6 @@ namespace RFIDCommandCenter
             2000;           //2 seconds
 #endif
 
-
-
         long tickRateOffset;
         internal volatile bool isSystemDevice;              //Does the device exist in the database
         internal volatile bool exit;
@@ -28,7 +26,8 @@ namespace RFIDCommandCenter
         internal volatile bool continueAfterDeviceError;
         internal volatile string serverErrorMessage;
         internal string deviceSerialNumber;
-        List<string> readTags = new List<string>();
+        internal List<string> readTags = new List<string>();
+        internal volatile byte[] tagToWrite = null;
         
         public enum CommandCodes
         {
@@ -66,7 +65,6 @@ namespace RFIDCommandCenter
             TAG_TOO_LONG
         };
 
-
         public RFIDDeviceClient(Socket who, NetworkCommunication comObj) : base(who, comObj)
         {
             tickRateOffset = DateTime.Now.Ticks;
@@ -101,6 +99,7 @@ namespace RFIDCommandCenter
 #endif
                     executePacketRequest(bufferPacket);
                     provideResponse(bufferPacket);
+
                 }
                 catch (Exception e)
                 {
@@ -140,6 +139,7 @@ namespace RFIDCommandCenter
                         {
                             var tagLeave = new Logic.TagLeave();
                             tagLeave.Execute(tagLeavingNum, context);
+                            cmdPacket.command = (int)CommandCodes.LOCK;
                         }
                         else
                         {
@@ -243,9 +243,13 @@ namespace RFIDCommandCenter
                 default:
                     break;
             }
-            if (cmdPacket.command == (int)CommandCodes.NONE)
+            if (cmdPacket.command != (int)CommandCodes.NONE)
+                sendCommand(cmdPacket, CommandCodes.CONFIRMATION_SYNC_TICK_COUNT, NETWORK_TIMEOUT * 1000, true, true, (int)CommandCodes.NONE);
+            //Check a queue for cmds such as write /etc. 
+            if (tagToWrite == null)
                 return;
-            sendCommand(cmdPacket, CommandCodes.CONFIRMATION_SYNC_TICK_COUNT, NETWORK_TIMEOUT * 1000, true, true, (int)CommandCodes.NONE);
+            sendCommand(cmdPacket, CommandCodes.WRITE_TAG, NETWORK_TIMEOUT * 1000, false, true, 1, 1000, 3000, 1, tagToWrite);
+            tagToWrite = null;
         }
 
         private void handleDeviceError(NetworkCode errorCode)

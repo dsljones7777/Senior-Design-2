@@ -37,6 +37,7 @@
             this.button16 = new System.Windows.Forms.Button();
             this.button12 = new System.Windows.Forms.Button();
             this.button5 = new System.Windows.Forms.Button();
+            this.writeTagButton = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // button3
@@ -134,11 +135,23 @@
             this.button5.UseVisualStyleBackColor = true;
             this.button5.Click += new System.EventHandler(this.allowedLocations_Click);
             // 
+            // writeTagButton
+            // 
+            this.writeTagButton.Location = new System.Drawing.Point(403, 255);
+            this.writeTagButton.Margin = new System.Windows.Forms.Padding(2);
+            this.writeTagButton.Name = "writeTagButton";
+            this.writeTagButton.Size = new System.Drawing.Size(104, 65);
+            this.writeTagButton.TabIndex = 26;
+            this.writeTagButton.Text = "Write Tag";
+            this.writeTagButton.UseVisualStyleBackColor = true;
+            this.writeTagButton.Click += new System.EventHandler(this.writeTagButton_Click);
+            // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(935, 535);
+            this.Controls.Add(this.writeTagButton);
             this.Controls.Add(this.button5);
             this.Controls.Add(this.button12);
             this.Controls.Add(this.button16);
@@ -167,5 +180,6 @@
         private System.Windows.Forms.Button button16;
         private System.Windows.Forms.Button button12;
         private System.Windows.Forms.Button button5;
+        private System.Windows.Forms.Button writeTagButton;
     }
 }

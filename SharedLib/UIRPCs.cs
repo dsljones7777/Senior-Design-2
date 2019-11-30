@@ -27,14 +27,13 @@ namespace SharedLib
         [Serializable]
         public class DeleteTagRPC : UINetworkPacket
         {
-            public byte[] tagNumber;
-            string name;
+            public string name;
         }
 
         [Serializable]
         public class WriteTagRPC : UINetworkPacket
         {
-            public byte[] targetTag;
+            public string targetSerialNumber;
             public byte[] newTagBytes;
         }
 

@@ -9,9 +9,9 @@ namespace RFIDCommandCenter.Logic
 {
     public class DeleteTag
     {
-        public void Execute(byte[] tagNumber, DataContext context)
+        public void Execute(string tagName, DataContext context)
         {
-            var tagToDelete = context.Tags.SingleOrDefault(t => t.TagNumber == tagNumber);
+            var tagToDelete = context.Tags.SingleOrDefault(t => t.Name == tagName);
 
             if (tagToDelete == null)
                 throw new UIClientException("A Tag that ID does not exist");
