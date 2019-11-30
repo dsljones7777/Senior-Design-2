@@ -258,6 +258,13 @@ namespace SharedLib
             public string error;
             public bool waitForResponse;
         }
+
+        [Serializable]
+        public class DeleteAllowedLocationsRPC : UINetworkPacket
+        {
+            public string tagName;
+            public string locationName;
+        }
     }
     
 }
