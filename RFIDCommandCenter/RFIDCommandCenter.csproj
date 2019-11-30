@@ -60,6 +60,7 @@
     <Compile Include="Context\DataContext.cs" />
     <Compile Include="Context\TempDbContext.cs" />
     <Compile Include="Logic\AltSaveAllowedLocations.cs" />
+    <Compile Include="Logic\DeleteAllowedLocations.cs" />
     <Compile Include="Logic\DeleteLocation.cs" />
     <Compile Include="Logic\DeleteSystemUser.cs" />
     <Compile Include="Logic\DeleteTag.cs" />

@@ -1,4 +1,5 @@
 ﻿using Network;
+using RFIDCommandCenter.Logic;
 using SharedLib;
 using SharedLib.Network;
 using System;
@@ -185,6 +186,12 @@ namespace RFIDCommandCenter
                     if (op.serialNumber != null)
                         msgRecevied(op.serialNumber, op.retry);
                 }
+                else if(cmd.GetType() == typeof(DeleteAllowedLocationsRPC))
+                {
+                    verifyAdminAccess(role);
+                    deleteAllowedLocations(cmd, context);
+                }
+
                 else
                     throw new Exception("Client sent an invalid RPC");
             }
@@ -417,6 +424,13 @@ namespace RFIDCommandCenter
         {
             if (role != (int)NetworkLib.Role.Admin)
                 throw new UIClientException("The user does not have access to perform this action");
+        }
+
+        void deleteAllowedLocations(object cmd, DataContext context)
+        {
+            DeleteAllowedLocationsRPC op = (DeleteAllowedLocationsRPC)cmd;
+            var deleteAllowedLocations = new DeleteAllowedLocations();
+            deleteAllowedLocations.Execute(op.tagName, op.locationName, context);
         }
         #endregion
 
