@@ -26,7 +26,7 @@ namespace RFIDCommandCenter
         List<Tuple<string, object>> messagesToSend = new List<Tuple<string, object>>();
 
         //First obj in tuple is the device serial number, the second object is a bool for now but it is what client sends back to us
-        List<Tuple<string, object>> messagesRcvd = new List<Tuple<string, object>>();
+        public List<Tuple<string, object>> messagesRcvd = new List<Tuple<string, object>>();
 
         NetworkStream clientStream;
 

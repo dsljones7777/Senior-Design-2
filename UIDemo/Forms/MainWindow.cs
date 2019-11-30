@@ -338,7 +338,6 @@ namespace UIDemo
             }
 
         }
-
         private async void viewLocationsButton_Click(object sender, EventArgs e)
         {
             ViewLocationsRPC rpc = new ViewLocationsRPC();
@@ -412,9 +411,35 @@ namespace UIDemo
             MessageBox.Show(locationCtl, "The locations were successfully removed from the system", "Locations Removed", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
-        private void editLocation(object sender, EventArgs e)
+        private async void editLocation(object sender, EventArgs e)
         {
-
+            DataRow[] locations = gridCtl.getSelectedItems();
+            if (locations == null || locations.Length == 0)
+                return;
+            locationCtl = new LocationControl();
+            locationCtl.SerialIn = locations[0]["In RFID Reader Serial"] as string;
+            locationCtl.SerialOut = locations[0]["Out RFID Reader Serial"] as string;
+            string currentLocation = locationCtl.LocationName = locations[0]["Location Name"] as string;
+            DialogWindow locationWindow = new DialogWindow("Edit Location", null, locationCtl);
+            DialogResult result = locationWindow.ShowDialog(this);
+            if (result != DialogResult.OK)
+                return;
+            EditLocationRPC rpc = new EditLocationRPC()
+            {
+                currentLocationName = currentLocation,
+                newLocationName = String.IsNullOrWhiteSpace(locationCtl.LocationName) ? null : locationCtl.LocationName,
+                readerSerialIn = String.IsNullOrWhiteSpace(locationCtl.SerialIn) ? null : locationCtl.SerialIn,
+                readerSerialOut = String.IsNullOrWhiteSpace(locationCtl.SerialOut) ? null : locationCtl.SerialOut
+            };
+            try
+            {
+                await rpc.executeAsync();
+            }
+            catch (Exception except)
+            {
+                MessageBox.Show(gridCtl, except.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
         }
 
         private void MainWindow_Load(object sender, EventArgs e)

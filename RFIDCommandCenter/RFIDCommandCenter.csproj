@@ -100,6 +100,7 @@
     <Compile Include="Clients\RFIDDeviceClient.cs" />
     <Compile Include="Clients\UIClient.cs" />
     <Compile Include="Network\SecureNetworkCommunication.cs" />
+    <Compile Include="ServiceThread.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
