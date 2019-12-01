@@ -16,9 +16,19 @@ namespace UIDemo
         bool multiSelectionAllowed = false;
         bool isChangingValue = false;       //Is a grid cell value changing programmatically (disables reentry of event handler)
         string selectedColumnName = "Select";
+
+        public GridControl()
+        {
+
+        }
+
         public GridControl(bool allowSelect, bool singleSelect, bool allowAdd,bool allowRemove, bool allowEdit,string selectColumnName = "Select")
         {
             InitializeComponent();
+            init(allowSelect, singleSelect, allowAdd, allowRemove, allowEdit, selectColumnName);
+        }
+        void init(bool allowSelect, bool singleSelect, bool allowAdd, bool allowRemove, bool allowEdit, string selectColumnName = "Select")
+        {
             selectionAllowed = allowSelect;
             multiSelectionAllowed = !singleSelect;
             addButton.Visible = allowAdd;
@@ -28,6 +38,7 @@ namespace UIDemo
             editButton.Enabled = false;
             selectedColumnName = selectColumnName;
         }
+
 
         public void load(DataTable tbl, EventHandler addNewHandler, EventHandler editHandler, EventHandler removeHandler)
         {

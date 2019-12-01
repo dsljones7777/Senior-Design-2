@@ -94,6 +94,7 @@ namespace UIDemo.User_Controls
         public void hideLostOption()
         {
             lostCheckbox.Visible = false;
+            lostLabel.Visible = false;
         }
 
         public void disableTagByteEditing()

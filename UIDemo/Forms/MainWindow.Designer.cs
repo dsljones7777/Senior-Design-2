@@ -38,6 +38,20 @@
             this.button12 = new System.Windows.Forms.Button();
             this.button5 = new System.Windows.Forms.Button();
             this.writeTagButton = new System.Windows.Forms.Button();
+            this.mainTabControl = new System.Windows.Forms.TabControl();
+            this.locationsTab = new System.Windows.Forms.TabPage();
+            this.tagsTab = new System.Windows.Forms.TabPage();
+            this.allowedLocationsTab = new System.Windows.Forms.TabPage();
+            this.devicesTab = new System.Windows.Forms.TabPage();
+            this.usersTab = new System.Windows.Forms.TabPage();
+            this.lostTagsTab = new System.Windows.Forms.TabPage();
+            this.guestsTab = new System.Windows.Forms.TabPage();
+            this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+            this.logoutButton = new System.Windows.Forms.Button();
+            this.locationGridControl = new UIDemo.GridControl();
+            this.mainTabControl.SuspendLayout();
+            this.locationsTab.SuspendLayout();
+            this.tableLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // button3
@@ -137,7 +151,7 @@
             // 
             // writeTagButton
             // 
-            this.writeTagButton.Location = new System.Drawing.Point(403, 255);
+            this.writeTagButton.Location = new System.Drawing.Point(820, 324);
             this.writeTagButton.Margin = new System.Windows.Forms.Padding(2);
             this.writeTagButton.Name = "writeTagButton";
             this.writeTagButton.Size = new System.Drawing.Size(104, 65);
@@ -146,11 +160,132 @@
             this.writeTagButton.UseVisualStyleBackColor = true;
             this.writeTagButton.Click += new System.EventHandler(this.writeTagButton_Click);
             // 
+            // mainTabControl
+            // 
+            this.mainTabControl.Controls.Add(this.locationsTab);
+            this.mainTabControl.Controls.Add(this.tagsTab);
+            this.mainTabControl.Controls.Add(this.lostTagsTab);
+            this.mainTabControl.Controls.Add(this.guestsTab);
+            this.mainTabControl.Controls.Add(this.allowedLocationsTab);
+            this.mainTabControl.Controls.Add(this.devicesTab);
+            this.mainTabControl.Controls.Add(this.usersTab);
+            this.mainTabControl.Location = new System.Drawing.Point(3, 3);
+            this.mainTabControl.Name = "mainTabControl";
+            this.mainTabControl.SelectedIndex = 0;
+            this.mainTabControl.Size = new System.Drawing.Size(591, 238);
+            this.mainTabControl.TabIndex = 27;
+            this.mainTabControl.TabIndexChanged += new System.EventHandler(this.tabControl1_TabIndexChanged);
+            // 
+            // locationsTab
+            // 
+            this.locationsTab.Controls.Add(this.locationGridControl);
+            this.locationsTab.Location = new System.Drawing.Point(4, 22);
+            this.locationsTab.Name = "locationsTab";
+            this.locationsTab.Padding = new System.Windows.Forms.Padding(3);
+            this.locationsTab.Size = new System.Drawing.Size(583, 212);
+            this.locationsTab.TabIndex = 0;
+            this.locationsTab.Text = "Locations";
+            this.locationsTab.UseVisualStyleBackColor = true;
+            this.locationsTab.Click += new System.EventHandler(this.locationsTab_Click);
+            // 
+            // tagsTab
+            // 
+            this.tagsTab.Location = new System.Drawing.Point(4, 22);
+            this.tagsTab.Name = "tagsTab";
+            this.tagsTab.Padding = new System.Windows.Forms.Padding(3);
+            this.tagsTab.Size = new System.Drawing.Size(583, 212);
+            this.tagsTab.TabIndex = 1;
+            this.tagsTab.Text = "Tags";
+            this.tagsTab.UseVisualStyleBackColor = true;
+            // 
+            // allowedLocationsTab
+            // 
+            this.allowedLocationsTab.Location = new System.Drawing.Point(4, 22);
+            this.allowedLocationsTab.Name = "allowedLocationsTab";
+            this.allowedLocationsTab.Padding = new System.Windows.Forms.Padding(3);
+            this.allowedLocationsTab.Size = new System.Drawing.Size(583, 212);
+            this.allowedLocationsTab.TabIndex = 2;
+            this.allowedLocationsTab.Text = "Allowed Locations";
+            this.allowedLocationsTab.UseVisualStyleBackColor = true;
+            // 
+            // devicesTab
+            // 
+            this.devicesTab.Location = new System.Drawing.Point(4, 22);
+            this.devicesTab.Name = "devicesTab";
+            this.devicesTab.Padding = new System.Windows.Forms.Padding(3);
+            this.devicesTab.Size = new System.Drawing.Size(583, 212);
+            this.devicesTab.TabIndex = 3;
+            this.devicesTab.Text = "Devices";
+            this.devicesTab.UseVisualStyleBackColor = true;
+            // 
+            // usersTab
+            // 
+            this.usersTab.Location = new System.Drawing.Point(4, 22);
+            this.usersTab.Name = "usersTab";
+            this.usersTab.Padding = new System.Windows.Forms.Padding(3);
+            this.usersTab.Size = new System.Drawing.Size(583, 212);
+            this.usersTab.TabIndex = 4;
+            this.usersTab.Text = "Users";
+            this.usersTab.UseVisualStyleBackColor = true;
+            // 
+            // lostTagsTab
+            // 
+            this.lostTagsTab.Location = new System.Drawing.Point(4, 22);
+            this.lostTagsTab.Name = "lostTagsTab";
+            this.lostTagsTab.Padding = new System.Windows.Forms.Padding(3);
+            this.lostTagsTab.Size = new System.Drawing.Size(583, 212);
+            this.lostTagsTab.TabIndex = 5;
+            this.lostTagsTab.Text = "Lost Tags";
+            this.lostTagsTab.UseVisualStyleBackColor = true;
+            // 
+            // guestsTab
+            // 
+            this.guestsTab.Location = new System.Drawing.Point(4, 22);
+            this.guestsTab.Name = "guestsTab";
+            this.guestsTab.Size = new System.Drawing.Size(583, 212);
+            this.guestsTab.TabIndex = 6;
+            this.guestsTab.Text = "Guests";
+            this.guestsTab.UseVisualStyleBackColor = true;
+            // 
+            // tableLayoutPanel1
+            // 
+            this.tableLayoutPanel1.AutoSize = true;
+            this.tableLayoutPanel1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.tableLayoutPanel1.ColumnCount = 1;
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+            this.tableLayoutPanel1.Controls.Add(this.mainTabControl, 0, 0);
+            this.tableLayoutPanel1.Controls.Add(this.logoutButton, 0, 1);
+            this.tableLayoutPanel1.Location = new System.Drawing.Point(152, 18);
+            this.tableLayoutPanel1.Name = "tableLayoutPanel1";
+            this.tableLayoutPanel1.RowCount = 2;
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(597, 284);
+            this.tableLayoutPanel1.TabIndex = 28;
+            // 
+            // logoutButton
+            // 
+            this.logoutButton.Anchor = System.Windows.Forms.AnchorStyles.Right;
+            this.logoutButton.Location = new System.Drawing.Point(519, 247);
+            this.logoutButton.Name = "logoutButton";
+            this.logoutButton.Size = new System.Drawing.Size(75, 34);
+            this.logoutButton.TabIndex = 28;
+            this.logoutButton.Text = "Logout";
+            this.logoutButton.UseVisualStyleBackColor = true;
+            // 
+            // locationGridControl
+            // 
+            this.locationGridControl.Location = new System.Drawing.Point(0, 0);
+            this.locationGridControl.Name = "locationGridControl";
+            this.locationGridControl.Size = new System.Drawing.Size(583, 212);
+            this.locationGridControl.TabIndex = 0;
+            // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(935, 535);
+            this.Controls.Add(this.tableLayoutPanel1);
             this.Controls.Add(this.writeTagButton);
             this.Controls.Add(this.button5);
             this.Controls.Add(this.button12);
@@ -165,7 +300,11 @@
             this.Name = "MainWindow";
             this.Text = "SecureID";
             this.Load += new System.EventHandler(this.MainWindow_Load);
+            this.mainTabControl.ResumeLayout(false);
+            this.locationsTab.ResumeLayout(false);
+            this.tableLayoutPanel1.ResumeLayout(false);
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -181,5 +320,16 @@
         private System.Windows.Forms.Button button12;
         private System.Windows.Forms.Button button5;
         private System.Windows.Forms.Button writeTagButton;
+        private System.Windows.Forms.TabControl mainTabControl;
+        private System.Windows.Forms.TabPage locationsTab;
+        private System.Windows.Forms.TabPage tagsTab;
+        private System.Windows.Forms.TabPage lostTagsTab;
+        private System.Windows.Forms.TabPage guestsTab;
+        private System.Windows.Forms.TabPage allowedLocationsTab;
+        private System.Windows.Forms.TabPage devicesTab;
+        private System.Windows.Forms.TabPage usersTab;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
+        private System.Windows.Forms.Button logoutButton;
+        private GridControl locationGridControl;
     }
 }

@@ -73,11 +73,18 @@ namespace UIDemo
         TagControl tagCtl;
 
        SystemUserControl userCtl;
+       bool showAdminFunctions = false;
 
         public MainWindow(string usrname, bool allowAdminFunctions)
         {
             InitializeComponent();
+            showAdminFunctions = allowAdminFunctions;
+            if(!showAdminFunctions)
+            {
+                writeTagButton.Visible = false;
+            }
         }
+        
 
         private async void viewUsers_Click(object sender, EventArgs e)
         {
@@ -103,7 +110,7 @@ namespace UIDemo
                     continue;
                 userTable.Rows.Add(x.Username, userRole);
             }
-            gridCtl = new GridControl(true, true, true, true, true);
+            gridCtl = new GridControl(showAdminFunctions, false, showAdminFunctions, showAdminFunctions, showAdminFunctions);
             gridCtl.load(userTable, addNewUser, editUser, removeUser);
             DialogWindow window = new DialogWindow("View Users", null, gridCtl, false, false);
             window.ShowDialog(this);
@@ -111,6 +118,8 @@ namespace UIDemo
 
         private async void addNewUser(object sender, EventArgs e)
         {
+            if (!showAdminFunctions)
+                return;
             userCtl = new SystemUserControl("", NetworkLib.Role.BaseUser);
             DialogWindow window = new DialogWindow("Add New User", null, userCtl, true, true);
             window.OkButtonHandler = 
@@ -140,11 +149,18 @@ namespace UIDemo
                 MessageBox.Show(this, except.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-            
+            string userRole;
+            if (userCtl.UserRole == Network.NetworkLib.Role.Admin)
+                userRole = "Administrator";
+            else
+                userRole = "Generic User";
+            userTable.Rows.Add(userCtl.Username, userRole);
         }
 
         private async void removeUser(object sender, EventArgs e)
         {
+            if (!showAdminFunctions)
+                return;
             DataRow[] users = gridCtl.getSelectedItems();
             if (users == null || users.Length == 0)
                 return;
@@ -160,6 +176,7 @@ namespace UIDemo
                 try
                 {
                     await rpc.executeAsync();
+                    userTable.Rows.Remove(user);
                 }
                 catch (Exception except)
                 {
@@ -172,6 +189,8 @@ namespace UIDemo
 
         private async void editUser(object sender, EventArgs e)
         {
+            if (!showAdminFunctions)
+                return;
             DataRow[] users = gridCtl.getSelectedItems();
             if (users == null || users.Length == 0)
                 return;
@@ -197,6 +216,7 @@ namespace UIDemo
             try
             {
                 await rpc.executeAsync();
+                users[0]["User Role"] = newRole == NetworkLib.Role.Admin ? "Administrator" : "Generic User";
             }
             catch (Exception except)
             {
@@ -226,7 +246,7 @@ namespace UIDemo
                 string tagVal = BitConverter.ToString(x.TagNumber).Replace("-", "");
                 tagTable.Rows.Add(x.TagName, x.LastLocation ?? "", x.InLocation, tagVal, x.LostTag, x.GuestTag);
             }
-            gridCtl = new GridControl(true, false, true, true, true);
+            gridCtl = new GridControl(true, false, showAdminFunctions, true, showAdminFunctions);
             gridCtl.load(tagTable, addNewTag, editTag, removeTags);
             DialogWindow window = new DialogWindow("View Tags", null, gridCtl, false, false);
             window.ShowDialog(this);
@@ -266,6 +286,7 @@ namespace UIDemo
             try
             {
                 await rpc.executeAsync();
+                
             }
             catch (Exception except)
             {
@@ -355,7 +376,7 @@ namespace UIDemo
             locationTable.Clear();
             foreach (var x in rpc.locationList)
                 locationTable.Rows.Add(x.LocationName, x.ReaderSerialIn, x.ReaderSerialOut ?? "");
-            gridCtl = new GridControl(true, false, true, true, true);
+            gridCtl = new GridControl(true, false,showAdminFunctions, showAdminFunctions, showAdminFunctions);
             gridCtl.load(locationTable, addNewLocation, editLocation, removeLocation);
             DialogWindow window = new DialogWindow("View Locations", null, gridCtl, false, false);
             window.ShowDialog(this);
@@ -363,6 +384,8 @@ namespace UIDemo
 
         private async void addNewLocation(object sender, EventArgs e)
         {
+            if (!showAdminFunctions)
+                return;
             locationCtl = new LocationControl();
             DialogWindow locationWindow = new DialogWindow("Add New Location", null, locationCtl);
             DialogResult result = locationWindow.ShowDialog(this);
@@ -387,6 +410,8 @@ namespace UIDemo
 
         private async void removeLocation(object sender, EventArgs e)
         {
+            if (!showAdminFunctions)
+                return;
             DataRow[] locations = gridCtl.getSelectedItems();
             if (locations == null || locations.Length == 0)
                 return;
@@ -415,6 +440,8 @@ namespace UIDemo
 
         private async void editLocation(object sender, EventArgs e)
         {
+            if (!showAdminFunctions)
+                return;
             DataRow[] locations = gridCtl.getSelectedItems();
             if (locations == null || locations.Length == 0)
                 return;
@@ -548,9 +575,16 @@ namespace UIDemo
             gridCtl = new GridControl(true, false, false, false, false, "Allowed");
             gridCtl.load(allowedLocationTable, null, null, null);
             gridCtl.selectRows(rowsToSelect);
-            window = new DialogWindow("Select Tag Allowed Permissions", null, gridCtl, true,true);
+            string dialogTitle;
+            if (showAdminFunctions)
+                dialogTitle = "Select Tag Allowed Permissions";
+            else
+                dialogTitle = "View Tag Allowed Permissions";
+            window = new DialogWindow(dialogTitle, null, gridCtl, true,true);
             window.ShowDialog(this);
             if (window.DialogResult != DialogResult.OK)
+                return;
+            if (!showAdminFunctions)
                 return;
             DataRow[] allowed = gridCtl.getSelectedItems();
             SaveAllowedLocationsRPC rpc2 = new SaveAllowedLocationsRPC()
@@ -577,6 +611,8 @@ namespace UIDemo
 
         private async void writeTagButton_Click(object sender, EventArgs e)
         {
+            if (!showAdminFunctions)
+                return;
             WriteTag ctl = new WriteTag();
             DialogWindow window = new DialogWindow("Write A Tag", null, ctl, true, true);
             window.ShowDialog(this);
@@ -604,6 +640,25 @@ namespace UIDemo
                 MessageBox.Show(this, except.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
+        }
+
+        private void tabControl1_TabIndexChanged(object sender, EventArgs e)
+        {
+            TabPage currentPage = mainTabControl.TabPages[mainTabControl.SelectedIndex];
+            switch(currentPage.Name)
+            {
+                case "locationsTab":
+                    currentPage.Controls.Clear();
+                    //GridControl locationGrid = new GridControl(true, false,showAdminFunctions,showAdminFunctions)
+                    currentPage.Controls.Add(locationCtl);
+                    break;
+            }
+                
+        }
+
+        private void locationsTab_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

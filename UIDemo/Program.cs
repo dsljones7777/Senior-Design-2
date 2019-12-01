@@ -16,7 +16,7 @@ namespace UIDemo
         static void Main()
         {
 #if DEBUG
-            Thread.Sleep(1500);
+            Thread.Sleep(5000);
 #endif
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
