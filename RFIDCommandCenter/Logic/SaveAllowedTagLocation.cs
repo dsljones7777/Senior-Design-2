@@ -22,7 +22,7 @@ namespace RFIDCommandCenter.Logic
 
             var allowedLocations = locationIds.ConvertAll(x => new Models.TagLocationBridge { LocationID = x, TagID = tag.ID });
 
-            if (allowedLocations.Any(x => x.TagID == tag.ID && locationIds.Contains(x.LocationID))) 
+            if (context.AllowedLocations.Any(x => x.TagID == tag.ID && locationIds.Contains(x.LocationID))) 
                 throw new UIClientException("An allowed location with that ID and Location already exists");
 
             context.AllowedLocations.AddRange(allowedLocations);

@@ -100,6 +100,8 @@ namespace RFIDCommandCenter
                 editLocation(client);
             else if (client.request.GetType() == typeof(WriteTagRPC))
                 writeTag(client);
+            else if (client.request.GetType() == typeof(ViewTagsRPC))
+                viewNonsystemTags(client);
             client.request = null;
             lock(client.messagesRcvd)
             {
@@ -111,6 +113,30 @@ namespace RFIDCommandCenter
                 client.messagesRcvd.Clear();
             }
             return false;
+        }
+
+        private void viewNonsystemTags(UIClient client)
+        {
+            ViewTagsRPC rpc = new ViewTagsRPC()
+            {
+                tagList = new List<SharedLib.SharedModels.ViewTagModel>()
+            };
+            
+            foreach(var deviceKeyPair in nonSystemDevices)
+            {
+                rpc.tagList = rpc.tagList.Union(deviceKeyPair.Value.readTags.ConvertAll(
+                    bytesIn =>
+                    {
+                        return new SharedLib.SharedModels.ViewTagModel()
+                        {
+                            TagNumber = bytesIn
+                        };
+                    })).ToList();
+            }
+            lock (client.responses)
+            {
+                client.responses.Add(rpc);
+            }
         }
 
         private void writeTag(UIClient client)
@@ -139,6 +165,8 @@ namespace RFIDCommandCenter
             GetAllDevicesRPC rpc = (GetAllDevicesRPC)client.request;
             foreach (var x in rpc.devices)
             {
+                if (x.serialNumber == null)
+                    continue;
                 x.inDB = true;
                 lock (systemDevices)
                 {

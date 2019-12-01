@@ -240,7 +240,7 @@ namespace UIDemo
             {
                 if (column.ColumnName == selectedColumnName)
                     continue;
-                expression += column.ColumnName + "={" + argIndex + "} AND ";
+                expression += '[' + column.ColumnName + "]='{" + argIndex + "}' AND ";
                 argIndex++;
             }
             expression = expression.Substring(0, expression.Length - 5);

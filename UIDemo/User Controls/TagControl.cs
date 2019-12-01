@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using SharedLib.Network;
 
 namespace UIDemo.User_Controls
 {
@@ -16,9 +17,28 @@ namespace UIDemo.User_Controls
         {
             InitializeComponent();
             tagNameTextbox.Text = tagName;
-            tagDataCombobox.Text = tagBytes;
+            tagDataCombobox.DataSource = new List<string> { tagBytes ?? "" };
+            tagDataCombobox.Text = tagBytes ?? "";
             lostCheckbox.Checked = isLost;
             guestCheckbox.Checked = isGuest;
+        }
+
+        public async void loadPossibleNewTags()
+        {
+            ViewTagsRPC rpc = new ViewTagsRPC()
+            {
+                nonSystemTagsOnly = true
+            };
+            try
+            {
+                rpc = (ViewTagsRPC)await rpc.executeAsync();
+            }
+            catch (Exception except)
+            {
+                MessageBox.Show(this, except.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            tagDataCombobox.DataSource = rpc.tagList;
         }
 
         public string TagName

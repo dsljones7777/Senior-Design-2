@@ -149,6 +149,7 @@ namespace SharedLib
         public class ViewTagsRPC : UINetworkPacket
         {
             public List<SharedModels.ViewTagModel> tagList;
+            public bool nonSystemTagsOnly = false;
             public ViewTagsRPC()
             {
             }

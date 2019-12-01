@@ -16,8 +16,9 @@ namespace RFIDCommandCenter.Logic
             return tagList.ConvertAll(x => new SharedLib.SharedModels.ViewTagModel
             {
                 TagName = x.Name,
-                TagNumber =x.TagNumber,
+                TagNumber = x.TagNumber,
                 LastLocation = locationList.FirstOrDefault(l => l.ID == x.LastLocation)?.LocationName,
+                InLocation = x.InLocation.HasValue ? x.InLocation.Value : false, 
                 LostTag = x.LostTag,
                 GuestTag = x.Guest
             });            

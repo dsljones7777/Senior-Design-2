@@ -106,35 +106,17 @@ namespace RFIDCommandCenter
                 else if (clientUsername == null)
                     throw new UIClientException("You must be logged in to do that");
                 else if (cmd.GetType() == typeof(SaveTagRPC))
-                {
-                    verifyAdminAccess(role);
                     saveTag(cmd, context);
-                }
                 else if (cmd.GetType() == typeof(DeleteTagRPC))
-                {
-                    verifyAdminAccess(role);
                     deleteTag(cmd, context);
-                }
                 else if (cmd.GetType() == typeof(SaveSystemUserRPC))
-                {
-                    verifyAdminAccess(role);
                     saveSystemUser(cmd, context);
-                }
                 else if (cmd.GetType() == typeof(DeleteSystemUserRPC))
-                {
-                    verifyAdminAccess(role);
                     deleteSystemUser(cmd, context);
-                }
                 else if (cmd.GetType() == typeof(SaveLocationRPC))
-                {
-                    verifyAdminAccess(role);
                     saveLocation(cmd, context);
-                }
                 else if (cmd.GetType() == typeof(DeleteLocationRPC))
-                {
-                    verifyAdminAccess(role);
                     deleteLocation(cmd, context);
-                }
                 else if (cmd.GetType() == typeof(EditLocationRPC))
                     editLocation(cmd, context);
                 else if (cmd.GetType() == typeof(EditTagRPC))
@@ -142,10 +124,7 @@ namespace RFIDCommandCenter
                 else if (cmd.GetType() == typeof(RemoveConnectedDevicesRPC))
                     removeConnectedDevices(context);
                 else if (cmd.GetType() == typeof(SaveAllowedLocationsRPC))
-                {
-                    verifyAdminAccess(role);
                     saveAllowedTagLocation(cmd, context);
-                }
                 else if (cmd.GetType() == typeof(SaveConnectedDeviceRPC))
                     saveConnectedDevice(cmd, context);
                 else if (cmd.GetType() == typeof(TagArriveRPC))
@@ -161,48 +140,49 @@ namespace RFIDCommandCenter
                 else if (cmd.GetType() == typeof(ViewLocationsRPC))
                     viewLocations(context);
                 else if (cmd.GetType() == typeof(ViewTagsRPC))
-                    viewTags(context);
+                    needsDelayedResponse = viewTags((ViewTagsRPC)cmd, context);
                 else if (cmd.GetType() == typeof(EditUserRPC))
                     editUser((EditUserRPC)cmd, context);
                 else if (cmd.GetType() == typeof(GetUnconnectedDevicesRPC))
-                {
-                    needsDelayedResponse = true;
-                    getUnconnectedDevices(context);
-                }
-                    
+                    needsDelayedResponse = getUnconnectedDevices(context);
                 else if (cmd.GetType() == typeof(GetAllConnectedDevicesRPC))
-                {
-                    needsDelayedResponse = true;
-                    getConnectedDevices(context);
-                } 
+                    needsDelayedResponse = getConnectedDevices(context);
                 else if (cmd.GetType() == typeof(GetAllDevicesRPC))
-                {
-                    needsDelayedResponse = true;
-                    getAllDevices(context);
-                }
+                    needsDelayedResponse = getAllDevices(context);
                 else if (cmd.GetType() == typeof(ErrorReplyRPC))
-                {
-                    ErrorReplyRPC op = (ErrorReplyRPC)cmd;
-                    if (op.serialNumber != null)
-                        msgRecevied(op.serialNumber, op.retry);
-                }
+                    processErrorReply(cmd);
                 else if(cmd.GetType() == typeof(DeleteAllowedLocationsRPC))
-                {
-                    verifyAdminAccess(role);
                     deleteAllowedLocations(cmd, context);
-                }
-
+                else if(cmd.GetType() == typeof(WriteTagRPC))
+                    writeTag(cmd);
                 else
                     throw new Exception("Client sent an invalid RPC");
             }
             return needsDelayedResponse;
         }
 
-        private void getConnectedDevices(DataContext context)
+        private void processErrorReply(object cmd)
+        {
+            ErrorReplyRPC op = (ErrorReplyRPC)cmd;
+            if (op.serialNumber != null)
+                receiveMessageFromClient(op.serialNumber, op.retry);
+        }
+
+        private void writeTag(object cmd)
+        {
+            verifyAdminAccess(role);
+            WriteTagRPC rpc = (WriteTagRPC)cmd;
+            while (this.request != null)
+                Thread.Yield();
+            this.request = rpc;
+        }
+
+        private bool getConnectedDevices(DataContext context)
         {
             while (request != null)
                 Thread.Yield();
             request = new GetAllConnectedDevicesRPC();
+            return true;
         }
 
         public void addErrorMessage(string serial, string message)
@@ -213,7 +193,7 @@ namespace RFIDCommandCenter
             }
         }
 
-        void msgRecevied(string serial, bool didUsrSayYes)
+        void receiveMessageFromClient(string serial, bool didUsrSayYes)
         {
             lock (messagesRcvd)
             {
@@ -230,15 +210,27 @@ namespace RFIDCommandCenter
             sendRPC(rpc);
         }
 
-        void viewTags(DataContext context)
+        //Returns true if a delayed response is needed otherwise false
+        bool viewTags(ViewTagsRPC cmd, DataContext context)
         {
-            var allTags = new Logic.ViewTags();
-            ViewTagsRPC rpc = new ViewTagsRPC();
-            rpc.tagList = allTags.Execute(context);
-            sendRPC(rpc);
+            if(cmd.nonSystemTagsOnly)
+            {
+                while (request != null)
+                    Thread.Yield();
+                request = cmd;
+                return true;
+            }
+            else
+            {
+                var allTags = new Logic.ViewTags();
+                cmd.tagList = allTags.Execute(context);
+                sendRPC(cmd);
+                return false;
+            }
         }
-
-        private void getAllDevices(DataContext context)
+            
+       
+        private bool getAllDevices(DataContext context)
         {
             while (request != null)
                 Thread.Yield();
@@ -247,13 +239,15 @@ namespace RFIDCommandCenter
                 devices = (new Logic.GetAllUniqueSerialNumbers()).Execute(context).ConvertAll(s => new DeviceStatus { serialNumber = s })
             };
             request = rpc;
+            return true;
         }
 
-        private void getUnconnectedDevices(DataContext context)
+        private bool getUnconnectedDevices(DataContext context)
         {
             while (request != null)
                 Thread.Yield();
             request = new GetUnconnectedDevicesRPC();
+            return true;
         }
 
         private void editUser(EditUserRPC cmd, DataContext context)
@@ -283,30 +277,34 @@ namespace RFIDCommandCenter
             sendRPC(loginData);
         }
 
-        private static void deleteLocation(object cmd, DataContext context)
+        private void deleteLocation(object cmd, DataContext context)
         {
+            verifyAdminAccess(role);
             DeleteLocationRPC op = (DeleteLocationRPC)cmd;
             var delLoc = new Logic.DeleteLocation();
             //TODO: Delete location should not include reader serial in
             delLoc.Execute(op.locationName, context);
         }
 
-        private static void saveLocation(object cmd, DataContext context)
+        private void saveLocation(object cmd, DataContext context)
         {
+            verifyAdminAccess(role);
             SaveLocationRPC op = (SaveLocationRPC)cmd;
             var saveLoc = new Logic.SaveLocation();
             saveLoc.Execute(op.locationName, op.readerSerialIn, op.readerSerialOut, context);
         }
 
-        private static void deleteSystemUser(object cmd, DataContext context)
+        private void deleteSystemUser(object cmd, DataContext context)
         {
+            verifyAdminAccess(role);
             DeleteSystemUserRPC op = (DeleteSystemUserRPC)cmd;
             var delSysUser = new Logic.DeleteSystemUser();
             delSysUser.Execute(op.username, context);
         }
 
-        private static void saveSystemUser(object cmd, DataContext context)
+        private void saveSystemUser(object cmd, DataContext context)
         {
+            verifyAdminAccess(role);
             SaveSystemUserRPC op = (SaveSystemUserRPC)cmd;
             var saveSysUser = new Logic.SaveSystemUser();
             //TODO: Implement hashing
@@ -314,15 +312,17 @@ namespace RFIDCommandCenter
             saveSysUser.Execute(op.username, passBytes, op.role, context);
         }
 
-        private static void deleteTag(object cmd, DataContext context)
+        private void deleteTag(object cmd, DataContext context)
         {
+            verifyAdminAccess(role);
             DeleteTagRPC op = (DeleteTagRPC)cmd;
             var deleteTag = new Logic.DeleteTag();
             deleteTag.Execute(op.name, context);
         }
 
-        private static void saveTag(object cmd, DataContext context)
+        private void saveTag(object cmd, DataContext context)
         {
+            verifyAdminAccess(role);
             SaveTagRPC op = (SaveTagRPC)cmd;
             var saveTag = new Logic.SaveTag();
             saveTag.Execute(op.tagNumber, op.name, op.guest, context);
@@ -371,6 +371,7 @@ namespace RFIDCommandCenter
 
         private void saveAllowedTagLocation(object cmd, DataContext context)
         {
+            verifyAdminAccess(role);
             SaveAllowedLocationsRPC op = (SaveAllowedLocationsRPC) cmd;
             var saveAllowedLocations = new Logic.SaveAllowedTagLocation();
             saveAllowedLocations.Execute(op.tagName, op.locationNames, context);
@@ -428,6 +429,7 @@ namespace RFIDCommandCenter
 
         void deleteAllowedLocations(object cmd, DataContext context)
         {
+            verifyAdminAccess(role);
             DeleteAllowedLocationsRPC op = (DeleteAllowedLocationsRPC)cmd;
             var deleteAllowedLocations = new DeleteAllowedLocations();
             deleteAllowedLocations.Execute(op.tagName, op.locationName, context);

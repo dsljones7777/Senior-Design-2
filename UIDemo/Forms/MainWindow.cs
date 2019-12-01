@@ -234,8 +234,9 @@ namespace UIDemo
 
         private async void addNewTag(object sender, EventArgs e)
         {
-            tagCtl = new TagControl("","",false,false);
+            tagCtl = new TagControl("",null,false,false);
             tagCtl.hideLostOption();
+            tagCtl.loadPossibleNewTags();
             DialogWindow tagWindow = new DialogWindow("Add New Tag", null, tagCtl);
             tagWindow.OkButtonHandler = 
                 () => 

@@ -21,8 +21,12 @@ namespace RFIDCommandCenter.Logic
 
             if (!isTagAllowedInLocation)
                 return false;
-            
-            tagInSystem.InLocation = true;
+
+            if (tagInSystem.InLocation == null || !tagInSystem.InLocation.Value)
+                tagInSystem.InLocation = true;
+            else
+                tagInSystem.InLocation = false;
+
             tagInSystem.LastLocation = location.ID;
 
             context.SaveChanges();

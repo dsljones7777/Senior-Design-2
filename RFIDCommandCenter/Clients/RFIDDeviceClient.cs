@@ -26,7 +26,7 @@ namespace RFIDCommandCenter
         internal volatile bool continueAfterDeviceError;
         internal volatile string serverErrorMessage;
         internal string deviceSerialNumber;
-        internal List<string> readTags = new List<string>();
+        internal List<byte[]> readTags = new List<byte[]>();
         internal volatile byte[] tagToWrite = null;
         
         public enum CommandCodes
@@ -39,10 +39,7 @@ namespace RFIDCommandCenter
             STOP = 5,
             TAG_ARRIVE = 6,
             TAG_LEAVE = 7,
-            OBJECT_PRESENT = 8,
             TAG_PRESENT_TOO_LONG = 9,
-            GET_DEVICE_TICK_COUNT = 10,
-            RESET_DEVICE_TICK_COUNT = 11,
             WRITE_TAG = 12,
             ALIVE = 13,
             PING = 14,
@@ -72,20 +69,13 @@ namespace RFIDCommandCenter
         
         public override void serverThreadRoutine(Object state)
         {
-            //Create packet to tell client to start
+            //Create packet to tell client to start, start it's reader, lock the door and give up it's serial number
             NetworkCode bufferPacket = new NetworkCode();
             sendCommand(bufferPacket, CommandCodes.START, NETWORK_TIMEOUT * 1000, true, true);
-#if DEBUG
-            reportCommandInfo(bufferPacket);
-#endif
             sendCommand(bufferPacket, CommandCodes.START_READER, NETWORK_TIMEOUT * 1000, true, true);
-#if DEBUG
-            reportCommandInfo(bufferPacket);
-#endif
+            sendCommand(bufferPacket, CommandCodes.LOCK, NETWORK_TIMEOUT * 1000, false, true);
             sendCommand(bufferPacket, CommandCodes.SERIAL_NUMBER, NETWORK_TIMEOUT * 1000, true, true,new byte[65]);
-#if DEBUG
-            reportCommandInfo(bufferPacket);
-#endif
+            
             //program loop, run until we are told to exit
             while (!exit)
             {
@@ -109,43 +99,58 @@ namespace RFIDCommandCenter
             }
         }
 
+        private bool isByteArrayEqual(byte[] a, byte[] b)
+        {
+            if (a.Length != b.Length)
+                return false;
+            for (int i = 0; i < a.Length; i++)
+                if (a[i] != b[i])
+                    return false;
+            return true;
+        }
+
         private void executePacketRequest(NetworkCode cmdPacket)
         {
+            byte[] tagNumber = new byte[12];
             using (var context = new DataContext())
             {
                 switch (cmdPacket.command)
                 {
                     case (int)CommandCodes.TAG_ARRIVE:
-                        byte[] tagArriveNum = new byte[12];
-                        Array.Copy(cmdPacket.payload, tagArriveNum, 12);
+                        Array.Copy(cmdPacket.payload, tagNumber, 12);
                         if(isSystemDevice)
                         {
                             var tagArrive = new Logic.TagArrive();
-                            if(tagArrive.Execute(tagArriveNum, deviceSerialNumber, context))
+                            if(tagArrive.Execute(tagNumber, deviceSerialNumber, context))
                                 cmdPacket.command = (int)CommandCodes.UNLOCK;
                         }
                         else
                         {
                             lock(readTags)
                             {
-                                readTags.Add(BitConverter.ToString(tagArriveNum));
+                                readTags.Add(tagNumber);
                             }
                         }
                         break;
                     case (int)CommandCodes.TAG_LEAVE:
-                        var tagLeavingNum = new byte[12];
-                        Array.Copy(cmdPacket.payload, tagLeavingNum, 12);
+                        Array.Copy(cmdPacket.payload, tagNumber, 12);
                         if(isSystemDevice)
                         {
                             var tagLeave = new Logic.TagLeave();
-                            tagLeave.Execute(tagLeavingNum, context);
+                            tagLeave.Execute(tagNumber, context);
                             cmdPacket.command = (int)CommandCodes.LOCK;
                         }
                         else
                         {
                             lock(readTags)
                             {
-                                readTags.Remove(BitConverter.ToString(tagLeavingNum));
+                                for(int i = 0; i < readTags.Count; i ++)
+                                {
+                                    if (!isByteArrayEqual(readTags[i], tagNumber))
+                                        continue;
+                                    readTags.RemoveAt(i);
+                                    break;
+                                }
                             }
                         }
                         break;
@@ -227,7 +232,12 @@ namespace RFIDCommandCenter
                 case (int)CommandCodes.TAG_ARRIVE:
                     break;
                 case (int)CommandCodes.UNLOCK:
+                    sendCommand(cmdPacket, CommandCodes.CONFIRMATION_SYNC_TICK_COUNT, NETWORK_TIMEOUT * 1000, true, true, (int)CommandCodes.NONE);
                     sendCommand(cmdPacket, CommandCodes.UNLOCK, NETWORK_TIMEOUT * 1000,true,true);
+                    break;
+                case (int)CommandCodes.LOCK:
+                    sendCommand(cmdPacket, CommandCodes.CONFIRMATION_SYNC_TICK_COUNT, NETWORK_TIMEOUT * 1000, true, true, (int)CommandCodes.NONE);
+                    sendCommand(cmdPacket, CommandCodes.LOCK, NETWORK_TIMEOUT * 1000, true, true);
                     break;
                 case (int)CommandCodes.TAG_LEAVE:
                     break;
@@ -277,10 +287,6 @@ namespace RFIDCommandCenter
                 case (int)CommandCodes.START:
                     Console.ForegroundColor = ConsoleColor.Green;
                     Console.WriteLine("Device Connecting @ " + DateTime.Now.ToString("hh:mm:ss.FFF"));
-                    Console.WriteLine("Device Tick = " + cmdPacket.tickTime + "ms");
-                    Console.Write("EPC: ");
-                    for (int i = 0; i < 12; i++)
-                        Console.Write(String.Format("{0:x2}", cmdPacket.payload[i]));
                     Console.WriteLine();
                     break;
                 case (int)CommandCodes.TAG_ARRIVE:
