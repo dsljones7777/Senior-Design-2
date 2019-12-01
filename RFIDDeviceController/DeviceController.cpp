@@ -13,7 +13,6 @@ DeviceController::DeviceController()
 DeviceController::~DeviceController()
 {
 }
-
 void RFIDDeviceController::DeviceController::turnOnLed(int ledNumber)
 {
 	if (!reader.initialized)
@@ -24,6 +23,7 @@ void RFIDDeviceController::DeviceController::turnOnLed(int ledNumber)
 		light1On = true;
 	else
 		light2On = true;
+	
 }
 
 void RFIDDeviceController::DeviceController::turnOffLed(int ledNumber)
@@ -156,7 +156,9 @@ bool RFIDDeviceController::DeviceController::executeCommand(int expectedCommand)
 		case (int)CommandCodes::WRITE_TAG:
 			//write to a tag
 			pCmd = (WriteTagNetParam *)&buffer;
+			turnOnLed(1);
 			reader.writeTag(pCmd->epc, pCmd->readTickTime, 1000);
+			turnOffLed(1);
 			break;
 		case (int)CommandCodes::DEVICE_ERROR:
 			return handleDeviceError();

@@ -127,10 +127,10 @@ namespace RFIDCommandCenter
                     saveAllowedTagLocation(cmd, context);
                 else if (cmd.GetType() == typeof(SaveConnectedDeviceRPC))
                     saveConnectedDevice(cmd, context);
-                else if (cmd.GetType() == typeof(TagArriveRPC))
-                    tagArrive(cmd, context);
-                else if (cmd.GetType() == typeof(TagLeaveRPC))
-                    tagLeave(cmd, context);
+                //else if (cmd.GetType() == typeof(TagArriveRPC))
+                //    tagArrive(cmd, context);
+                //else if (cmd.GetType() == typeof(TagLeaveRPC))
+                //    tagLeave(cmd, context);
                 else if (cmd.GetType() == typeof(ViewAllowedLocationsRPC))
                     viewAllowedLocations(cmd, context);
                 else if (cmd.GetType() == typeof(ViewUserRPC))

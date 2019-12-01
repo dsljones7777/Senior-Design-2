@@ -19,7 +19,7 @@ namespace RFIDCommandCenter.Logic
 
             var isTagAllowedInLocation = context.AllowedLocations.Any(x => x.TagID == tagInSystem.ID && x.LocationID == location.ID);
 
-            if (!isTagAllowedInLocation)
+            if (!isTagAllowedInLocation || tagInSystem.LostTag)
                 return false;
 
             if (tagInSystem.InLocation == null || !tagInSystem.InLocation.Value)

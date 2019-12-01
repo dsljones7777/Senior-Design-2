@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
@@ -88,7 +89,11 @@ namespace RFIDCommandCenter
                     reportCommandInfo(bufferPacket);
 #endif
                     executePacketRequest(bufferPacket);
+#if DEBUG
+                    reportCommandInfo(bufferPacket);
+#endif
                     provideResponse(bufferPacket);
+
 
                 }
                 catch (Exception e)
@@ -118,7 +123,8 @@ namespace RFIDCommandCenter
                 {
                     case (int)CommandCodes.TAG_ARRIVE:
                         Array.Copy(cmdPacket.payload, tagNumber, 12);
-                        if(isSystemDevice)
+                        cmdPacket.command = (int)CommandCodes.LOCK;
+                        if (isSystemDevice)
                         {
                             var tagArrive = new Logic.TagArrive();
                             if(tagArrive.Execute(tagNumber, deviceSerialNumber, context))
@@ -126,6 +132,7 @@ namespace RFIDCommandCenter
                         }
                         else
                         {
+                            
                             lock(readTags)
                             {
                                 readTags.Add(tagNumber);
@@ -133,14 +140,9 @@ namespace RFIDCommandCenter
                         }
                         break;
                     case (int)CommandCodes.TAG_LEAVE:
+                        cmdPacket.command = (int)CommandCodes.LOCK;
                         Array.Copy(cmdPacket.payload, tagNumber, 12);
-                        if(isSystemDevice)
-                        {
-                            var tagLeave = new Logic.TagLeave();
-                            tagLeave.Execute(tagNumber, context);
-                            cmdPacket.command = (int)CommandCodes.LOCK;
-                        }
-                        else
+                        if(!isSystemDevice)
                         {
                             lock(readTags)
                             {
@@ -155,7 +157,7 @@ namespace RFIDCommandCenter
                         }
                         break;
                     case (int)CommandCodes.ALIVE:
-                        //Write to db
+                        
                         break;
                     case (int)CommandCodes.TAG_PRESENT_TOO_LONG:
                         //Write to db
@@ -230,6 +232,7 @@ namespace RFIDCommandCenter
             switch (cmdPacket.command)
             {
                 case (int)CommandCodes.TAG_ARRIVE:
+                    
                     break;
                 case (int)CommandCodes.UNLOCK:
                     sendCommand(cmdPacket, CommandCodes.CONFIRMATION_SYNC_TICK_COUNT, NETWORK_TIMEOUT * 1000, true, true, (int)CommandCodes.NONE);
@@ -282,6 +285,8 @@ namespace RFIDCommandCenter
 
         private void reportCommandInfo(NetworkCode cmdPacket,bool showAlive = true)
         {
+
+            byte[] epcBytes;
             switch (cmdPacket.command)
             {
                 case (int)CommandCodes.START:
@@ -297,6 +302,13 @@ namespace RFIDCommandCenter
                     for (int i = 0; i < 12; i++)
                         Console.Write(String.Format("{0:x2}", cmdPacket.payload[i]));
                     Console.WriteLine();
+                    epcBytes = new byte[12];
+                    Array.Copy(cmdPacket.payload, 0, epcBytes,0, 12);
+                    using (DataContext context = new DataContext())
+                    {
+                        var name = context.Tags.Where(t => t.TagNumber == epcBytes).SingleOrDefault().Name;
+                        Console.WriteLine("Tag Name = " + name ?? "[Unknown]");
+                    }
                     break;
                 case (int)CommandCodes.TAG_LEAVE:
                     Console.ForegroundColor = ConsoleColor.Yellow;
@@ -305,6 +317,8 @@ namespace RFIDCommandCenter
                     Console.Write("EPC: ");
                     for (int i = 0; i < 12; i++)
                         Console.Write(String.Format("{0:x2}", cmdPacket.payload[i]));
+                    epcBytes = new byte[12];
+                    Array.Copy(cmdPacket.payload, 0, epcBytes, 0, 12);
                     Console.WriteLine();
                     break;
                 case (int)CommandCodes.ALIVE:
@@ -328,6 +342,14 @@ namespace RFIDCommandCenter
                     Console.WriteLine("Device Error @ " + DateTime.Now.ToString("hh:mm:ss.FFF"));
                     Console.WriteLine("Device Tick = " + cmdPacket.tickTime + "ms");
                     Console.WriteLine("ErrCode: " + BitConverter.ToInt32(cmdPacket.payload, 0).ToString());
+                    break;
+                case (int)CommandCodes.LOCK:
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("Door Locked");
+                    break;
+                case (int)CommandCodes.UNLOCK:
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.WriteLine("Door Unlocked");
                     break;
 
             }

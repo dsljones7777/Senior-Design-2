@@ -19,6 +19,7 @@ namespace RFIDCommandCenter.Logic
             var allowedLocationsWithTagId = context.AllowedLocations.Where(l => l.TagID == tagToDelete.ID).ToList();
 
             context.AllowedLocations.RemoveRange(allowedLocationsWithTagId);
+            context.SaveChanges();
             
             context.Tags.Remove(tagToDelete); 
 
