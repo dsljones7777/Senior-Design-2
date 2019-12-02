@@ -22,12 +22,17 @@ namespace RFIDCommandCenter.Logic
                 throw new UIClientException("There is no tag with the specified tag name");
 
             var allowedLocations = context.AllowedLocations.Where(a => locationIDs.Contains(a.LocationID)).ToList();
-
-            if(allowedLocations != null)
+            var allForTag = context.AllowedLocations.Where(a => a.TagID == tag.ID).ToList();
+            if(allForTag != null)
             {
-                context.AllowedLocations.RemoveRange(allowedLocations);
+                context.AllowedLocations.RemoveRange(allForTag);
                 context.SaveChanges();
             }
+            //if(allowedLocations != null)
+            //{
+            //    context.AllowedLocations.RemoveRange(allowedLocations);
+            //    context.SaveChanges();
+            //}
 
             var allowedLocationsToSave = locationIDs.ConvertAll(l => new Models.TagLocationBridge { TagID = tag.ID, LocationID = l });
 

@@ -373,7 +373,7 @@ namespace RFIDCommandCenter
         {
             verifyAdminAccess(role);
             SaveAllowedLocationsRPC op = (SaveAllowedLocationsRPC) cmd;
-            var saveAllowedLocations = new Logic.SaveAllowedTagLocation();
+            var saveAllowedLocations = new Logic.AltSaveAllowedLocations();
             saveAllowedLocations.Execute(op.tagName, op.locationNames, context);
         }
 

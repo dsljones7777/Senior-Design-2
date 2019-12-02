@@ -19,9 +19,8 @@ namespace RFIDCommandCenter.Logic
 
             if (tag == null)
                 throw new UIClientException("There is no tag with the specified tag name");
-
+           
             var allowedLocations = locationIds.ConvertAll(x => new Models.TagLocationBridge { LocationID = x, TagID = tag.ID });
-
             if (context.AllowedLocations.Any(x => x.TagID == tag.ID && locationIds.Contains(x.LocationID))) 
                 throw new UIClientException("An allowed location with that ID and Location already exists");
 

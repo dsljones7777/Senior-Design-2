@@ -17,9 +17,39 @@ namespace UIDemo
         bool isChangingValue = false;       //Is a grid cell value changing programmatically (disables reentry of event handler)
         string selectedColumnName = "Select";
 
+        EventHandler addDelegate;
+        EventHandler removeDelegate;
+        EventHandler editDelegate;
+
         public GridControl()
         {
+            InitializeComponent();
+            addButton.Click += AddButton_Click;
+            editButton.Click += EditButton_Click;
+            removeButton.Click += RemoveButton_Click;
+        }
 
+        private void RemoveButton_Click(object sender, EventArgs e)
+        {
+            removeDelegate?.Invoke(sender, e);
+        }
+
+        private void EditButton_Click(object sender, EventArgs e)
+        {
+            DataRow[] found = getSelectedItems();
+            if (found == null || found.Length == 0)
+                return;
+            if (found.Length > 1)
+            {
+                MessageBox.Show(this, "Selected one item at a time", "Cannot Select Multiple Items", MessageBoxButtons.OK, MessageBoxIcon.Stop);
+                return;
+            }
+            editDelegate?.Invoke(sender, e);
+        }
+
+        private void AddButton_Click(object sender, EventArgs e)
+        {
+            addDelegate?.Invoke(sender, e);
         }
 
         public GridControl(bool allowSelect, bool singleSelect, bool allowAdd,bool allowRemove, bool allowEdit,string selectColumnName = "Select")
@@ -27,8 +57,11 @@ namespace UIDemo
             InitializeComponent();
             init(allowSelect, singleSelect, allowAdd, allowRemove, allowEdit, selectColumnName);
         }
-        void init(bool allowSelect, bool singleSelect, bool allowAdd, bool allowRemove, bool allowEdit, string selectColumnName = "Select")
+        public void init(bool allowSelect, bool singleSelect, bool allowAdd, bool allowRemove, bool allowEdit, string selectColumnName = "Select")
         {
+            removeDelegate = null;
+            editDelegate = null;
+            addDelegate = null;
             selectionAllowed = allowSelect;
             multiSelectionAllowed = !singleSelect;
             addButton.Visible = allowAdd;
@@ -38,9 +71,12 @@ namespace UIDemo
             editButton.Enabled = false;
             selectedColumnName = selectColumnName;
         }
+        public void setEditButtonName(string editButtonName)
+        {
+            editButton.Text = editButtonName;
+        }
 
-
-        public void load(DataTable tbl, EventHandler addNewHandler, EventHandler editHandler, EventHandler removeHandler)
+        public DataTable load(DataTable tbl, EventHandler addNewHandler, EventHandler editHandler, EventHandler removeHandler)
         {
             DataTable dataToLoad = new DataTable();
             if (selectionAllowed)
@@ -80,17 +116,37 @@ namespace UIDemo
             fitSize();
 
             if (addNewHandler != null)
-                addButton.Click += addNewHandler;
+                addDelegate  = addNewHandler;
             if (editHandler != null)
-                editButton.Click += editHandler;
+                editDelegate = editHandler;
             if (removeHandler != null)
-                removeButton.Click += removeHandler;
+                removeDelegate = removeHandler;
+            return dataToLoad;
+        }
+
+        public void addRow(params object [] args)
+        {
+            DataTable tbl = (DataTable)controlGrid.DataSource;
+            object[] vars = new object[selectionAllowed ? args.Length + 1 : args.Length];
+            if (selectionAllowed)
+                vars[0] = false;
+            for (int i = 0; i < args.Length; i++)
+                vars[selectionAllowed ? i + 1 : i] = args[i];
+            tbl.Rows.Add(vars);
         }
 
         public void removeRow(DataRow row)
         {
             DataTable tbl = (DataTable)controlGrid.DataSource;
             tbl.Rows.Remove(row);
+        }
+
+        public DataTable GridDataSource
+        {
+            get
+            {
+                return this.controlGrid.DataSource as DataTable;
+            }
         }
 
         public DataRow[] getSelectedItems()
@@ -172,7 +228,7 @@ namespace UIDemo
                         if (cellSize.Height > neededHeight.Height)
                             neededHeight.Height = cellSize.Height;
                     }
-                    row.MinimumHeight = (int)Math.Ceiling(neededHeight.Height);
+                    row.MinimumHeight = (int)Math.Ceiling(neededHeight.Height) + 5;
                     row.Height = row.MinimumHeight;
                 }
             }
@@ -219,14 +275,7 @@ namespace UIDemo
 
         private void editButton_Click(object sender, EventArgs e)
         {
-            DataRow[] found = getSelectedItems();
-            if (found == null || found.Length == 0)
-                return;
-            if(found.Length > 1)
-            {
-                MessageBox.Show(this, "You can only edit one selected item at a time", "Editing Issue", MessageBoxButtons.OK, MessageBoxIcon.Stop);
-                return;
-            }
+           
         }
 
         private void removeButton_Click(object sender, EventArgs e)
@@ -263,6 +312,11 @@ namespace UIDemo
                     continue;
                 foundRows[0][selectedColumnName] = true;
             }
+        }
+
+        private void controlGrid_Sorted(object sender, EventArgs e)
+        {
+            this.fitSize();
         }
     }
 }

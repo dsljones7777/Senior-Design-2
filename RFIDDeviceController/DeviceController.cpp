@@ -133,6 +133,7 @@ bool RFIDDeviceController::DeviceController::executeCommand(int expectedCommand)
 	if (expectedCommand  && buffer.cmd != expectedCommand)
 		return false;
 	WriteTagNetParam * pCmd;
+	ULONG64 startTickCnt, endTickCnt;
 	switch (buffer.cmd)
 	{
 		case (int)CommandCodes::CONFIRMATION_SYNC_TICK_COUNT:
@@ -157,7 +158,11 @@ bool RFIDDeviceController::DeviceController::executeCommand(int expectedCommand)
 			//write to a tag
 			pCmd = (WriteTagNetParam *)&buffer;
 			turnOnLed(1);
-			reader.writeTag(pCmd->epc, pCmd->readTickTime, 1000);
+			startTickCnt = GetTickCount64();
+			reader.writeTag(pCmd->epc, pCmd->readTickTime, 2500);
+			endTickCnt = GetTickCount64();
+			if (endTickCnt - startTickCnt < 2500)
+				wait(2500 - (endTickCnt - startTickCnt));
 			turnOffLed(1);
 			break;
 		case (int)CommandCodes::DEVICE_ERROR:

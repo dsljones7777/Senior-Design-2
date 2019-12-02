@@ -16,61 +16,35 @@ namespace UIDemo
 {
     public partial class MainWindow : Form
     {
-        DataTable tagTable = new DataTable()
-        {
-            Columns =
-                {
-                    new DataColumn("Tag Name",typeof(string)),
-                    new DataColumn("Last Location",typeof(string)),
-                    new DataColumn("Present",typeof(bool)),
-                    new DataColumn("Tag Number",typeof(string)),
-                    new DataColumn("Lost",typeof(bool)),
-                    new DataColumn("Guest", typeof(bool)),
-                }
-        };
+        
+        //DataTable locationTable = new DataTable()
+        //{
+        //    Columns =
+        //    {
+        //        new DataColumn("Location Name",typeof(string)),
+        //        new DataColumn("In RFID Reader Serial",typeof(string)),
+        //        new DataColumn("Out RFID Reader Serial",typeof(string))
+        //    }
+        //};
 
-        DataTable userTable = new DataTable()
-        {
-            Columns =
-                {
-                    new DataColumn("User Name",typeof(string)),
-                    new DataColumn("User Role",typeof(string))
-                }
-        };
+        //DataTable deviceTabls = new DataTable()
+        //{
+        //    Columns =
+        //    {
+        //        new DataColumn("Device Serial",typeof(string)),
+        //        new DataColumn("Connected",typeof(bool)),
+        //        new DataColumn("Is System Device",typeof(bool))
+        //    }
+        //};
 
-        DataTable locationTable = new DataTable()
-        {
-            Columns =
-            {
-                new DataColumn("Location Name",typeof(string)),
-                new DataColumn("In RFID Reader Serial",typeof(string)),
-                new DataColumn("Out RFID Reader Serial",typeof(string))
-            }
-        };
-
-        DataTable deviceTabls = new DataTable()
-        {
-            Columns =
-            {
-                new DataColumn("Device Serial",typeof(string)),
-                new DataColumn("Connected",typeof(bool)),
-                new DataColumn("Is System Device",typeof(bool))
-            }
-        };
-
-        DataTable allowedLocationTable = new DataTable()
-        {
-            Columns =
-            {
-                new DataColumn("Location Name",typeof(string))
-            }
-        };
-
-        GridControl gridCtl;
-
-        LocationControl locationCtl;
-
-        TagControl tagCtl;
+        //DataTable allowedLocationTable = new DataTable()
+        //{
+        //    Columns =
+        //    {
+        //        new DataColumn("Location Name",typeof(string))
+        //    }
+        //};
+        
 
        SystemUserControl userCtl;
        bool showAdminFunctions = false;
@@ -98,8 +72,16 @@ namespace UIDemo
                 MessageBox.Show(this, except.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-            userTable.Clear();
-            foreach(var x in rpc.userList)
+            DataTable userTable = new DataTable()
+            {
+                Columns =
+                {
+                    new DataColumn("User Name",typeof(string)),
+                    new DataColumn("User Role",typeof(string))
+                }
+            };
+
+            foreach (var x in rpc.userList)
             {
                 string userRole;
                 if (x.UserRole == Network.NetworkLib.Role.Admin)
@@ -110,10 +92,8 @@ namespace UIDemo
                     continue;
                 userTable.Rows.Add(x.Username, userRole);
             }
-            gridCtl = new GridControl(showAdminFunctions, false, showAdminFunctions, showAdminFunctions, showAdminFunctions);
-            gridCtl.load(userTable, addNewUser, editUser, removeUser);
-            DialogWindow window = new DialogWindow("View Users", null, gridCtl, false, false);
-            window.ShowDialog(this);
+            usersGridControl.init(showAdminFunctions, false, showAdminFunctions, showAdminFunctions, showAdminFunctions);
+            usersGridControl.load(userTable, addNewUser, editUser, removeUser);
         }
 
         private async void addNewUser(object sender, EventArgs e)
@@ -147,21 +127,15 @@ namespace UIDemo
             catch(Exception except)
             {
                 MessageBox.Show(this, except.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
             }
-            string userRole;
-            if (userCtl.UserRole == Network.NetworkLib.Role.Admin)
-                userRole = "Administrator";
-            else
-                userRole = "Generic User";
-            userTable.Rows.Add(userCtl.Username, userRole);
+            viewUsers_Click(null, null);
         }
 
         private async void removeUser(object sender, EventArgs e)
         {
             if (!showAdminFunctions)
                 return;
-            DataRow[] users = gridCtl.getSelectedItems();
+            DataRow[] users = usersGridControl.getSelectedItems();
             if (users == null || users.Length == 0)
                 return;
             DialogResult result = MessageBox.Show(userCtl, "Are you sure you want to remove the selected users?", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
@@ -176,22 +150,20 @@ namespace UIDemo
                 try
                 {
                     await rpc.executeAsync();
-                    userTable.Rows.Remove(user);
                 }
                 catch (Exception except)
                 {
                     MessageBox.Show(this, except.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
                 }
             }
-            MessageBox.Show(userCtl, "The users were successfully removed from the system", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            viewUsers_Click(null, null);
         }
 
         private async void editUser(object sender, EventArgs e)
         {
             if (!showAdminFunctions)
                 return;
-            DataRow[] users = gridCtl.getSelectedItems();
+            DataRow[] users = usersGridControl.getSelectedItems();
             if (users == null || users.Length == 0)
                 return;
             string role = users[0]["User Role"] as string;
@@ -216,13 +188,12 @@ namespace UIDemo
             try
             {
                 await rpc.executeAsync();
-                users[0]["User Role"] = newRole == NetworkLib.Role.Admin ? "Administrator" : "Generic User";
             }
             catch (Exception except)
             {
                 MessageBox.Show(this, except.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
             }
+            viewUsers_Click(null, null);
         }
 
         private async void viewTagsButton_Clock(object sender, EventArgs e)
@@ -237,24 +208,30 @@ namespace UIDemo
                 MessageBox.Show(this, except.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-            tagTable.Clear();
-            tagTable.DefaultView.RowFilter = "";
-            foreach (DataColumn column in tagTable.Columns)
-                column.ColumnMapping = MappingType.Element;
+            DataTable tagTable = new DataTable()
+            {
+                Columns =
+                {
+                    new DataColumn("Tag Name",typeof(string)),
+                    new DataColumn("Last Location",typeof(string)),
+                    new DataColumn("Present",typeof(bool)),
+                    new DataColumn("Tag Number",typeof(string)),
+                    new DataColumn("Lost",typeof(bool)),
+                    new DataColumn("Guest", typeof(bool)),
+                }
+            };
             foreach (var x in rpc.tagList)
             {
                 string tagVal = BitConverter.ToString(x.TagNumber).Replace("-", "");
                 tagTable.Rows.Add(x.TagName, x.LastLocation ?? "", x.InLocation, tagVal, x.LostTag, x.GuestTag);
             }
-            gridCtl = new GridControl(true, false, showAdminFunctions, true, showAdminFunctions);
-            gridCtl.load(tagTable, addNewTag, editTag, removeTags);
-            DialogWindow window = new DialogWindow("View Tags", null, gridCtl, false, false);
-            window.ShowDialog(this);
+            tagsGridControl.init(true, false, showAdminFunctions, showAdminFunctions, true);
+            tagsGridControl.load(tagTable, addNewTag, editTag, removeTags);
         }
 
         private async void addNewTag(object sender, EventArgs e)
         {
-            tagCtl = new TagControl("",null,false,false);
+            TagControl tagCtl = new TagControl("",null,false,false);
             tagCtl.hideLostOption();
             tagCtl.loadPossibleNewTags();
             DialogWindow tagWindow = new DialogWindow("Add New Tag", null, tagCtl);
@@ -291,24 +268,22 @@ namespace UIDemo
             catch (Exception except)
             {
                 MessageBox.Show(this, except.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
             }
-
+            viewTagsButton_Clock(null, null);
         }
 
         private async void removeTags(object sender, EventArgs e)
         {
-            DataRow[] tags = gridCtl.getSelectedItems();
+            DataRow[] tags = tagsGridControl.getSelectedItems();
             if (tags == null || tags.Length == 0)
                 return;
-            DialogResult result = MessageBox.Show(tagCtl, "Are you sure you want to remove the selected tags?", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            DialogResult result = MessageBox.Show(this, "Are you sure you want to remove the selected tags?", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
             if (result != DialogResult.Yes)
                 return;
             foreach (DataRow tag in tags)
             {
                 DeleteTagRPC rpc = new DeleteTagRPC()
                 {
-                    
                     name = tag["Tag Name"] as string
                 };
                 try
@@ -318,23 +293,22 @@ namespace UIDemo
                 catch (Exception except)
                 {
                     MessageBox.Show(this, except.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
+                    break;
                 }
-                gridCtl.removeRow(tag);
             };
-            MessageBox.Show(tagCtl, "The tags were successfully removed from the system", "Removed Tags", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            viewTagsButton_Clock(null, null);
         }
 
         private async void editTag(object sender, EventArgs e)
         {
-            DataRow[] tags = gridCtl.getSelectedItems();
+            DataRow[] tags = tagsGridControl.getSelectedItems();
             if (tags == null || tags.Length == 0)
                 return;
             bool isGuest = (bool)tags[0]["Guest"];
             bool isLost = (bool)tags[0]["Lost"];
             string name = (string)tags[0]["Tag Name"];
             string bytes = (string)tags[0]["Tag Number"];
-            tagCtl = new TagControl(name, bytes, isLost, isGuest);
+            TagControl tagCtl = new TagControl(name, bytes, isLost, isGuest);
             tagCtl.disableTagByteEditing();
             DialogWindow window = new DialogWindow("Edit Tag", null, tagCtl, true, true);
             DialogResult result = window.ShowDialog(this);
@@ -357,12 +331,21 @@ namespace UIDemo
             catch (Exception except)
             {
                 MessageBox.Show(this, except.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
             }
-
+            viewTagsButton_Clock(null, null);
         }
+
         private async void viewLocationsButton_Click(object sender, EventArgs e)
         {
+            DataTable locationTable = new DataTable()
+            {
+                Columns =
+                {
+                    new DataColumn("Location Name",typeof(string)),
+                    new DataColumn("In RFID Reader Serial",typeof(string)),
+                    new DataColumn("Out RFID Reader Serial",typeof(string))
+                }
+            };
             ViewLocationsRPC rpc = new ViewLocationsRPC();
             try
             {
@@ -373,20 +356,17 @@ namespace UIDemo
                 MessageBox.Show(this, except.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-            locationTable.Clear();
             foreach (var x in rpc.locationList)
                 locationTable.Rows.Add(x.LocationName, x.ReaderSerialIn, x.ReaderSerialOut ?? "");
-            gridCtl = new GridControl(true, false,showAdminFunctions, showAdminFunctions, showAdminFunctions);
-            gridCtl.load(locationTable, addNewLocation, editLocation, removeLocation);
-            DialogWindow window = new DialogWindow("View Locations", null, gridCtl, false, false);
-            window.ShowDialog(this);
+            locationGridControl.init(true, false,showAdminFunctions, showAdminFunctions, showAdminFunctions);
+            locationGridControl.load(locationTable, addNewLocation, editLocation, removeLocation);
         }
 
         private async void addNewLocation(object sender, EventArgs e)
         {
             if (!showAdminFunctions)
                 return;
-            locationCtl = new LocationControl();
+            LocationControl locationCtl = new LocationControl();
             DialogWindow locationWindow = new DialogWindow("Add New Location", null, locationCtl);
             DialogResult result = locationWindow.ShowDialog(this);
             if (result != DialogResult.OK)
@@ -404,15 +384,15 @@ namespace UIDemo
             catch (Exception except)
             {
                 MessageBox.Show(this, except.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
             }
+            viewLocationsButton_Click(null, null);
         }
 
         private async void removeLocation(object sender, EventArgs e)
         {
             if (!showAdminFunctions)
                 return;
-            DataRow[] locations = gridCtl.getSelectedItems();
+            DataRow[] locations = locationGridControl.getSelectedItems();
             if (locations == null || locations.Length == 0)
                 return;
             DialogResult result = MessageBox.Show(this, "Are you sure you want to remove the selected locations?", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
@@ -431,21 +411,19 @@ namespace UIDemo
                 catch (Exception except)
                 {
                     MessageBox.Show(this, except.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
                 }
-                gridCtl.removeRow(loc);
             }
-            MessageBox.Show(locationCtl, "The locations were successfully removed from the system", "Locations Removed", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            viewLocationsButton_Click(null, null);
         }
 
         private async void editLocation(object sender, EventArgs e)
         {
             if (!showAdminFunctions)
                 return;
-            DataRow[] locations = gridCtl.getSelectedItems();
+            DataRow[] locations = locationGridControl.getSelectedItems();
             if (locations == null || locations.Length == 0)
                 return;
-            locationCtl = new LocationControl();
+            LocationControl locationCtl = new LocationControl();
             locationCtl.SerialIn = locations[0]["In RFID Reader Serial"] as string;
             locationCtl.SerialOut = locations[0]["Out RFID Reader Serial"] as string;
             string currentLocation = locationCtl.LocationName = locations[0]["Location Name"] as string;
@@ -466,14 +444,14 @@ namespace UIDemo
             }
             catch (Exception except)
             {
-                MessageBox.Show(gridCtl, except.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
+                MessageBox.Show(this, except.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+            viewLocationsButton_Click(null, null);
         }
 
         private void MainWindow_Load(object sender, EventArgs e)
         {
-
+            tabControl1_TabIndexChanged(null, null);
         }
 
         private async void viewDevicesRPC(object sender, EventArgs e)
@@ -488,13 +466,19 @@ namespace UIDemo
                 MessageBox.Show(this, except.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-            deviceTabls.Clear();
+            DataTable deviceTables = new DataTable()
+            {
+                Columns =
+                {
+                    new DataColumn("Device Serial",typeof(string)),
+                    new DataColumn("Connected",typeof(bool)),
+                    new DataColumn("Is System Device",typeof(bool))
+                }
+            };
             foreach (var x in rpc.devices)
-                deviceTabls.Rows.Add(x.serialNumber, x.connected, x.inDB);
-            gridCtl = new GridControl(false, false, false, false, false);
-            gridCtl.load(deviceTabls,null,null,null);
-            DialogWindow window = new DialogWindow("View Devices", null, gridCtl, true, false);
-            window.ShowDialog(this);
+                deviceTables.Rows.Add(x.serialNumber, x.connected, x.inDB);
+            devicesGridControl.init(false, false, false, false, false);
+            devicesGridControl.load(deviceTables,null,null,null);
         }
 
         class LocationEqualityComparer : IEqualityComparer<SharedLib.SharedModels.ViewAllowedLocationsModel>
@@ -521,92 +505,121 @@ namespace UIDemo
                 MessageBox.Show(this, except.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-            tagTable.Clear();
-            tagTable.Columns["Last Location"].ColumnMapping = MappingType.Hidden;
-            tagTable.Columns["Present"].ColumnMapping = MappingType.Hidden;
-            tagTable.Columns["Lost"].ColumnMapping = MappingType.Hidden;
+            DataTable tagTable = new DataTable()
+            {
+                Columns =
+                {
+                    new DataColumn("Tag Name",typeof(string)),
+                    new DataColumn("Last Location",typeof(string),null,MappingType.Hidden),
+                    new DataColumn("Present",typeof(bool),null, MappingType.Hidden),
+                    new DataColumn("Tag Number",typeof(string)),
+                    new DataColumn("Lost",typeof(bool),null, MappingType.Hidden),
+                    new DataColumn("Guest", typeof(bool)),
+                }
+            };
+            rpc.tagList.Sort(
+                (a,b) => 
+                {
+                    if (a.InLocation)
+                        return -1;
+                    if (b.InLocation)
+                        return 1;
+                    return 0;
+                });
             foreach (var x in rpc.tagList)
             {
                 string tagVal = BitConverter.ToString(x.TagNumber).Replace("-", "");
                 tagTable.Rows.Add(x.TagName, x.LastLocation ?? "", x.InLocation, tagVal, x.LostTag, x.GuestTag);
             }
-            gridCtl = new GridControl(true,true,false,false,false);
-            gridCtl.load(tagTable,null,null,null);
-            DialogWindow window = new DialogWindow("Select A Tag", null, gridCtl, true, true);
-            window.ShowDialog(this);
-            if (window.DialogResult != DialogResult.OK)
-                return;
-            DataRow[] selectedRows = gridCtl.getSelectedItems();
-            if (selectedRows == null || selectedRows.Length == 0)
-                return;
-            ViewLocationsRPC locationsRPC = new ViewLocationsRPC();
-            try
-            {
-                locationsRPC = (ViewLocationsRPC)await locationsRPC.executeAsync();
-            }
-            catch (Exception except)
-            {
-                MessageBox.Show(this, except.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
+          
+            allowedLocationsGridControl.init(true,true,false,false,true);
+            allowedLocationsGridControl.setEditButtonName("View / Edit\nAllowed Locations");
+            allowedLocationsGridControl.load(tagTable,null,allowedLocationTagSelected,null);
+            return;
+            
 
-            ViewAllowedLocationsRPC allowedRPC = new ViewAllowedLocationsRPC()
+        }
+
+        private async void allowedLocationTagSelected(object sender, EventArgs e)
+        {
+            DataRow[] selected = allowedLocationsGridControl.getSelectedItems();
+            if (selected == null || selected.Length == 0)
+                return;
+            DataTable allowedTable = new DataTable
             {
-                TagName = selectedRows[0]["Tag Name"] as string
+                Columns = { new DataColumn("Location Name", typeof(string)) }
+            };
+            ViewAllowedLocationsRPC rpc = new ViewAllowedLocationsRPC()
+            {
+                TagName = selected[0]["Tag Name"] as string
             };
             try
             {
-                allowedRPC = (ViewAllowedLocationsRPC)await allowedRPC.executeAsync();
+                rpc = (ViewAllowedLocationsRPC)await rpc.executeAsync();
             }
             catch (Exception except)
             {
                 MessageBox.Show(this, except.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-            allowedLocationTable.Clear();
-            List<DataRow> rowsToSelect = new List<DataRow>();
-            foreach(var x in locationsRPC.locationList)
+            foreach (var location in rpc.allowedLocationList)
+                allowedTable.Rows.Add(location.LocationName);
+            allowedLocationsGridControl.init(true, false, false, false, false, "Allowed");
+            allowedTable = allowedLocationsGridControl.load(allowedTable, null, null, null);
+            var enumerator = rpc.allowedLocationList.GetEnumerator();
+            foreach(DataRow row in allowedTable.Rows)
             {
-                bool exists = allowedRPC.allowedLocationList.Contains(new SharedModels.ViewAllowedLocationsModel() { LocationName = x.LocationName }, new LocationEqualityComparer());
-                DataRow row = allowedLocationTable.Rows.Add(x.LocationName);
-                if (exists)
-                    rowsToSelect.Add(row);
+                enumerator.MoveNext();
+                row["Allowed"] = enumerator.Current.TagAllowedInLoc;
             }
-            gridCtl = new GridControl(true, false, false, false, false, "Allowed");
-            gridCtl.load(allowedLocationTable, null, null, null);
-            gridCtl.selectRows(rowsToSelect);
-            string dialogTitle;
-            if (showAdminFunctions)
-                dialogTitle = "Select Tag Allowed Permissions";
-            else
-                dialogTitle = "View Tag Allowed Permissions";
-            window = new DialogWindow(dialogTitle, null, gridCtl, true,true);
-            window.ShowDialog(this);
-            if (window.DialogResult != DialogResult.OK)
-                return;
-            if (!showAdminFunctions)
-                return;
-            DataRow[] allowed = gridCtl.getSelectedItems();
-            SaveAllowedLocationsRPC rpc2 = new SaveAllowedLocationsRPC()
+            okButton.Visible = true;
+            okButton.Click += AllowedLocationsOkButton_Click;
+            cancelButton.Visible = true;
+            cancelButton.Click += AllowedLocationsCancelButton_Click;
+            mainTabControl.TabIndexChanged += allowedLocationsTabChangedCleanup;
+            allowedLocationTagNameLabel.Visible = true;
+            allowedLocationTagNameLabel.Text = "Allowed Locations for Tag: " + selected[0]["Tag Name"] as string;
+        }
+
+        private void allowedLocationsTabChangedCleanup(object sender, EventArgs e)
+        {
+            okButton.Visible = false;
+            okButton.Click -= AllowedLocationsOkButton_Click;
+            cancelButton.Click -= AllowedLocationsCancelButton_Click;
+            cancelButton.Visible = false;
+            mainTabControl.TabIndexChanged -= allowedLocationsTabChangedCleanup;
+            allowedLocationTagNameLabel.Visible = false;
+        }
+
+        private async void AllowedLocationsOkButton_Click(object sender, EventArgs e)
+        {
+            DataRow[] selectedRows = allowedLocationsGridControl.getSelectedItems();
+            
+            SaveAllowedLocationsRPC rpc = new SaveAllowedLocationsRPC()
             {
                 locationNames = new List<string>(),
-                tagName = selectedRows[0]["Tag Name"] as string
+                tagName = allowedLocationTagNameLabel.Text.Replace("Allowed Locations for Tag: ", "")
             };
-            if(allowed != null)
-                foreach(DataRow row in allowed)
-                {
-                    rpc2.locationNames.Add(row["Location Name"] as string);
-                }
+            if (selectedRows != null)
+                foreach (var row in selectedRows)
+                    if ((bool)row["Allowed"])
+                        rpc.locationNames.Add(row["Location Name"] as string);
             try
             {
-                await rpc2.executeAsync();
+                await rpc.executeAsync();
             }
             catch (Exception except)
             {
                 MessageBox.Show(this, except.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
             }
+            allowedLocationsTabChangedCleanup(null, null);
+            allowedLocations_Click(null, null);
+        }
 
+        private void AllowedLocationsCancelButton_Click(object sender, EventArgs e)
+        {
+            allowedLocationsTabChangedCleanup(null, null);
+            allowedLocations_Click(null, null);
         }
 
         private async void writeTagButton_Click(object sender, EventArgs e)
@@ -642,23 +655,98 @@ namespace UIDemo
             }
         }
 
+        
+
         private void tabControl1_TabIndexChanged(object sender, EventArgs e)
         {
             TabPage currentPage = mainTabControl.TabPages[mainTabControl.SelectedIndex];
-            switch(currentPage.Name)
+            if (currentPage == tagsTab)
+                viewTagsButton_Clock(null, null);
+            else if (currentPage == locationsTab)
+                viewLocationsButton_Click(null, null);
+            else if (currentPage == usersTab)
+                viewUsers_Click(null, null);
+            else if (currentPage == allowedLocationsTab)
+                allowedLocations_Click(null, null);
+            else if (currentPage == guestsTab)
+                guestTab_Click(sender, e);
+            else if (currentPage == lostTagsTab)
+                lostTab_Click(sender, e);
+            return;
+        }
+
+        private async void guestTab_Click(object sender, EventArgs e)
+        {
+            ViewTagsRPC rpc = new ViewTagsRPC();
+            try
             {
-                case "locationsTab":
-                    currentPage.Controls.Clear();
-                    //GridControl locationGrid = new GridControl(true, false,showAdminFunctions,showAdminFunctions)
-                    currentPage.Controls.Add(locationCtl);
-                    break;
+                rpc = (ViewTagsRPC)await rpc.executeAsync();
             }
-                
+            catch (Exception except)
+            {
+                MessageBox.Show(this, except.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            DataTable tagTable = new DataTable()
+            {
+                Columns =
+                {
+                    new DataColumn("Tag Name",typeof(string)),
+                    new DataColumn("Last Location",typeof(string)),
+                    new DataColumn("Present",typeof(bool)),
+                    new DataColumn("Tag Number",typeof(string))
+                }
+            };
+            foreach (var x in rpc.tagList)
+            {
+                string tagVal = BitConverter.ToString(x.TagNumber).Replace("-", "");
+                if(!x.LostTag && x.GuestTag)
+                    tagTable.Rows.Add(x.TagName, x.LastLocation ?? "", x.InLocation, tagVal);
+            }
+            guestTagsGridControl.init(true, false, false, false, true);
+            guestTagsGridControl.load(tagTable, addNewTag, editTag, removeTags);
+        }
+        private async void lostTab_Click(object sender, EventArgs e)
+        {
+            ViewTagsRPC rpc = new ViewTagsRPC();
+            try
+            {
+                rpc = (ViewTagsRPC)await rpc.executeAsync();
+            }
+            catch (Exception except)
+            {
+                MessageBox.Show(this, except.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            DataTable tagTable = new DataTable()
+            {
+                Columns =
+                {
+                    new DataColumn("Tag Name",typeof(string)),
+                    new DataColumn("Last Location",typeof(string)),
+                    new DataColumn("Present",typeof(bool)),
+                    new DataColumn("Tag Number",typeof(string)),
+                    new DataColumn("Guest",typeof(string))
+                }
+            };
+            foreach (var x in rpc.tagList)
+            {
+                string tagVal = BitConverter.ToString(x.TagNumber).Replace("-", "");
+                if (x.LostTag)
+                    tagTable.Rows.Add(x.TagName, x.LastLocation ?? "", x.InLocation, tagVal,x.LostTag);
+            }
+            lostTagsGridControl.init(true, false, false, false, true);
+            lostTagsGridControl.load(tagTable, addNewTag, editTag, removeTags);
         }
 
         private void locationsTab_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private void logoutButton_Click(object sender, EventArgs e)
+        {
+            this.Close();
         }
     }
 }

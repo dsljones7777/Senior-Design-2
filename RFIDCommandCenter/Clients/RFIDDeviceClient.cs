@@ -306,7 +306,7 @@ namespace RFIDCommandCenter
                     Array.Copy(cmdPacket.payload, 0, epcBytes,0, 12);
                     using (DataContext context = new DataContext())
                     {
-                        var name = context.Tags.Where(t => t.TagNumber == epcBytes).SingleOrDefault().Name;
+                        var name = context.Tags.Where(t => t.TagNumber == epcBytes).SingleOrDefault()?.Name;
                         Console.WriteLine("Tag Name = " + name ?? "[Unknown]");
                     }
                     break;
