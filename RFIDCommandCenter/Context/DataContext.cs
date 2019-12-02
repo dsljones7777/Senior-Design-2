@@ -9,7 +9,7 @@ namespace RFIDCommandCenter
     public partial class DataContext : DbContext
     {
         public DataContext()
-            : base("name=LocalNetworkSQL")
+            : base("name=DbContext")
         {
             
         }

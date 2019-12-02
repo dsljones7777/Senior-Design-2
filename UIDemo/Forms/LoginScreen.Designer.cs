@@ -74,6 +74,7 @@
             this.pwdTextbox.Name = "pwdTextbox";
             this.pwdTextbox.Size = new System.Drawing.Size(261, 25);
             this.pwdTextbox.TabIndex = 6;
+            this.pwdTextbox.UseSystemPasswordChar = true;
             // 
             // label1
             // 
@@ -138,6 +139,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.BackColor = System.Drawing.Color.Gainsboro;
             this.ClientSize = new System.Drawing.Size(330, 451);
             this.Controls.Add(this.tableLayoutPanel1);
             this.Font = new System.Drawing.Font("Segoe UI Semibold", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));

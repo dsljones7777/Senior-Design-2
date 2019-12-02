@@ -37,6 +37,7 @@
             this.passwordLabel = new System.Windows.Forms.Label();
             this.guestCheckbox = new System.Windows.Forms.CheckBox();
             this.tagDataCombobox = new System.Windows.Forms.ComboBox();
+            this.refreshButton = new System.Windows.Forms.Button();
             this.tableLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -44,7 +45,8 @@
             // 
             this.tableLayoutPanel1.AutoSize = true;
             this.tableLayoutPanel1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.tableLayoutPanel1.ColumnCount = 2;
+            this.tableLayoutPanel1.ColumnCount = 3;
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.tableLayoutPanel1.Controls.Add(this.lostLabel, 0, 3);
@@ -55,6 +57,7 @@
             this.tableLayoutPanel1.Controls.Add(this.passwordLabel, 0, 1);
             this.tableLayoutPanel1.Controls.Add(this.guestCheckbox, 1, 2);
             this.tableLayoutPanel1.Controls.Add(this.tagDataCombobox, 1, 1);
+            this.tableLayoutPanel1.Controls.Add(this.refreshButton, 2, 1);
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
@@ -63,14 +66,14 @@
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(320, 116);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(351, 120);
             this.tableLayoutPanel1.TabIndex = 1;
             // 
             // lostLabel
             // 
             this.lostLabel.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.lostLabel.AutoSize = true;
-            this.lostLabel.Location = new System.Drawing.Point(39, 94);
+            this.lostLabel.Location = new System.Drawing.Point(39, 98);
             this.lostLabel.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
             this.lostLabel.Name = "lostLabel";
             this.lostLabel.Size = new System.Drawing.Size(32, 17);
@@ -81,7 +84,7 @@
             // 
             this.lostCheckbox.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lostCheckbox.AutoSize = true;
-            this.lostCheckbox.Location = new System.Drawing.Point(77, 95);
+            this.lostCheckbox.Location = new System.Drawing.Point(77, 99);
             this.lostCheckbox.Name = "lostCheckbox";
             this.lostCheckbox.Size = new System.Drawing.Size(15, 14);
             this.lostCheckbox.TabIndex = 7;
@@ -110,7 +113,7 @@
             // 
             this.roleLabel.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.roleLabel.AutoSize = true;
-            this.roleLabel.Location = new System.Drawing.Point(5, 67);
+            this.roleLabel.Location = new System.Drawing.Point(5, 71);
             this.roleLabel.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
             this.roleLabel.Name = "roleLabel";
             this.roleLabel.Size = new System.Drawing.Size(66, 17);
@@ -121,7 +124,7 @@
             // 
             this.passwordLabel.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.passwordLabel.AutoSize = true;
-            this.passwordLabel.Location = new System.Drawing.Point(11, 40);
+            this.passwordLabel.Location = new System.Drawing.Point(11, 42);
             this.passwordLabel.Name = "passwordLabel";
             this.passwordLabel.Size = new System.Drawing.Size(60, 17);
             this.passwordLabel.TabIndex = 4;
@@ -131,7 +134,7 @@
             // 
             this.guestCheckbox.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.guestCheckbox.AutoSize = true;
-            this.guestCheckbox.Location = new System.Drawing.Point(77, 68);
+            this.guestCheckbox.Location = new System.Drawing.Point(77, 72);
             this.guestCheckbox.Name = "guestCheckbox";
             this.guestCheckbox.Size = new System.Drawing.Size(15, 14);
             this.guestCheckbox.TabIndex = 6;
@@ -139,11 +142,23 @@
             // 
             // tagDataCombobox
             // 
+            this.tagDataCombobox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.tagDataCombobox.FormattingEnabled = true;
             this.tagDataCombobox.Location = new System.Drawing.Point(77, 38);
             this.tagDataCombobox.Name = "tagDataCombobox";
             this.tagDataCombobox.Size = new System.Drawing.Size(240, 25);
             this.tagDataCombobox.TabIndex = 9;
+            // 
+            // refreshButton
+            // 
+            this.refreshButton.BackgroundImage = global::UIDemo.Properties.Resources.refresh;
+            this.refreshButton.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+            this.refreshButton.Location = new System.Drawing.Point(323, 38);
+            this.refreshButton.Name = "refreshButton";
+            this.refreshButton.Size = new System.Drawing.Size(25, 25);
+            this.refreshButton.TabIndex = 10;
+            this.refreshButton.UseVisualStyleBackColor = true;
+            this.refreshButton.Click += new System.EventHandler(this.refreshButton_Click);
             // 
             // TagControl
             // 
@@ -151,11 +166,12 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.BackColor = System.Drawing.Color.Gainsboro;
             this.Controls.Add(this.tableLayoutPanel1);
             this.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.Name = "TagControl";
-            this.Size = new System.Drawing.Size(323, 121);
+            this.Size = new System.Drawing.Size(354, 125);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
             this.ResumeLayout(false);
@@ -174,5 +190,6 @@
         private System.Windows.Forms.CheckBox lostCheckbox;
         private System.Windows.Forms.Label roleLabel;
         private System.Windows.Forms.ComboBox tagDataCombobox;
+        private System.Windows.Forms.Button refreshButton;
     }
 }

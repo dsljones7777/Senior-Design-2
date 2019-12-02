@@ -83,6 +83,92 @@ namespace RFIDCommandCenter
             return false;
         }
 
+        void changeToSystemDevice(string serial)
+        {
+            if (serial == null)
+                return;
+            if (nonSystemDevices.ContainsKey(serial))
+            {
+                RFIDDeviceClient device = nonSystemDevices[serial];
+                device.isSystemDevice = true;
+                nonSystemDevices.Remove(serial);
+                systemDevices.Add(serial, device);
+            }
+        }
+
+        void changeToNonSystemDevice(string serial)
+        {
+            if (serial == null)
+                return;
+            if (systemDevices.ContainsKey(serial))
+            {
+                RFIDDeviceClient device = systemDevices[serial];
+                device.isSystemDevice = false;
+                systemDevices.Remove(serial);
+                nonSystemDevices.Add(serial, device);
+            }
+        }
+
+        void handleClientRequest(UIClient client)
+        {
+            if (client.request.GetType() == typeof(GetUnconnectedDevicesRPC))
+                getUnconnectedDevices(client);
+            else if (client.request.GetType() == typeof(GetAllConnectedDevicesRPC))
+                getAllConnectedDevices(client);
+            else if (client.request.GetType() == typeof(GetAllDevicesRPC))
+                getAllDevices(client);
+            else if (client.request.GetType() == typeof(WriteTagRPC))
+                writeTag(client);
+            else if (client.request.GetType() == typeof(ViewTagsRPC))
+                viewNonsystemTags(client);
+            else if (client.request.GetType() == typeof(SaveLocationRPC))
+                updateDevicesOnSaveLocation(client);
+            else if (client.request.GetType() == typeof(EditLocationRPC))
+                updateDevicesOnEditLocation(client);
+            else if (client.request.GetType() == typeof(DeleteLocationRPC))
+                updateDevicesOnDeleteLocation(client);
+            else if (client.request.GetType() == typeof(ChangeDeviceModeRPC))
+                changeDeviceMode(client);
+            client.request = null;
+        }
+
+        private void changeDeviceMode(UIClient client)
+        {
+            ChangeDeviceModeRPC rpc = (ChangeDeviceModeRPC)client.request;
+            RFIDDeviceClient device;
+            if (nonSystemDevices.ContainsKey(rpc.deviceSerial))
+                device = nonSystemDevices[rpc.deviceSerial];
+            else if (systemDevices.ContainsKey(rpc.deviceSerial))
+                device = systemDevices[rpc.deviceSerial];
+            else
+                return;
+            device.inVirtualMode = rpc.virtualMode;
+            device.pendingDeviceCommand = RFIDDeviceClient.CommandCodes.CHANGE_MODE;
+        }
+
+        private void updateDevicesOnDeleteLocation(UIClient client)
+        {
+            DeleteLocationRPC rpc = (DeleteLocationRPC)client.request;
+            foreach (var x in rpc.removedSerials)
+                changeToNonSystemDevice(x);
+        }
+
+        private void updateDevicesOnEditLocation(UIClient client)
+        {
+            EditLocationRPC rpc = (EditLocationRPC)client.request;
+            changeToNonSystemDevice(rpc.oldReaderSerialIn);
+            changeToNonSystemDevice(rpc.oldReaderSerialOut);
+            changeToSystemDevice(rpc.readerSerialIn);
+            changeToSystemDevice(rpc.readerSerialOut);
+        }
+
+        private void updateDevicesOnSaveLocation(UIClient client)
+        {
+            SaveLocationRPC rpc = (SaveLocationRPC)client.request;
+            changeToSystemDevice(rpc.readerSerialIn);
+            changeToSystemDevice(rpc.readerSerialOut);
+        }
+
         //Return true if thread should be removed
         bool handleUIClient(UIClient client, SortedList<string,object> deviceResponses)
         {
@@ -90,19 +176,7 @@ namespace RFIDCommandCenter
                 return true;
             if (client.request == null)
                 return false;
-            if (client.request.GetType() == typeof(GetUnconnectedDevicesRPC))
-                getUnconnectedDevices(client);
-            else if (client.request.GetType() == typeof(GetAllConnectedDevicesRPC))
-                getAllConnectedDevices(client);
-            else if (client.request.GetType() == typeof(GetAllDevicesRPC))
-                getAllDevices(client);
-            else if (client.request.GetType() == typeof(EditLocationRPC))
-                editLocation(client);
-            else if (client.request.GetType() == typeof(WriteTagRPC))
-                writeTag(client);
-            else if (client.request.GetType() == typeof(ViewTagsRPC))
-                viewNonsystemTags(client);
-            client.request = null;
+            handleClientRequest(client);
             lock(client.messagesRcvd)
             {
                 if (client.messagesRcvd.Count == 0)
@@ -147,19 +221,6 @@ namespace RFIDCommandCenter
             nonSystemDevices[rpc.targetSerialNumber].tagToWrite = rpc.newTagBytes;
         }
 
-        private void editLocation(UIClient client)
-        {
-            EditLocationRPC editRpc = (EditLocationRPC)client.request;
-            if(systemDevices.ContainsKey(editRpc.currentLocationName))
-            {
-                //TODO: update device serial in and out whther system device or not
-            }
-            else if (nonSystemDevices.ContainsKey(editRpc.currentLocationName))
-            {
-
-            }
-        }
-
         private void getAllDevices(UIClient client)
         {
             GetAllDevicesRPC rpc = (GetAllDevicesRPC)client.request;
@@ -168,10 +229,11 @@ namespace RFIDCommandCenter
                 if (x.serialNumber == null)
                     continue;
                 x.inDB = true;
-                lock (systemDevices)
-                {
-                    x.connected = systemDevices.ContainsKey(x.serialNumber);
-                }
+                x.connected = systemDevices.ContainsKey(x.serialNumber);
+                if (x.connected)
+                    x.isVirtual = systemDevices[x.serialNumber].inVirtualMode;
+                else
+                    x.isVirtual = false;
 
             }
             lock (nonSystemDevices)
@@ -183,6 +245,7 @@ namespace RFIDCommandCenter
                         {
                             connected = true,
                             inDB = false,
+                            isVirtual = x.Value.inVirtualMode,
                             serialNumber = x.Key
                         });
                 }

@@ -69,5 +69,15 @@ namespace UIDemo.User_Controls
             }
             deviceSerialCombo.DataSource = rpc.serialNumbers;
         }
+
+        private void genRndBytesButton_Click(object sender, EventArgs e)
+        {
+            hexRadioButton.Checked = true;
+            hexRadioButton_CheckedChanged(sender, e);
+            Random rand = new Random();
+            byte[] buffer = new byte[12];
+            rand.NextBytes(buffer);
+            tagBytesTextbox.Text =  BitConverter.ToString(buffer).Replace("-", "");
+        }
     }
 }

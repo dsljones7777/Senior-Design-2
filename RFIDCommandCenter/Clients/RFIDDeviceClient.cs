@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
@@ -20,6 +21,8 @@ namespace RFIDCommandCenter
 #endif
 
         long tickRateOffset;
+        internal volatile bool inVirtualMode = false;
+        internal volatile CommandCodes pendingDeviceCommand;
         internal volatile bool isSystemDevice;              //Does the device exist in the database
         internal volatile bool exit;
         internal volatile bool pauseExecution;
@@ -49,7 +52,8 @@ namespace RFIDCommandCenter
             REBOOT_READER = 17,
             WAIT = 18,					//Wait for a response, pump alive packets
             SERIAL_NUMBER = 19,          //Request device serial
-            START_READER = 20
+            START_READER = 20,
+            CHANGE_MODE = 21
         }
 
         public enum ErrorCodes
@@ -66,11 +70,16 @@ namespace RFIDCommandCenter
         public RFIDDeviceClient(Socket who, NetworkCommunication comObj) : base(who, comObj)
         {
             tickRateOffset = DateTime.Now.Ticks;
+            byte [] buffer= new byte[1];
+            comObj.readFrom(who, buffer, 1);
+            if (buffer[0] != 0)
+                this.inVirtualMode = true;
         }
         
         public override void serverThreadRoutine(Object state)
         {
             //Create packet to tell client to start, start it's reader, lock the door and give up it's serial number
+            
             NetworkCode bufferPacket = new NetworkCode();
             sendCommand(bufferPacket, CommandCodes.START, NETWORK_TIMEOUT * 1000, true, true);
             sendCommand(bufferPacket, CommandCodes.START_READER, NETWORK_TIMEOUT * 1000, true, true);
@@ -93,14 +102,25 @@ namespace RFIDCommandCenter
                     reportCommandInfo(bufferPacket);
 #endif
                     provideResponse(bufferPacket);
-
-
+                    decipherAndSendPendingDeviceCommand(bufferPacket);
+                    
                 }
                 catch (Exception e)
                 {
                     reportError(e.Message);
                     continue;
                 }
+            }
+        }
+
+        private void decipherAndSendPendingDeviceCommand(NetworkCode packet)
+        {
+            if (pendingDeviceCommand == CommandCodes.NONE)
+                return;
+            if (pendingDeviceCommand == CommandCodes.CHANGE_MODE)
+            {
+                sendCommand(packet, pendingDeviceCommand, NETWORK_TIMEOUT * 1000,false, true, inVirtualMode);
+                pendingDeviceCommand = CommandCodes.NONE;
             }
         }
 

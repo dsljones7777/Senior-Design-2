@@ -9,7 +9,7 @@ namespace RFIDCommandCenter.Logic
 {
     public class DeleteLocation
     {
-        public void Execute(string locationName, DataContext context)
+        public List<string> Execute(string locationName, DataContext context)
         {
             var existingLocation = context.Locations.SingleOrDefault(l => l.LocationName == locationName);
 
@@ -31,9 +31,13 @@ namespace RFIDCommandCenter.Logic
                 context.AllowedLocations.RemoveRange(allowedLocations);
                 context.SaveChanges();
             }
-
+            List<string> returnval = new List<string>();
+            returnval.Add(existingLocation.ReaderSerialIn);
+            if (!string.IsNullOrWhiteSpace(existingLocation.ReaderSerialOut))
+                returnval.Add(existingLocation.ReaderSerialOut);
             context.Locations.Remove(existingLocation);
             context.SaveChanges();
+            return returnval;
         }
     }
 }

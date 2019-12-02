@@ -39,6 +39,8 @@ bool RFIDDeviceController::Communication::NetworkBytecode::isValid()
 		return payloadSize == sizeof(StartReaderNetParam) - sizeof(NetworkBytecode);
 	case (uint32_t)CommandCodes::SERIAL_NUMBER:
 		return payloadSize == sizeof(ReaderSerialNetParam) - sizeof(NetworkBytecode);
+	case(uint32_t)CommandCodes::CHANGE_MODE:
+		return payloadSize == sizeof(ChangeModeNetParam) - sizeof(NetworkBytecode);
 	}
 	return false;
 }

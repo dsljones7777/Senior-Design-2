@@ -63,6 +63,8 @@ namespace SharedLib
         public class DeleteLocationRPC : UINetworkPacket
         {
             public string locationName;
+
+            public List<string> removedSerials;
         }
 
         [Serializable]
@@ -93,6 +95,7 @@ namespace SharedLib
             public string serialNumber;
             public bool connected;
             public bool inDB;
+            public bool isVirtual;
         }
 
         [Serializable]
@@ -171,6 +174,9 @@ namespace SharedLib
             public string newLocationName;
             public string readerSerialIn;
             public string readerSerialOut;
+
+            public string oldReaderSerialIn;
+            public string oldReaderSerialOut;
         }
 
         [Serializable]
@@ -264,6 +270,13 @@ namespace SharedLib
         {
             public string tagName;
             public string locationName;
+        }
+
+        [Serializable]
+        public class ChangeDeviceModeRPC : UINetworkPacket
+        {
+            public string deviceSerial;
+            public bool virtualMode;
         }
     }
     

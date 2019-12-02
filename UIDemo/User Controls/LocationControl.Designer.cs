@@ -52,8 +52,9 @@
             // serialInCombo
             // 
             this.serialInCombo.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.serialInCombo.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.serialInCombo.FormattingEnabled = true;
-            this.serialInCombo.Location = new System.Drawing.Point(154, 57);
+            this.serialInCombo.Location = new System.Drawing.Point(154, 55);
             this.serialInCombo.Margin = new System.Windows.Forms.Padding(4);
             this.serialInCombo.Name = "serialInCombo";
             this.serialInCombo.Size = new System.Drawing.Size(359, 25);
@@ -62,8 +63,9 @@
             // serialOutCombo
             // 
             this.serialOutCombo.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.serialOutCombo.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.serialOutCombo.FormattingEnabled = true;
-            this.serialOutCombo.Location = new System.Drawing.Point(154, 115);
+            this.serialOutCombo.Location = new System.Drawing.Point(154, 113);
             this.serialOutCombo.Margin = new System.Windows.Forms.Padding(4);
             this.serialOutCombo.Name = "serialOutCombo";
             this.serialOutCombo.Size = new System.Drawing.Size(359, 25);
@@ -140,7 +142,7 @@
             this.tableLayoutPanel2.Name = "tableLayoutPanel2";
             this.tableLayoutPanel2.RowCount = 1;
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 210F));
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 165F));
             this.tableLayoutPanel2.Size = new System.Drawing.Size(529, 167);
             this.tableLayoutPanel2.TabIndex = 4;
             // 
@@ -150,6 +152,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.BackColor = System.Drawing.Color.Gainsboro;
             this.Controls.Add(this.tableLayoutPanel2);
             this.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Margin = new System.Windows.Forms.Padding(4);

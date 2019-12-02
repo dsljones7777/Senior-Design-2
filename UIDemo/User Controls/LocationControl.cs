@@ -69,7 +69,12 @@ namespace UIDemo
                 return;
             }
             serialInCombo.DataSource = rpc.serialNumbers;
-            serialOutCombo.DataSource = rpc.serialNumbers;
+            if(rpc.serialNumbers != null)
+            {
+                var outSerials = rpc.serialNumbers.ToList();
+                outSerials.Insert(0, "");
+                serialOutCombo.DataSource = outSerials;
+            }
         }
     }
 }

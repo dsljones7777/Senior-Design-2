@@ -1,10 +1,12 @@
 #include "pch.h"
 #include "DeviceController.h"
-
 using namespace RFIDDeviceController;
 using namespace RFIDDeviceController::Communication;
 using namespace RFIDDeviceController::Settings;
-
+#ifdef _WIN32
+#include <Windows.h>
+#include <iostream>
+#endif
 DeviceController::DeviceController()
 {
 	
@@ -106,13 +108,7 @@ void RFIDDeviceController::DeviceController::connectToCommandCenter(bool onFault
 	//Flash led's if connection fails, until connection has been made
 	while (!startConnection(onFault))
 	{
-		if (isLedOn(ERROR_LED_NUMBER))
-			turnOffLed(ERROR_LED_NUMBER);
-		else
-			turnOnLed(ERROR_LED_NUMBER);
 	}
-	turnOffLed(ERROR_LED_NUMBER);
-
 }
 
 bool RFIDDeviceController::DeviceController::executeCommand(int expectedCommand)
@@ -133,7 +129,7 @@ bool RFIDDeviceController::DeviceController::executeCommand(int expectedCommand)
 	if (expectedCommand  && buffer.cmd != expectedCommand)
 		return false;
 	WriteTagNetParam * pCmd;
-	ULONG64 startTickCnt, endTickCnt;
+	unsigned long long startTickCnt, endTickCnt;
 	switch (buffer.cmd)
 	{
 		case (int)CommandCodes::CONFIRMATION_SYNC_TICK_COUNT:
@@ -153,6 +149,14 @@ bool RFIDDeviceController::DeviceController::executeCommand(int expectedCommand)
 			break;
 		case (int)CommandCodes::PING:
 			//ping device by flashing leds
+			break;
+		case (int)CommandCodes::CHANGE_MODE:
+			if (buffer.payload[0])
+			{
+				reader.shutdown();
+				reason = 1;
+				exitProgram = true;
+			}
 			break;
 		case (int)CommandCodes::WRITE_TAG:
 			//write to a tag
@@ -248,6 +252,8 @@ void RFIDDeviceController::DeviceController::sendStartToServer()
 {
 	*(StartNetParam *)&buffer = StartNetParam();
 	buffer.tickTime = currentTick;
+	buffer.payload[0] = isVirtualDevice;
+	buffer.payloadSize = 1;
 	sendWithoutAssurance();
 }
 
@@ -437,6 +443,14 @@ void RFIDDeviceController::DeviceController::updateTagsWithServer()
 	
 }
 
+void RFIDDeviceController::DeviceController::wait(int ms)
+{
+#ifdef _WIN32
+		Sleep((DWORD)ms);
+#endif
+		currentTick += ms;
+}
+
 int RFIDDeviceController::DeviceController::run()
 {
 
@@ -457,7 +471,195 @@ int RFIDDeviceController::DeviceController::run()
 		updateTagsWithServer();
 		if (ticksTillDead <= currentTick)
 			tellServerAlive();
-		ticksTillDead--;
 	}
+	comm->disconnect(nullptr);
 	return 0;
+}
+
+int RFIDDeviceController::SimulatedDeviceController::run()
+{
+	isVirtualDevice = true;
+	//Connect to server / host
+	resetTicksTillDead();
+	realReadTickRate = settings.rdrSettings->readTickRate;
+	comm = RFIDDeviceController::Communication::getCommunicationObject();
+	if (!comm || !comm->init())
+		return -1;
+	connectToCommandCenter(false);
+	//Start main program loop
+	while (!exitProgram)
+	{
+		checkAndExecuteCommand();
+		wait(realReadTickRate);
+		if (ticksTillDead <= currentTick)
+			tellServerAlive();
+	}
+	comm->disconnect(nullptr);
+	return reason;
+}
+
+void RFIDDeviceController::SimulatedDeviceController::setupDeviceSerial(char const * serial)
+{
+	std::cout << "Virtual Device Mode\nSerial #: ";
+	if (serial)
+	{
+		serialNumber = serial;
+		std::cout << serialNumber << '\n';
+		return;
+	}
+	//Create fake serial number
+	srand(time(nullptr));
+	int serialLength = 15 + 8 + rand() % 16 + 1;
+	char * sn = new char[serialLength + 1];
+	memcpy(sn, "VIRTUAL DEVICE ", 15);
+	for (int i = 15; i < 15 + 8; i++)
+		sn[i] = (char)((int)'a' + rand() % 26);
+	for (int i = 23; i < serialLength; i++)
+		sn[i] = (char)((int)'0' + rand() % 10);
+	sn[serialLength] = 0;
+	serialNumber = sn;
+	std::cout << serialNumber << '\n';
+}
+
+void RFIDDeviceController::SimulatedDeviceController::turnOnLed(int ledNumber)
+{
+	if (ledNumber == 1)
+		light1On = true;
+	else
+		light2On = true;
+	COORD pos;
+	if (light1On)
+	{
+		pos.X = 0;
+		pos.Y = 2;
+		SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), pos);
+		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_GREEN | FOREGROUND_BLUE);
+		std::cout << "UNLOCKED ";
+	}
+	if (light2On)
+	{
+		pos.X = 9;
+		pos.Y = 2;
+		SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), pos);
+		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED);
+		std::cout << "LOCKED";
+	}
+	CONSOLE_CURSOR_INFO cursorInfo;
+	cursorInfo.bVisible = false;
+	SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &cursorInfo);
+}
+
+void RFIDDeviceController::SimulatedDeviceController::turnOffLed(int ledNumber)
+{
+	if (ledNumber == 1)
+		light1On = false;
+	else
+		light2On = false;
+
+	COORD pos;
+	if (!light1On)
+	{
+		pos.X = 0;
+		pos.Y = 2;
+		SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), pos);
+		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),0);
+		std::cout << "UNLOCKED";
+	}
+	if (!light2On)
+	{
+		pos.X = 9;
+		pos.Y = 2;
+		SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), pos);
+		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 0);
+		std::cout << "LOCKED";
+	}
+	CONSOLE_CURSOR_INFO cursorInfo;
+	cursorInfo.bVisible = false;
+	SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &cursorInfo);
+}
+
+bool RFIDDeviceController::SimulatedDeviceController::executeCommand(int expectedCommand)
+{
+	//Adjust tick rates
+	int adjustmentValue = (int32_t)(buffer.tickTime - currentTick);
+	int realTimeAdjustment = realReadTickRate - adjustmentValue;
+	if (realTimeAdjustment < settings.rdrSettings->MIN_READER_TIMEOUT)
+		realReadTickRate = settings.rdrSettings->MIN_READER_TIMEOUT;
+	else if (realTimeAdjustment > settings.clientSettings->networkTickRate)
+		realReadTickRate = settings.clientSettings->networkTickRate;
+	else if (realTimeAdjustment > settings.rdrSettings->MAX_READER_TIMEOUT)
+		realReadTickRate = settings.rdrSettings->MAX_READER_TIMEOUT;
+	else
+		realReadTickRate = realTimeAdjustment;
+	currentTick = buffer.tickTime;
+
+	if (expectedCommand  && buffer.cmd != expectedCommand)
+		return false;
+	WriteTagNetParam * pCmd;
+	unsigned long long startTickCnt, endTickCnt;
+	switch (buffer.cmd)
+	{
+	case (int)CommandCodes::CONFIRMATION_SYNC_TICK_COUNT:
+
+		break;
+	case (int)CommandCodes::CHANGE_MODE:
+		if (!buffer.payload[0])
+		{
+			reason = 2;
+			exitProgram = true;
+		}
+			
+		break;
+	case (int)CommandCodes::LOCK:
+		//lock door
+		turnOffLed(1);
+		turnOnLed(2);
+		break;
+	case (int)CommandCodes::UNLOCK:
+		turnOnLed(1);
+		turnOffLed(2);
+		break;
+	case (int)CommandCodes::UPDATE:
+		//update device params 
+		break;
+	case (int)CommandCodes::PING:
+		//ping device by flashing leds
+		break;
+	case (int)CommandCodes::WRITE_TAG:
+		//write to a tag
+		/*pCmd = (WriteTagNetParam *)&buffer;
+		turnOnLed(1);
+		startTickCnt = GetTickCount64();
+		reader.writeTag(pCmd->epc, pCmd->readTickTime, 2500);
+		endTickCnt = GetTickCount64();
+		if (endTickCnt - startTickCnt < 2500)
+		wait(2500 - (endTickCnt - startTickCnt));
+		turnOffLed(1);*/
+		break;
+	case (int)CommandCodes::DEVICE_ERROR:
+		return handleDeviceError();
+	case (int)CommandCodes::START_READER:
+		/*reader.initialize(settings.rdrSettings);
+		if (reader.initialized)
+		{
+		turnOffLed(1);
+		turnOffLed(2);
+		}*/
+		break;
+	case (int)CommandCodes::SERIAL_NUMBER:
+		sendSerialNumberToServer();
+		break;
+	case(int)CommandCodes::START:
+		return true;
+	default:
+		return false;
+	}
+	return true;
+}
+
+void RFIDDeviceController::SimulatedDeviceController::sendSerialNumberToServer()
+{
+	*(ReaderSerialNetParam *)&buffer = ReaderSerialNetParam(serialNumber);
+	buffer.tickTime = currentTick;
+	sendWithoutAssurance();
 }

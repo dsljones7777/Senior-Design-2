@@ -18,7 +18,8 @@ namespace UIDemo.User_Controls
             InitializeComponent();
             tagNameTextbox.Text = tagName;
             tagDataCombobox.DataSource = new List<string> { tagBytes ?? "" };
-            tagDataCombobox.Text = tagBytes ?? "";
+            if (tagBytes != null)
+                tagDataCombobox.DataSource = new List<string>() { tagBytes };
             lostCheckbox.Checked = isLost;
             guestCheckbox.Checked = isGuest;
         }
@@ -100,6 +101,12 @@ namespace UIDemo.User_Controls
         public void disableTagByteEditing()
         {
             tagDataCombobox.Enabled = false;
+            refreshButton.Visible = false;
+        }
+
+        private void refreshButton_Click(object sender, EventArgs e)
+        {
+            loadPossibleNewTags();
         }
     }
 }

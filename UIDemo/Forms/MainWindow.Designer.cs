@@ -28,7 +28,6 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.writeTagButton = new System.Windows.Forms.Button();
             this.mainTabControl = new System.Windows.Forms.TabControl();
             this.tagsTab = new System.Windows.Forms.TabPage();
             this.tagsGridControl = new UIDemo.GridControl();
@@ -39,47 +38,33 @@
             this.guestsTab = new System.Windows.Forms.TabPage();
             this.guestTagsGridControl = new UIDemo.GridControl();
             this.allowedLocationsTab = new System.Windows.Forms.TabPage();
+            this.tableLayoutPanel4 = new System.Windows.Forms.TableLayoutPanel();
             this.allowedLocationsGridControl = new UIDemo.GridControl();
+            this.allowedLocationTagNameLabel = new System.Windows.Forms.Label();
             this.devicesTab = new System.Windows.Forms.TabPage();
             this.devicesGridControl = new UIDemo.GridControl();
             this.usersTab = new System.Windows.Forms.TabPage();
             this.usersGridControl = new UIDemo.GridControl();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
-            this.logoutButton = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
-            this.button3 = new System.Windows.Forms.Button();
-            this.button16 = new System.Windows.Forms.Button();
-            this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
             this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
-            this.cancelButton = new System.Windows.Forms.Button();
             this.okButton = new System.Windows.Forms.Button();
-            this.tableLayoutPanel4 = new System.Windows.Forms.TableLayoutPanel();
-            this.allowedLocationTagNameLabel = new System.Windows.Forms.Label();
+            this.cancelButton = new System.Windows.Forms.Button();
+            this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
+            this.writeTagButton = new System.Windows.Forms.Button();
+            this.logoutButton = new System.Windows.Forms.Button();
             this.mainTabControl.SuspendLayout();
             this.tagsTab.SuspendLayout();
             this.locationsTab.SuspendLayout();
             this.lostTagsTab.SuspendLayout();
             this.guestsTab.SuspendLayout();
             this.allowedLocationsTab.SuspendLayout();
+            this.tableLayoutPanel4.SuspendLayout();
             this.devicesTab.SuspendLayout();
             this.usersTab.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
-            this.tableLayoutPanel2.SuspendLayout();
             this.tableLayoutPanel3.SuspendLayout();
-            this.tableLayoutPanel4.SuspendLayout();
+            this.tableLayoutPanel2.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // writeTagButton
-            // 
-            this.writeTagButton.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.writeTagButton.Location = new System.Drawing.Point(2, 193);
-            this.writeTagButton.Margin = new System.Windows.Forms.Padding(2);
-            this.writeTagButton.Name = "writeTagButton";
-            this.writeTagButton.Size = new System.Drawing.Size(104, 65);
-            this.writeTagButton.TabIndex = 26;
-            this.writeTagButton.Text = "Write Tag";
-            this.writeTagButton.UseVisualStyleBackColor = true;
-            this.writeTagButton.Click += new System.EventHandler(this.writeTagButton_Click);
             // 
             // mainTabControl
             // 
@@ -116,6 +101,7 @@
             // tagsGridControl
             // 
             this.tagsGridControl.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.tagsGridControl.BackColor = System.Drawing.Color.Gainsboro;
             this.tagsGridControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tagsGridControl.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.tagsGridControl.Location = new System.Drawing.Point(3, 3);
@@ -139,7 +125,7 @@
             // 
             // locationGridControl
             // 
-            this.locationGridControl.BackColor = System.Drawing.SystemColors.Control;
+            this.locationGridControl.BackColor = System.Drawing.Color.Gainsboro;
             this.locationGridControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.locationGridControl.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.locationGridControl.Location = new System.Drawing.Point(3, 3);
@@ -188,7 +174,7 @@
             // 
             this.guestTagsGridControl.AutoSize = true;
             this.guestTagsGridControl.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.guestTagsGridControl.BackColor = System.Drawing.SystemColors.Control;
+            this.guestTagsGridControl.BackColor = System.Drawing.Color.Gainsboro;
             this.guestTagsGridControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.guestTagsGridControl.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.guestTagsGridControl.Location = new System.Drawing.Point(0, 0);
@@ -209,10 +195,26 @@
             this.allowedLocationsTab.Text = "Allowed Locations";
             this.allowedLocationsTab.UseVisualStyleBackColor = true;
             // 
+            // tableLayoutPanel4
+            // 
+            this.tableLayoutPanel4.BackColor = System.Drawing.Color.Gainsboro;
+            this.tableLayoutPanel4.ColumnCount = 1;
+            this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+            this.tableLayoutPanel4.Controls.Add(this.allowedLocationsGridControl, 0, 1);
+            this.tableLayoutPanel4.Controls.Add(this.allowedLocationTagNameLabel, 0, 0);
+            this.tableLayoutPanel4.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanel4.Location = new System.Drawing.Point(3, 3);
+            this.tableLayoutPanel4.Name = "tableLayoutPanel4";
+            this.tableLayoutPanel4.RowCount = 2;
+            this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel4.Size = new System.Drawing.Size(807, 454);
+            this.tableLayoutPanel4.TabIndex = 2;
+            // 
             // allowedLocationsGridControl
             // 
             this.allowedLocationsGridControl.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.allowedLocationsGridControl.BackColor = System.Drawing.SystemColors.Control;
+            this.allowedLocationsGridControl.BackColor = System.Drawing.Color.Gainsboro;
             this.allowedLocationsGridControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.allowedLocationsGridControl.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.allowedLocationsGridControl.Location = new System.Drawing.Point(2, 26);
@@ -220,6 +222,17 @@
             this.allowedLocationsGridControl.Name = "allowedLocationsGridControl";
             this.allowedLocationsGridControl.Size = new System.Drawing.Size(803, 425);
             this.allowedLocationsGridControl.TabIndex = 1;
+            // 
+            // allowedLocationTagNameLabel
+            // 
+            this.allowedLocationTagNameLabel.AutoSize = true;
+            this.allowedLocationTagNameLabel.Location = new System.Drawing.Point(3, 3);
+            this.allowedLocationTagNameLabel.Margin = new System.Windows.Forms.Padding(3);
+            this.allowedLocationTagNameLabel.Name = "allowedLocationTagNameLabel";
+            this.allowedLocationTagNameLabel.Size = new System.Drawing.Size(68, 17);
+            this.allowedLocationTagNameLabel.TabIndex = 2;
+            this.allowedLocationTagNameLabel.Text = "Tag Name";
+            this.allowedLocationTagNameLabel.Visible = false;
             // 
             // devicesTab
             // 
@@ -237,7 +250,7 @@
             // 
             this.devicesGridControl.AutoSize = true;
             this.devicesGridControl.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.devicesGridControl.BackColor = System.Drawing.SystemColors.Control;
+            this.devicesGridControl.BackColor = System.Drawing.Color.Gainsboro;
             this.devicesGridControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.devicesGridControl.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.devicesGridControl.Location = new System.Drawing.Point(3, 3);
@@ -262,7 +275,7 @@
             // 
             this.usersGridControl.AutoSize = true;
             this.usersGridControl.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.usersGridControl.BackColor = System.Drawing.SystemColors.Control;
+            this.usersGridControl.BackColor = System.Drawing.Color.Gainsboro;
             this.usersGridControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.usersGridControl.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.usersGridControl.Location = new System.Drawing.Point(3, 3);
@@ -288,76 +301,6 @@
             this.tableLayoutPanel1.Size = new System.Drawing.Size(827, 535);
             this.tableLayoutPanel1.TabIndex = 28;
             // 
-            // logoutButton
-            // 
-            this.logoutButton.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.logoutButton.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.logoutButton.Location = new System.Drawing.Point(3, 263);
-            this.logoutButton.Name = "logoutButton";
-            this.logoutButton.Size = new System.Drawing.Size(102, 59);
-            this.logoutButton.TabIndex = 28;
-            this.logoutButton.Text = "Logout";
-            this.logoutButton.UseVisualStyleBackColor = true;
-            this.logoutButton.Click += new System.EventHandler(this.logoutButton_Click);
-            // 
-            // button2
-            // 
-            this.button2.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button2.Location = new System.Drawing.Point(2, 132);
-            this.button2.Margin = new System.Windows.Forms.Padding(2);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(104, 57);
-            this.button2.TabIndex = 4;
-            this.button2.Text = "View Guests";
-            this.button2.UseVisualStyleBackColor = true;
-            // 
-            // button3
-            // 
-            this.button3.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button3.Location = new System.Drawing.Point(2, 71);
-            this.button3.Margin = new System.Windows.Forms.Padding(2);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(104, 57);
-            this.button3.TabIndex = 5;
-            this.button3.Text = "Report Lost Tag";
-            this.button3.UseVisualStyleBackColor = true;
-            // 
-            // button16
-            // 
-            this.button16.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button16.Location = new System.Drawing.Point(2, 2);
-            this.button16.Margin = new System.Windows.Forms.Padding(2);
-            this.button16.Name = "button16";
-            this.button16.Size = new System.Drawing.Size(104, 65);
-            this.button16.TabIndex = 19;
-            this.button16.Text = "Restore Lost Tag";
-            this.button16.UseVisualStyleBackColor = true;
-            // 
-            // tableLayoutPanel2
-            // 
-            this.tableLayoutPanel2.AutoSize = true;
-            this.tableLayoutPanel2.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.tableLayoutPanel2.ColumnCount = 1;
-            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel2.Controls.Add(this.button16, 0, 0);
-            this.tableLayoutPanel2.Controls.Add(this.writeTagButton, 0, 3);
-            this.tableLayoutPanel2.Controls.Add(this.button3, 0, 1);
-            this.tableLayoutPanel2.Controls.Add(this.button2, 0, 2);
-            this.tableLayoutPanel2.Controls.Add(this.logoutButton, 0, 4);
-            this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Right;
-            this.tableLayoutPanel2.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.tableLayoutPanel2.Location = new System.Drawing.Point(827, 0);
-            this.tableLayoutPanel2.Name = "tableLayoutPanel2";
-            this.tableLayoutPanel2.RowCount = 5;
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tableLayoutPanel2.Size = new System.Drawing.Size(108, 535);
-            this.tableLayoutPanel2.TabIndex = 29;
-            // 
             // tableLayoutPanel3
             // 
             this.tableLayoutPanel3.Anchor = System.Windows.Forms.AnchorStyles.Right;
@@ -374,21 +317,9 @@
             this.tableLayoutPanel3.Name = "tableLayoutPanel3";
             this.tableLayoutPanel3.RowCount = 1;
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 33F));
             this.tableLayoutPanel3.Size = new System.Drawing.Size(160, 33);
             this.tableLayoutPanel3.TabIndex = 28;
-            // 
-            // cancelButton
-            // 
-            this.cancelButton.AutoSize = true;
-            this.cancelButton.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cancelButton.Location = new System.Drawing.Point(83, 3);
-            this.cancelButton.Name = "cancelButton";
-            this.cancelButton.Size = new System.Drawing.Size(74, 27);
-            this.cancelButton.TabIndex = 0;
-            this.cancelButton.Text = "Cancel";
-            this.cancelButton.UseVisualStyleBackColor = true;
-            this.cancelButton.Visible = false;
             // 
             // okButton
             // 
@@ -402,36 +333,69 @@
             this.okButton.UseVisualStyleBackColor = true;
             this.okButton.Visible = false;
             // 
-            // tableLayoutPanel4
+            // cancelButton
             // 
-            this.tableLayoutPanel4.ColumnCount = 1;
-            this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-            this.tableLayoutPanel4.Controls.Add(this.allowedLocationsGridControl, 0, 1);
-            this.tableLayoutPanel4.Controls.Add(this.allowedLocationTagNameLabel, 0, 0);
-            this.tableLayoutPanel4.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutPanel4.Location = new System.Drawing.Point(3, 3);
-            this.tableLayoutPanel4.Name = "tableLayoutPanel4";
-            this.tableLayoutPanel4.RowCount = 2;
-            this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel4.Size = new System.Drawing.Size(807, 454);
-            this.tableLayoutPanel4.TabIndex = 2;
+            this.cancelButton.AutoSize = true;
+            this.cancelButton.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cancelButton.Location = new System.Drawing.Point(83, 3);
+            this.cancelButton.Name = "cancelButton";
+            this.cancelButton.Size = new System.Drawing.Size(74, 27);
+            this.cancelButton.TabIndex = 0;
+            this.cancelButton.Text = "Cancel";
+            this.cancelButton.UseVisualStyleBackColor = true;
+            this.cancelButton.Visible = false;
             // 
-            // allowedLocationTagNameLabel
+            // tableLayoutPanel2
             // 
-            this.allowedLocationTagNameLabel.AutoSize = true;
-            this.allowedLocationTagNameLabel.Location = new System.Drawing.Point(3, 3);
-            this.allowedLocationTagNameLabel.Margin = new System.Windows.Forms.Padding(3);
-            this.allowedLocationTagNameLabel.Name = "allowedLocationTagNameLabel";
-            this.allowedLocationTagNameLabel.Size = new System.Drawing.Size(68, 17);
-            this.allowedLocationTagNameLabel.TabIndex = 2;
-            this.allowedLocationTagNameLabel.Text = "Tag Name";
-            this.allowedLocationTagNameLabel.Visible = false;
+            this.tableLayoutPanel2.AutoSize = true;
+            this.tableLayoutPanel2.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.tableLayoutPanel2.ColumnCount = 1;
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel2.Controls.Add(this.writeTagButton, 0, 3);
+            this.tableLayoutPanel2.Controls.Add(this.logoutButton, 0, 4);
+            this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Right;
+            this.tableLayoutPanel2.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.tableLayoutPanel2.Location = new System.Drawing.Point(827, 0);
+            this.tableLayoutPanel2.Name = "tableLayoutPanel2";
+            this.tableLayoutPanel2.RowCount = 5;
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tableLayoutPanel2.Size = new System.Drawing.Size(108, 535);
+            this.tableLayoutPanel2.TabIndex = 29;
+            // 
+            // writeTagButton
+            // 
+            this.writeTagButton.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.writeTagButton.Location = new System.Drawing.Point(2, 2);
+            this.writeTagButton.Margin = new System.Windows.Forms.Padding(2);
+            this.writeTagButton.Name = "writeTagButton";
+            this.writeTagButton.Size = new System.Drawing.Size(104, 65);
+            this.writeTagButton.TabIndex = 26;
+            this.writeTagButton.Text = "Write Tag";
+            this.writeTagButton.UseVisualStyleBackColor = true;
+            this.writeTagButton.Click += new System.EventHandler(this.writeTagButton_Click);
+            // 
+            // logoutButton
+            // 
+            this.logoutButton.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.logoutButton.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.logoutButton.Location = new System.Drawing.Point(3, 72);
+            this.logoutButton.Name = "logoutButton";
+            this.logoutButton.Size = new System.Drawing.Size(102, 59);
+            this.logoutButton.TabIndex = 28;
+            this.logoutButton.Text = "Logout";
+            this.logoutButton.UseVisualStyleBackColor = true;
+            this.logoutButton.Click += new System.EventHandler(this.logoutButton_Click);
             // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackColor = System.Drawing.Color.Gainsboro;
             this.ClientSize = new System.Drawing.Size(935, 535);
             this.Controls.Add(this.tableLayoutPanel1);
             this.Controls.Add(this.tableLayoutPanel2);
@@ -447,24 +411,23 @@
             this.guestsTab.ResumeLayout(false);
             this.guestsTab.PerformLayout();
             this.allowedLocationsTab.ResumeLayout(false);
+            this.tableLayoutPanel4.ResumeLayout(false);
+            this.tableLayoutPanel4.PerformLayout();
             this.devicesTab.ResumeLayout(false);
             this.devicesTab.PerformLayout();
             this.usersTab.ResumeLayout(false);
             this.usersTab.PerformLayout();
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
-            this.tableLayoutPanel2.ResumeLayout(false);
             this.tableLayoutPanel3.ResumeLayout(false);
             this.tableLayoutPanel3.PerformLayout();
-            this.tableLayoutPanel4.ResumeLayout(false);
-            this.tableLayoutPanel4.PerformLayout();
+            this.tableLayoutPanel2.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
         }
 
         #endregion
-        private System.Windows.Forms.Button writeTagButton;
         private System.Windows.Forms.TabControl mainTabControl;
         private System.Windows.Forms.TabPage locationsTab;
         private System.Windows.Forms.TabPage tagsTab;
@@ -474,7 +437,6 @@
         private System.Windows.Forms.TabPage devicesTab;
         private System.Windows.Forms.TabPage usersTab;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
-        private System.Windows.Forms.Button logoutButton;
         private GridControl locationGridControl;
         private GridControl tagsGridControl;
         private GridControl lostTagsGridControl;
@@ -482,14 +444,13 @@
         private GridControl allowedLocationsGridControl;
         private GridControl devicesGridControl;
         private GridControl usersGridControl;
-        private System.Windows.Forms.Button button2;
-        private System.Windows.Forms.Button button3;
-        private System.Windows.Forms.Button button16;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel3;
         private System.Windows.Forms.Button okButton;
         private System.Windows.Forms.Button cancelButton;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel4;
         private System.Windows.Forms.Label allowedLocationTagNameLabel;
+        private System.Windows.Forms.Button writeTagButton;
+        private System.Windows.Forms.Button logoutButton;
     }
 }

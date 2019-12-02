@@ -45,7 +45,7 @@
             this.controlGrid.AllowUserToDeleteRows = false;
             this.controlGrid.AllowUserToResizeColumns = false;
             this.controlGrid.AllowUserToResizeRows = false;
-            this.controlGrid.BackgroundColor = System.Drawing.SystemColors.Control;
+            this.controlGrid.BackgroundColor = System.Drawing.Color.Gainsboro;
             this.controlGrid.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.controlGrid.Dock = System.Windows.Forms.DockStyle.Fill;
             this.controlGrid.Location = new System.Drawing.Point(2, 3);
@@ -140,6 +140,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackColor = System.Drawing.Color.Gainsboro;
             this.Controls.Add(this.tableLayoutPanel1);
             this.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);

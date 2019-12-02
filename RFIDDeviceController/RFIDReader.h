@@ -33,6 +33,11 @@ namespace RFIDDeviceController
 
 		bool readTags(char * epcBufferArray, int timeoutMs, int & totalTags);
 
+		void shutdown()
+		{
+			TMR_destroy(&reader);
+		}
+
 		void writeTag(char  const * epcBufferArray, int readTimeout, int writeTimeout)
 		{
 			TMR_TagData data;

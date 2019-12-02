@@ -358,7 +358,7 @@ namespace UIDemo
             }
             foreach (var x in rpc.locationList)
                 locationTable.Rows.Add(x.LocationName, x.ReaderSerialIn, x.ReaderSerialOut ?? "");
-            locationGridControl.init(true, false,showAdminFunctions, showAdminFunctions, showAdminFunctions);
+            locationGridControl.init(true, false,showAdminFunctions, showAdminFunctions,false);
             locationGridControl.load(locationTable, addNewLocation, editLocation, removeLocation);
         }
 
@@ -454,7 +454,7 @@ namespace UIDemo
             tabControl1_TabIndexChanged(null, null);
         }
 
-        private async void viewDevicesRPC(object sender, EventArgs e)
+        private async void viewDevicesTab_Click(object sender, EventArgs e)
         {
             GetAllDevicesRPC rpc = new GetAllDevicesRPC();
             try
@@ -470,17 +470,48 @@ namespace UIDemo
             {
                 Columns =
                 {
-                    new DataColumn("Device Serial",typeof(string)),
                     new DataColumn("Connected",typeof(bool)),
-                    new DataColumn("Is System Device",typeof(bool))
+                    new DataColumn("Is System Device",typeof(bool)),
+                    new DataColumn("Is Virtual Device",typeof(bool)),
+                    new DataColumn("Device Serial",typeof(string)),
                 }
             };
-            foreach (var x in rpc.devices)
-                deviceTables.Rows.Add(x.serialNumber, x.connected, x.inDB);
-            devicesGridControl.init(false, false, false, false, false);
-            devicesGridControl.load(deviceTables,null,null,null);
+            foreach (DeviceStatus x in rpc.devices)
+                deviceTables.Rows.Add(x.connected, x.inDB, x.isVirtual, x.serialNumber);
+            devicesGridControl.setEditButtonName("Swap Real / Virtual Mode");
+            devicesGridControl.init(showAdminFunctions, true, false,false, showAdminFunctions);
+            devicesGridControl.load(deviceTables,null,swapVirtualMode,null);
         }
-
+        private async void swapVirtualMode(object sender, EventArgs e)
+        {
+            if (!showAdminFunctions)
+                return;
+            DataRow[]  devices = devicesGridControl.getSelectedItems();
+            if (devices == null || devices.Length == 0)
+                return;
+            bool isConnected = (bool)devices[0]["Connected"];
+            bool isVirtual = (bool)devices[0]["Is Virtual Device"];
+            if(!isConnected)
+            {
+                MessageBox.Show(this,"Cannot change a device to virtual or real mode when it is not connected","Cannot Swap Devices",MessageBoxButtons.OK,MessageBoxIcon.Error);
+                return;
+            }
+            ChangeDeviceModeRPC rpc = new ChangeDeviceModeRPC()
+            {
+                deviceSerial = devices[0]["Device Serial"] as string,
+                virtualMode = !isVirtual
+            };
+            try
+            {
+                await rpc.executeAsync();
+            }
+            catch(Exception except)
+            {
+                MessageBox.Show(this, except.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            viewDevicesTab_Click(sender, e);
+        }
         class LocationEqualityComparer : IEqualityComparer<SharedLib.SharedModels.ViewAllowedLocationsModel>
         {
             public bool Equals(SharedModels.ViewAllowedLocationsModel x, SharedModels.ViewAllowedLocationsModel y)
@@ -533,7 +564,10 @@ namespace UIDemo
             }
           
             allowedLocationsGridControl.init(true,true,false,false,true);
-            allowedLocationsGridControl.setEditButtonName("View / Edit\nAllowed Locations");
+            if(showAdminFunctions)
+                allowedLocationsGridControl.setEditButtonName("View / Edit\nAllowed Locations");
+            else
+                allowedLocationsGridControl.setEditButtonName("View Allowed Locations");
             allowedLocationsGridControl.load(tagTable,null,allowedLocationTagSelected,null);
             return;
             
@@ -572,7 +606,7 @@ namespace UIDemo
                 enumerator.MoveNext();
                 row["Allowed"] = enumerator.Current.TagAllowedInLoc;
             }
-            okButton.Visible = true;
+            okButton.Visible = showAdminFunctions;
             okButton.Click += AllowedLocationsOkButton_Click;
             cancelButton.Visible = true;
             cancelButton.Click += AllowedLocationsCancelButton_Click;
@@ -672,6 +706,8 @@ namespace UIDemo
                 guestTab_Click(sender, e);
             else if (currentPage == lostTagsTab)
                 lostTab_Click(sender, e);
+            else if (currentPage == devicesTab)
+                viewDevicesTab_Click(sender, e);
             return;
         }
 

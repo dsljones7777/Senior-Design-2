@@ -164,5 +164,8 @@
   <ItemGroup>
     <None Include="Resources\SecureID Blink.gif" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\icons8-refresh-26.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

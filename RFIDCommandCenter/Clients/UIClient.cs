@@ -151,14 +151,24 @@ namespace RFIDCommandCenter
                     needsDelayedResponse = getAllDevices(context);
                 else if (cmd.GetType() == typeof(ErrorReplyRPC))
                     processErrorReply(cmd);
-                else if(cmd.GetType() == typeof(DeleteAllowedLocationsRPC))
+                else if (cmd.GetType() == typeof(DeleteAllowedLocationsRPC))
                     deleteAllowedLocations(cmd, context);
-                else if(cmd.GetType() == typeof(WriteTagRPC))
+                else if (cmd.GetType() == typeof(WriteTagRPC))
                     writeTag(cmd);
+                else if (cmd.GetType() == typeof(ChangeDeviceModeRPC))
+                    changeDeviceMode(cmd);
                 else
                     throw new Exception("Client sent an invalid RPC");
             }
             return needsDelayedResponse;
+        }
+
+        private void changeDeviceMode(object cmd)
+        {
+            ChangeDeviceModeRPC rpc = (ChangeDeviceModeRPC)cmd;
+            while (this.request != null)
+                Thread.Yield();
+            this.request = rpc;
         }
 
         private void processErrorReply(object cmd)
@@ -283,7 +293,10 @@ namespace RFIDCommandCenter
             DeleteLocationRPC op = (DeleteLocationRPC)cmd;
             var delLoc = new Logic.DeleteLocation();
             //TODO: Delete location should not include reader serial in
-            delLoc.Execute(op.locationName, context);
+            op.removedSerials = delLoc.Execute(op.locationName, context);
+            while (request != null)
+                Thread.Yield();
+            request = op;
         }
 
         private void saveLocation(object cmd, DataContext context)
@@ -292,6 +305,9 @@ namespace RFIDCommandCenter
             SaveLocationRPC op = (SaveLocationRPC)cmd;
             var saveLoc = new Logic.SaveLocation();
             saveLoc.Execute(op.locationName, op.readerSerialIn, op.readerSerialOut, context);
+            while (request != null)
+                Thread.Yield();
+            request = op;
         }
 
         private void deleteSystemUser(object cmd, DataContext context)
@@ -347,9 +363,12 @@ namespace RFIDCommandCenter
 
         private void editLocation(object cmd, DataContext context)
         {
+
+            verifyAdminAccess(role);
             EditLocationRPC op = (EditLocationRPC)cmd;
             var editLocation = new Logic.EditLocation();
-            editLocation.Execute(op.currentLocationName, op.newLocationName, op.readerSerialIn, op.readerSerialOut, context);
+            
+            editLocation.Execute(op.currentLocationName, op.newLocationName, op.readerSerialIn, op.readerSerialOut,out op.oldReaderSerialIn,out op.oldReaderSerialOut, context);
             while (request != null)
                 Thread.Yield();
             request = op;
@@ -359,6 +378,8 @@ namespace RFIDCommandCenter
         private void editTag(object cmd, DataContext context)
         {
             EditTagRPC op = (EditTagRPC)cmd;
+            if (op.tagNumber != null)
+                verifyAdminAccess(role);
             var editTag = new Logic.EditTag();
             editTag.Execute(op.tagNumber, op.name, op.lost,op.guest, context);
         }
