@@ -50,9 +50,9 @@
             this.okButton = new System.Windows.Forms.Button();
             this.cancelButton = new System.Windows.Forms.Button();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
+            this.createVirtualButton = new System.Windows.Forms.Button();
             this.writeTagButton = new System.Windows.Forms.Button();
             this.logoutButton = new System.Windows.Forms.Button();
-            this.createVirtualButton = new System.Windows.Forms.Button();
             this.mainTabControl.SuspendLayout();
             this.tagsTab.SuspendLayout();
             this.locationsTab.SuspendLayout();
@@ -151,7 +151,7 @@
             // 
             this.lostTagsGridControl.AutoSize = true;
             this.lostTagsGridControl.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.lostTagsGridControl.BackColor = System.Drawing.SystemColors.Control;
+            this.lostTagsGridControl.BackColor = System.Drawing.Color.Gainsboro;
             this.lostTagsGridControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lostTagsGridControl.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lostTagsGridControl.Location = new System.Drawing.Point(3, 3);
@@ -369,6 +369,20 @@
             this.tableLayoutPanel2.Size = new System.Drawing.Size(108, 535);
             this.tableLayoutPanel2.TabIndex = 29;
             // 
+            // createVirtualButton
+            // 
+            this.createVirtualButton.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.createVirtualButton.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.createVirtualButton.Location = new System.Drawing.Point(3, 138);
+            this.createVirtualButton.Name = "createVirtualButton";
+            this.createVirtualButton.Size = new System.Drawing.Size(102, 59);
+            this.createVirtualButton.TabIndex = 29;
+            this.createVirtualButton.Text = "Create Virtual Device";
+            this.createVirtualButton.UseVisualStyleBackColor = true;
+            this.createVirtualButton.Visible = false;
+            this.createVirtualButton.Click += new System.EventHandler(this.createVirtualButton_Click);
+            // 
             // writeTagButton
             // 
             this.writeTagButton.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -394,20 +408,6 @@
             this.logoutButton.UseVisualStyleBackColor = true;
             this.logoutButton.Click += new System.EventHandler(this.logoutButton_Click);
             // 
-            // createVirtualButton
-            // 
-            this.createVirtualButton.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.createVirtualButton.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.createVirtualButton.Location = new System.Drawing.Point(3, 138);
-            this.createVirtualButton.Name = "createVirtualButton";
-            this.createVirtualButton.Size = new System.Drawing.Size(102, 59);
-            this.createVirtualButton.TabIndex = 29;
-            this.createVirtualButton.Text = "Create Virtual Device";
-            this.createVirtualButton.UseVisualStyleBackColor = true;
-            this.createVirtualButton.Visible = false;
-            this.createVirtualButton.Click += new System.EventHandler(this.createVirtualButton_Click);
-            // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -418,7 +418,7 @@
             this.Controls.Add(this.tableLayoutPanel2);
             this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "MainWindow";
-            this.Text = "SecureID";
+            this.Text = "SecuRFID";
             this.Load += new System.EventHandler(this.MainWindow_Load);
             this.mainTabControl.ResumeLayout(false);
             this.tagsTab.ResumeLayout(false);

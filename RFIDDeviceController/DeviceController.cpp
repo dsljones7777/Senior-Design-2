@@ -172,7 +172,8 @@ bool RFIDDeviceController::DeviceController::executeCommand(int expectedCommand)
 		case (int)CommandCodes::DEVICE_ERROR:
 			return handleDeviceError();
 		case (int)CommandCodes::START_READER:
-			reader.initialize(settings.rdrSettings);
+			this->startReader();
+			//reader.initialize(settings.rdrSettings);
 			if (reader.initialized)
 			{
 				turnOffLed(1);
@@ -332,7 +333,9 @@ void RFIDDeviceController::DeviceController::sendWithoutAssurance()
 
 void RFIDDeviceController::DeviceController::sendSerialNumberToServer()
 {
-	*(ReaderSerialNetParam *)&buffer = ReaderSerialNetParam(reader.serialNumber);
+	if (this->serialNumber == nullptr)
+		this->serialNumber = reader.serialNumber;
+	*(ReaderSerialNetParam *)&buffer = ReaderSerialNetParam(this->serialNumber);
 	buffer.tickTime = currentTick;
 	sendWithoutAssurance();
 }
@@ -493,6 +496,8 @@ int RFIDDeviceController::SimulatedDeviceController::run()
 	while (!exitProgram)
 	{
 		checkAndExecuteCommand();
+		if (exitProgram)
+			break;
 		wait(realReadTickRate);
 		if (ticksTillDead <= currentTick)
 			tellServerAlive();
@@ -501,9 +506,10 @@ int RFIDDeviceController::SimulatedDeviceController::run()
 	return reason;
 }
 
-void RFIDDeviceController::SimulatedDeviceController::setupDeviceSerial(char const * serial)
+void RFIDDeviceController::DeviceController::setupDeviceSerial(char const * serial)
 {
-	std::cout << "Virtual Device Mode\nSerial #: ";
+#ifdef _WIN32
+	std::cout << "\nSerial #: ";
 	if (serial)
 	{
 		serialNumber = serial;
@@ -511,6 +517,7 @@ void RFIDDeviceController::SimulatedDeviceController::setupDeviceSerial(char con
 		return;
 	}
 	//Create fake serial number
+
 	srand(time(nullptr));
 	int serialLength = 15 + 8 + rand() % 16 + 1;
 	char * sn = new char[serialLength + 1];
@@ -522,6 +529,7 @@ void RFIDDeviceController::SimulatedDeviceController::setupDeviceSerial(char con
 	sn[serialLength] = 0;
 	serialNumber = sn;
 	std::cout << serialNumber << '\n';
+#endif
 }
 
 void RFIDDeviceController::SimulatedDeviceController::turnOnLed(int ledNumber)
@@ -597,7 +605,7 @@ bool RFIDDeviceController::SimulatedDeviceController::executeCommand(int expecte
 	currentTick = buffer.tickTime;
 
 	if (expectedCommand  && buffer.cmd != expectedCommand)
-		return false;
+		return true;
 	WriteTagNetParam * pCmd;
 	unsigned long long startTickCnt, endTickCnt;
 	switch (buffer.cmd)
@@ -611,7 +619,6 @@ bool RFIDDeviceController::SimulatedDeviceController::executeCommand(int expecte
 			reason = 2;
 			exitProgram = true;
 		}
-			
 		break;
 	case (int)CommandCodes::LOCK:
 		//lock door

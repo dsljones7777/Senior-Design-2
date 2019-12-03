@@ -50,8 +50,8 @@ namespace RFIDCommandCenter
             DEVICE_ERROR = 15,
             CONFIRMATION_SYNC_TICK_COUNT = 16,
             REBOOT_READER = 17,
-            WAIT = 18,					//Wait for a response, pump alive packets
-            SERIAL_NUMBER = 19,          //Request device serial
+            WAIT = 18,					        //Wait for a response, pump alive packets
+            SERIAL_NUMBER = 19,                 //Request device serial
             START_READER = 20,
             CHANGE_MODE = 21
         }
@@ -91,7 +91,6 @@ namespace RFIDCommandCenter
             sendCommand(bufferPacket, CommandCodes.START_READER, NETWORK_TIMEOUT * 1000, true, true);
             sendCommand(bufferPacket, CommandCodes.LOCK, NETWORK_TIMEOUT * 1000, false, true);
             sendCommand(bufferPacket, CommandCodes.SERIAL_NUMBER, NETWORK_TIMEOUT * 1000, true, true,new byte[65]);
-            
             //program loop, run until we are told to exit
             while (!exit)
             {
@@ -100,13 +99,11 @@ namespace RFIDCommandCenter
                     //get a packet from the client. An alive packet should come
                     if (!receivePacket(bufferPacket, NETWORK_TIMEOUT * 1000))
                            reportError("Device Timeout: Alive packet not sent");
-#if DEBUG
-                    reportCommandInfo(bufferPacket);
-#endif
+                    if (bufferPacket.command != (int)CommandCodes.SERIAL_NUMBER)
+                        reportCommandInfo(bufferPacket,deviceSerialNumber ?? "NO SERIAL");
                     executePacketRequest(bufferPacket);
-#if DEBUG
-                    reportCommandInfo(bufferPacket);
-#endif
+                    if (bufferPacket.command == (int)CommandCodes.SERIAL_NUMBER)
+                        reportCommandInfo(bufferPacket, deviceSerialNumber ?? "NO SERIAL");
                     provideResponse(bufferPacket);
                     decipherAndSendPendingDeviceCommand(bufferPacket);
                     
@@ -310,81 +307,87 @@ namespace RFIDCommandCenter
             //Tell device to continue and whether or not to continue execution
             sendCommand(new NetworkCode(), CommandCodes.DEVICE_ERROR, NETWORK_TIMEOUT * 1000, true,true, (int)0,continueAfterDeviceError,false);
         }
-
-        private void reportCommandInfo(NetworkCode cmdPacket,bool showAlive = true)
+        static object consoleLock = new object();
+        private void reportCommandInfo(NetworkCode cmdPacket,string serial)
         {
-
-            byte[] epcBytes;
-            switch (cmdPacket.command)
+            lock(consoleLock)
             {
-                case (int)CommandCodes.START:
-                    Console.ForegroundColor = ConsoleColor.Green;
-                    Console.WriteLine("Device Connecting @ " + DateTime.Now.ToString("hh:mm:ss.FFF"));
-                    Console.WriteLine();
-                    break;
-                case (int)CommandCodes.TAG_ARRIVE:
-                    Console.ForegroundColor = ConsoleColor.Green;
-                    Console.WriteLine("Tag Arrive @ " + DateTime.Now.ToString("hh:mm:ss.FFF"));
-                    Console.WriteLine("Device Tick = " + cmdPacket.tickTime + "ms");
-                    Console.Write("EPC: ");
-                    for (int i = 0; i < 12; i++)
-                        Console.Write(String.Format("{0:x2}", cmdPacket.payload[i]));
-                    Console.WriteLine();
-                    epcBytes = new byte[12];
-                    Array.Copy(cmdPacket.payload, 0, epcBytes,0, 12);
-                    using (DataContext context = new DataContext())
-                    {
-                        var name = context.Tags.Where(t => t.TagNumber == epcBytes).SingleOrDefault()?.Name;
-                        Console.WriteLine("Tag Name = " + name ?? "[Unknown]");
-                    }
-                    break;
-                case (int)CommandCodes.TAG_LEAVE:
-                    Console.ForegroundColor = ConsoleColor.Yellow;
-                    Console.WriteLine("Tag Leave @ " + DateTime.Now.ToString("hh:mm:ss.FFF"));
-                    Console.WriteLine("Device Tick = " + cmdPacket.tickTime + "ms");
-                    Console.Write("EPC: ");
-                    for (int i = 0; i < 12; i++)
-                        Console.Write(String.Format("{0:x2}", cmdPacket.payload[i]));
-                    epcBytes = new byte[12];
-                    Array.Copy(cmdPacket.payload, 0, epcBytes, 0, 12);
-                    Console.WriteLine();
-                    break;
-                case (int)CommandCodes.ALIVE:
-                    if (!showAlive)
-                        return;
-                    Console.ForegroundColor = ConsoleColor.DarkGray;
-                    Console.WriteLine("Reader Alive Packet: " + DateTime.Now.ToString("hh:mm:ss.FFF"));
-                    Console.WriteLine("Device Tick = " + cmdPacket.tickTime + "ms");
-                    break;
-                case (int)CommandCodes.TAG_PRESENT_TOO_LONG:
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("Tag Present Too Long @ " + DateTime.Now.ToString("hh:mm:ss.FFF"));
-                    Console.WriteLine("Device Tick = " + cmdPacket.tickTime + "ms");
-                    Console.Write("EPC: ");
-                    for (int i = 0; i < 12; i++)
-                        Console.Write(String.Format("{0:x2}", cmdPacket.payload[i]));
-                    Console.WriteLine();
-                    break;
-                case (int)CommandCodes.DEVICE_ERROR:
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("Device Error @ " + DateTime.Now.ToString("hh:mm:ss.FFF"));
-                    Console.WriteLine("Device Tick = " + cmdPacket.tickTime + "ms");
-                    Console.WriteLine("ErrCode: " + BitConverter.ToInt32(cmdPacket.payload, 0).ToString());
-                    break;
-                case (int)CommandCodes.LOCK:
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("Door Locked");
-                    break;
-                case (int)CommandCodes.UNLOCK:
-                    Console.ForegroundColor = ConsoleColor.Yellow;
-                    Console.WriteLine("Door Unlocked");
-                    break;
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.Write("Device [");
+                Console.Write(serial);
+                Console.Write("] ");
+                byte[] epcBytes;
+                switch (cmdPacket.command)
+                {
 
+                    case (int)CommandCodes.SERIAL_NUMBER:
+                        Console.ForegroundColor = ConsoleColor.Green;
+                        Console.Write("Connected @");
+                        Console.WriteLine(DateTime.Now.ToString("hh:mm:ss.FFF"));
+                        break;
+                    case (int)CommandCodes.TAG_ARRIVE:
+                        Console.ForegroundColor = ConsoleColor.Green;
+                        Console.WriteLine("Tag Arrive @ " + DateTime.Now.ToString("hh:mm:ss.FFF"));
+                        Console.WriteLine("Device Tick = " + cmdPacket.tickTime + "ms");
+                        Console.Write("EPC: ");
+                        for (int i = 0; i < 12; i++)
+                            Console.Write(String.Format("{0:x2}", cmdPacket.payload[i]));
+                        Console.WriteLine();
+                        epcBytes = new byte[12];
+                        Array.Copy(cmdPacket.payload, 0, epcBytes, 0, 12);
+                        using (DataContext context = new DataContext())
+                        {
+                            var name = context.Tags.Where(t => t.TagNumber == epcBytes).SingleOrDefault()?.Name;
+                            Console.WriteLine("Tag Name = " + name ?? "[Unknown]");
+                        }
+                        break;
+                    case (int)CommandCodes.TAG_LEAVE:
+                        Console.ForegroundColor = ConsoleColor.Yellow;
+                        Console.WriteLine("Tag Leave @ " + DateTime.Now.ToString("hh:mm:ss.FFF"));
+                        Console.WriteLine("Device Tick = " + cmdPacket.tickTime + "ms");
+                        Console.Write("EPC: ");
+                        for (int i = 0; i < 12; i++)
+                            Console.Write(String.Format("{0:x2}", cmdPacket.payload[i]));
+                        epcBytes = new byte[12];
+                        Array.Copy(cmdPacket.payload, 0, epcBytes, 0, 12);
+                        Console.WriteLine();
+                        break;
+                    case (int)CommandCodes.ALIVE:
+                        Console.ForegroundColor = ConsoleColor.DarkGray;
+                        Console.WriteLine("Reader Alive Packet: " + DateTime.Now.ToString("hh:mm:ss.FFF"));
+                        Console.WriteLine("Device Tick = " + cmdPacket.tickTime + "ms");
+                        break;
+                    case (int)CommandCodes.TAG_PRESENT_TOO_LONG:
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine("Tag Present Too Long @ " + DateTime.Now.ToString("hh:mm:ss.FFF"));
+                        Console.WriteLine("Device Tick = " + cmdPacket.tickTime + "ms");
+                        Console.Write("EPC: ");
+                        for (int i = 0; i < 12; i++)
+                            Console.Write(String.Format("{0:x2}", cmdPacket.payload[i]));
+                        Console.WriteLine();
+                        break;
+                    case (int)CommandCodes.DEVICE_ERROR:
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine("Device Error @ " + DateTime.Now.ToString("hh:mm:ss.FFF"));
+                        Console.WriteLine("Device Tick = " + cmdPacket.tickTime + "ms");
+                        Console.WriteLine("ErrCode: " + BitConverter.ToInt32(cmdPacket.payload, 0).ToString());
+                        break;
+                    case (int)CommandCodes.LOCK:
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine("Door Locked");
+                        break;
+                    case (int)CommandCodes.UNLOCK:
+                        Console.ForegroundColor = ConsoleColor.Yellow;
+                        Console.WriteLine("Door Unlocked");
+                        break;
+
+                }
+                long serverTicks = (DateTime.Now.Ticks - tickRateOffset) / TimeSpan.TicksPerMillisecond;
+                Console.WriteLine("Server Tick = " + serverTicks + "ms");
+                Console.WriteLine("Tick Diff(Server) = " + (serverTicks - (long)cmdPacket.tickTime).ToString() + "ms");
+                Console.WriteLine();
             }
-            long serverTicks = (DateTime.Now.Ticks - tickRateOffset) / TimeSpan.TicksPerMillisecond;
-            Console.WriteLine("Server Tick = " + serverTicks + "ms");
-            Console.WriteLine("Tick Diff(Server) = " + (serverTicks - (long)cmdPacket.tickTime).ToString() + "ms");
-            Console.WriteLine();
+            
         }
 
         private void reportError(string error)

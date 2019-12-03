@@ -793,10 +793,14 @@ namespace UIDemo
             string connection = UIDemo.Properties.Settings.Default.HostIP + " " + UIDemo.Properties.Settings.Default.HostPort.ToString();
             string argString;
             if (serialNumber != null)
-                argString = connection + " -s -serial \"" + serialNumber + "\"";
+                argString = connection + " -serial \"" + serialNumber + "\" -s";
             else
                 argString = connection + " -s";
+#if DEBUG
             Process.Start("..\\..\\..\\Debug\\RFIDDeviceController.exe", argString);
+#else
+            Process.Start("RFIDDeviceController.exe", argString);
+#endif
         }
 
         private void createVirtualButton_Click(object sender, EventArgs e)

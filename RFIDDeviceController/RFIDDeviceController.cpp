@@ -11,33 +11,35 @@ int programLoop(int argc, char const * args[])
 	simulatedController = SimulatedDeviceController();
 	deviceController = DeviceController();
 	DeviceController * controller;
-	char const * serial = nullptr;
 
 	//Check args
 	if (argc <= 1)
 		return -1;
 
 	//Check to see if simulated or real device controller
-	int ipArgIndex = 1;
-	if (argc == 3)
+	if (argc == 3)										//ip port	: real device
 		controller = &deviceController;
-	else if (argc == 4 && !strcmp(args[3], "-s"))
+	else if (argc == 4 && !strcmp(args[3], "-s"))		//ip port -s : simulated device, random serial
 	{
 		controller = &simulatedController;
-		((SimulatedDeviceController *)controller)->setupDeviceSerial(nullptr);
+		controller->setupDeviceSerial(nullptr);
 	}
-	else if (argc == 6 && !strcmp(args[3], "-s") && !strcmp(args[4], "-serial"))
+	else if (argc == 5 && !strcmp(args[3],"-serial"))	//ip port -serial 'serial number' : real device specified serial
+	{
+		controller = &deviceController;
+		controller->setupDeviceSerial(args[4]);
+	}
+	else if (argc == 6 && !strcmp(args[3], "-serial") && !strcmp(args[5], "-s")) //ip port -serial 'serial number' -s : simulated device specified serial
 	{
 		controller = &simulatedController;
-		serial = args[5];
-		((SimulatedDeviceController *)controller)->setupDeviceSerial(serial);
+		((SimulatedDeviceController *)controller)->setupDeviceSerial(args[4]);
 	}
 	else
 		return -1;
 
 	//Setup the ip and port string to the host
-	char const * ip = args[ipArgIndex];
-	char const * port = args[ipArgIndex + 1];
+	char const * ip = args[1];
+	char const * port = args[2];
 	char buffer[256];
 	strcpy_s(buffer, 256, ip);
 	size_t len = strnlen_s(buffer, 256);
@@ -56,10 +58,13 @@ int main(int argc,char const * args[])
 	do
 	{
 		loopResult = programLoop(currentArgc, args);
+#ifdef _WIN32
+		system("cls");
+#endif
 		if (loopResult == 1)			//Reboot to virtual ?
 			currentArgc = argc;				//Expand args for virtual mode
 		else if (loopResult == 2)		//Reboot to real mode?
-			currentArgc = 3;				//Cut off args for virtual mode
+			currentArgc = argc - 1;			//Cut off args for virtual mode
 	} while (loopResult > 0);
 	return loopResult;
 }

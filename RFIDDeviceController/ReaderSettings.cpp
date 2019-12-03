@@ -18,7 +18,7 @@ void RFIDDeviceController::Settings::ReaderSettings::resetSettings()
 	defaultCommandTimeout = 0;
 	defaultTransportTimeout = 0;
 	powerMode = TMR_SR_PowerMode::TMR_SR_POWER_MODE_FULL;
-	readTickRate = 250;
+	readTickRate = 400;
 #ifdef _WIN32
 	if (!initWindows())
 		uriConnectionString = nullptr;

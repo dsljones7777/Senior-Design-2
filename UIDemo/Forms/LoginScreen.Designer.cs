@@ -147,7 +147,7 @@
             this.MaximizeBox = false;
             this.Name = "LoginScreen";
             this.ShowInTaskbar = false;
-            this.Text = "SecureID";
+            this.Text = "SecurRFID";
             this.Load += new System.EventHandler(this.LoginScreen_Load);
             this.Shown += new System.EventHandler(this.Form1_Shown);
             this.tableLayoutPanel1.ResumeLayout(false);

@@ -12,6 +12,8 @@ namespace RFIDDeviceController
 		RFIDReader::ReaderErrors lastError = RFIDReader::ReaderErrors::NONE;
 		Settings::DeviceSettings settings;
 
+		char const * serialNumber = nullptr;
+
 		DeviceController();
 		virtual ~DeviceController();
 		
@@ -21,6 +23,8 @@ namespace RFIDDeviceController
 
 		//Runs until device is to shutdown
 		virtual int run();
+
+		virtual void setupDeviceSerial(char const * serial);
 
 		bool isVirtualDevice = false;
 	protected:
@@ -41,8 +45,8 @@ namespace RFIDDeviceController
 		//Guarantees the reader starts and if it fails it contacts the server and handles. Return state is reader being able to read or the 
 		void startReader();
 
-		bool light1On;
-		bool light2On;
+		bool light1On = false;
+		bool light2On = false;
 		RFIDReader reader = RFIDReader(nullptr);
 #pragma endregion
 
@@ -163,7 +167,7 @@ namespace RFIDDeviceController
 		uint64_t ticksTillDead = 0;
 		uint64_t readTagCount = 0;
 		uint64_t sentTagCount = 0;
-		int realReadTickRate;
+		int realReadTickRate = 0;
 		
 #pragma endregion
 	};
@@ -172,11 +176,9 @@ namespace RFIDDeviceController
 	{
 	public:
 		int run() override;
-		void setupDeviceSerial(char const * serial);
 	protected:
 		void turnOnLed(int ledNumber) override;
 		void turnOffLed(int ledNumber) override;
-		char const * serialNumber;
 		bool executeCommand(int expectedCommand) override;
 		void sendSerialNumberToServer() override;
 	};

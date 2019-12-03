@@ -42,7 +42,7 @@ namespace RFIDCommandCenter
                     break;
                 case RFIDDeviceClient.ErrorCodes.DEVICE_FAILED_TO_READ:
                     client.continueAfterDeviceError = true;
-                    deviceError = "A connected client failed to perform a tag read operation";
+                    //deviceError = "A connected client failed to perform a tag read operation";
                     client.deviceError = 0;
                     break;
                 case RFIDDeviceClient.ErrorCodes.DEVICE_FAILED_TO_START:
