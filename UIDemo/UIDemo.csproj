@@ -167,5 +167,14 @@
   <ItemGroup>
     <None Include="Resources\icons8-refresh-26.png" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\SecureRFID Blink.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\SecureRFID Static.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\SecuRFID Bounce In.gif" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

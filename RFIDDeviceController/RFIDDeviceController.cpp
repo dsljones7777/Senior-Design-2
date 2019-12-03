@@ -7,10 +7,13 @@ SimulatedDeviceController simulatedController;
 DeviceController deviceController;
 int programLoop(int argc, char const * args[])
 {
+	//Create the device controllers (virtual and actual) - no init
 	simulatedController = SimulatedDeviceController();
 	deviceController = DeviceController();
 	DeviceController * controller;
 	char const * serial = nullptr;
+
+	//Check args
 	if (argc <= 1)
 		return -1;
 
@@ -42,7 +45,7 @@ int programLoop(int argc, char const * args[])
 	strcpy_s(buffer + len + 1, 256 - len - 1, port);
 	controller->settings.clientSettings->hostConnectionString = buffer;
 
-	//Run the device controller program
+	//Init and run the device controller program
 	return controller->run();
 
 }
@@ -53,10 +56,10 @@ int main(int argc,char const * args[])
 	do
 	{
 		loopResult = programLoop(currentArgc, args);
-		if (loopResult == 1)
-			currentArgc = argc;
-		else if (loopResult == 2)
-			currentArgc = 3;
+		if (loopResult == 1)			//Reboot to virtual ?
+			currentArgc = argc;				//Expand args for virtual mode
+		else if (loopResult == 2)		//Reboot to real mode?
+			currentArgc = 3;				//Cut off args for virtual mode
 	} while (loopResult > 0);
 	return loopResult;
 }

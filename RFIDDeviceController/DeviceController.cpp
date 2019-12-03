@@ -461,24 +461,26 @@ int RFIDDeviceController::DeviceController::run()
 	if (!comm || !comm->init())
 		return -1;
 	connectToCommandCenter(false);
-	
 
 	//Start main program loop
 	while (!exitProgram)
 	{
 		checkAndExecuteCommand();
 		//Poll for tags, descrease ticks till tell server it is dead if no tags are found (update stats)
+		if (exitProgram)
+			break;
 		updateTagsWithServer();
 		if (ticksTillDead <= currentTick)
 			tellServerAlive();
 	}
 	comm->disconnect(nullptr);
-	return 0;
+	return reason;
 }
 
 int RFIDDeviceController::SimulatedDeviceController::run()
 {
 	isVirtualDevice = true;
+
 	//Connect to server / host
 	resetTicksTillDead();
 	realReadTickRate = settings.rdrSettings->readTickRate;
@@ -486,6 +488,7 @@ int RFIDDeviceController::SimulatedDeviceController::run()
 	if (!comm || !comm->init())
 		return -1;
 	connectToCommandCenter(false);
+
 	//Start main program loop
 	while (!exitProgram)
 	{

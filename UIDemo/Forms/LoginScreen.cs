@@ -180,7 +180,7 @@ namespace UIDemo
                 //Connect to server
                 try
                 {
-                    await connection.connect("127.0.0.1", 52437);
+                    await connection.connect(UIDemo.Properties.Settings.Default.HostIP, UIDemo.Properties.Settings.Default.HostPort);
                     return;
                 }
                 catch (Exception except)

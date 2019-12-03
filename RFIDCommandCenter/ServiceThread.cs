@@ -20,6 +20,8 @@ namespace RFIDCommandCenter
         {
             deviceError = null;
             serverError = null;
+            if (client.exit)
+                return true;
             if (!client.pauseExecution)
                 return false;
             if (client.serverErrorMessage != null)
@@ -296,6 +298,18 @@ namespace RFIDCommandCenter
                 if(handleRFIDClient(dev, out devError, out serverError))
                 {
                     deviceClients.RemoveAt(i);
+                    if (nonSystemDevices.ContainsKey(dev.deviceSerialNumber))
+                        nonSystemDevices.Remove(dev.deviceSerialNumber);
+                    else if (systemDevices.ContainsKey(dev.deviceSerialNumber))
+                        systemDevices.Remove(dev.deviceSerialNumber);
+                    try
+                    {
+                        dev.destroy();
+                    }
+                    catch
+                    {
+
+                    }
                     i--;
                     continue;
                 }

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -481,6 +482,7 @@ namespace UIDemo
             devicesGridControl.setEditButtonName("Swap Real / Virtual Mode");
             devicesGridControl.init(showAdminFunctions, true, false,false, showAdminFunctions);
             devicesGridControl.load(deviceTables,null,swapVirtualMode,null);
+            createVirtualButton.Visible = showAdminFunctions;
         }
         private async void swapVirtualMode(object sender, EventArgs e)
         {
@@ -693,6 +695,7 @@ namespace UIDemo
 
         private void tabControl1_TabIndexChanged(object sender, EventArgs e)
         {
+            createVirtualButton.Visible = false;
             TabPage currentPage = mainTabControl.TabPages[mainTabControl.SelectedIndex];
             if (currentPage == tagsTab)
                 viewTagsButton_Clock(null, null);
@@ -783,6 +786,29 @@ namespace UIDemo
         private void logoutButton_Click(object sender, EventArgs e)
         {
             this.Close();
+        }
+
+        private void spawnVirtual(string serialNumber)
+        {
+            string connection = UIDemo.Properties.Settings.Default.HostIP + " " + UIDemo.Properties.Settings.Default.HostPort.ToString();
+            string argString;
+            if (serialNumber != null)
+                argString = connection + " -s -serial \"" + serialNumber + "\"";
+            else
+                argString = connection + " -s";
+            Process.Start("..\\..\\..\\Debug\\RFIDDeviceController.exe", argString);
+        }
+
+        private void createVirtualButton_Click(object sender, EventArgs e)
+        {
+            DataRow [] selected = devicesGridControl.getSelectedItems();
+            if(selected == null || selected.Length == 0)
+            {
+                spawnVirtual(null);
+                return;
+            }  
+            foreach(var row in selected)
+                spawnVirtual(row["Device Serial"] as string);
         }
     }
 }

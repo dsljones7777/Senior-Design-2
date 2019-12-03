@@ -15,9 +15,9 @@ namespace RFIDCommandCenter
 #if TEST
             2000;           //2 seconds
 #elif DEBUG
-           15 * 60 * 1000;   //15 minutes
+           5 * 1000;   //10 seconds
 #else
-            2000;           //2 seconds
+            10000;           //2 seconds
 #endif
 
         long tickRateOffset;
@@ -75,6 +75,12 @@ namespace RFIDCommandCenter
             if (buffer[0] != 0)
                 this.inVirtualMode = true;
         }
+
+        public void destroy()
+        {
+            this.clientSocket.Close();
+            this.clientSocket.Dispose();
+        }
         
         public override void serverThreadRoutine(Object state)
         {
@@ -121,7 +127,9 @@ namespace RFIDCommandCenter
             {
                 sendCommand(packet, pendingDeviceCommand, NETWORK_TIMEOUT * 1000,false, true, inVirtualMode);
                 pendingDeviceCommand = CommandCodes.NONE;
+                exit = true;
             }
+
         }
 
         private bool isByteArrayEqual(byte[] a, byte[] b)

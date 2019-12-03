@@ -52,6 +52,7 @@
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
             this.writeTagButton = new System.Windows.Forms.Button();
             this.logoutButton = new System.Windows.Forms.Button();
+            this.createVirtualButton = new System.Windows.Forms.Button();
             this.mainTabControl.SuspendLayout();
             this.tagsTab.SuspendLayout();
             this.locationsTab.SuspendLayout();
@@ -351,6 +352,7 @@
             this.tableLayoutPanel2.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.tableLayoutPanel2.ColumnCount = 1;
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel2.Controls.Add(this.createVirtualButton, 0, 4);
             this.tableLayoutPanel2.Controls.Add(this.writeTagButton, 0, 3);
             this.tableLayoutPanel2.Controls.Add(this.logoutButton, 0, 4);
             this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Right;
@@ -362,7 +364,8 @@
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel2.Size = new System.Drawing.Size(108, 535);
             this.tableLayoutPanel2.TabIndex = 29;
             // 
@@ -385,11 +388,25 @@
             this.logoutButton.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.logoutButton.Location = new System.Drawing.Point(3, 72);
             this.logoutButton.Name = "logoutButton";
-            this.logoutButton.Size = new System.Drawing.Size(102, 59);
+            this.logoutButton.Size = new System.Drawing.Size(102, 60);
             this.logoutButton.TabIndex = 28;
             this.logoutButton.Text = "Logout";
             this.logoutButton.UseVisualStyleBackColor = true;
             this.logoutButton.Click += new System.EventHandler(this.logoutButton_Click);
+            // 
+            // createVirtualButton
+            // 
+            this.createVirtualButton.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.createVirtualButton.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.createVirtualButton.Location = new System.Drawing.Point(3, 138);
+            this.createVirtualButton.Name = "createVirtualButton";
+            this.createVirtualButton.Size = new System.Drawing.Size(102, 59);
+            this.createVirtualButton.TabIndex = 29;
+            this.createVirtualButton.Text = "Create Virtual Device";
+            this.createVirtualButton.UseVisualStyleBackColor = true;
+            this.createVirtualButton.Visible = false;
+            this.createVirtualButton.Click += new System.EventHandler(this.createVirtualButton_Click);
             // 
             // MainWindow
             // 
@@ -452,5 +469,6 @@
         private System.Windows.Forms.Label allowedLocationTagNameLabel;
         private System.Windows.Forms.Button writeTagButton;
         private System.Windows.Forms.Button logoutButton;
+        private System.Windows.Forms.Button createVirtualButton;
     }
 }
