@@ -807,12 +807,11 @@ namespace UIDemo
         {
             DataRow [] selected = devicesGridControl.getSelectedItems();
             if(selected == null || selected.Length == 0)
-            {
                 spawnVirtual(null);
-                return;
-            }  
-            foreach(var row in selected)
-                spawnVirtual(row["Device Serial"] as string);
+            else
+                foreach(var row in selected)
+                    spawnVirtual(row["Device Serial"] as string);
+            viewDevicesTab_Click(sender, e);
         }
     }
 }
