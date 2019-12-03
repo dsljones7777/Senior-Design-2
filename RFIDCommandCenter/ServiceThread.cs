@@ -298,9 +298,10 @@ namespace RFIDCommandCenter
                 if(handleRFIDClient(dev, out devError, out serverError))
                 {
                     deviceClients.RemoveAt(i);
-                    if (nonSystemDevices.ContainsKey(dev.deviceSerialNumber))
+
+                    if (dev.deviceSerialNumber != null && nonSystemDevices.ContainsKey(dev.deviceSerialNumber))
                         nonSystemDevices.Remove(dev.deviceSerialNumber);
-                    else if (systemDevices.ContainsKey(dev.deviceSerialNumber))
+                    else if (dev.deviceSerialNumber != null && systemDevices.ContainsKey(dev.deviceSerialNumber))
                         systemDevices.Remove(dev.deviceSerialNumber);
                     try
                     {
