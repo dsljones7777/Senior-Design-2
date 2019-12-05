@@ -35,6 +35,7 @@ namespace RFIDCommandCenter
         {
             Socket acceptedSocket;
             byte[] buffer = new byte[NetworkCode.HEADER_SIZE];
+            Client returnval;
             try
             {
                 if (serverSocket.Poll(timeoutUs, SelectMode.SelectRead))
@@ -52,6 +53,20 @@ namespace RFIDCommandCenter
                 int bytesRead = readFrom(acceptedSocket, buffer, 4);
                 if (bytesRead != 4)
                     throw new CommandCenterException("Failed to read client initialization bytes (less than 4 bytes were read)", null);
+                int type = BitConverter.ToInt32(buffer, 0);
+
+                switch (type)
+                {
+                    case (int)ClientType.CLIENT_RFID_DEVICE:
+                        acceptedSocket.Receive(buffer, NetworkCode.HEADER_SIZE - 4, SocketFlags.None);
+                        returnval = new RFIDDeviceClient(acceptedSocket, this);
+                        break;
+                    case (int)ClientType.CLIENT_UI_APP:
+                        returnval = new UIClient(acceptedSocket, this);
+                        break;
+                    default:
+                        throw new CommandCenterException("The client initialization packet is invalid", null);
+                }
 
             }
             catch (Exception e)
@@ -66,20 +81,6 @@ namespace RFIDCommandCenter
 
                 }
                 throw new CommandCenterException("Failed to read client initialization bytes", e);
-            }
-            int type = BitConverter.ToInt32(buffer, 0);
-            Client returnval;
-            switch (type)
-            {
-                case (int)ClientType.CLIENT_RFID_DEVICE:
-                    acceptedSocket.Receive(buffer, NetworkCode.HEADER_SIZE - 4, SocketFlags.None);
-                    returnval = new RFIDDeviceClient(acceptedSocket, this);
-                    break;
-                case (int)ClientType.CLIENT_UI_APP:
-                    returnval = new UIClient(acceptedSocket, this);
-                    break;
-                default:
-                    throw new CommandCenterException("The client initialization packet is invalid", null);
             }
             return returnval;
         }

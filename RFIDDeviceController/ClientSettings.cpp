@@ -4,13 +4,13 @@ using namespace RFIDDeviceController::Settings;
 
 ClientSettings::ClientSettings()
 {
-	hostConnectionString = "127.0.0.1 52437";
-	networkTickRate = 5000;
+	//hostConnectionString = "127.0.0.1 52437";
+	networkTickRate = 1000;
 	tagRememberanceTime = 100000;
-	tagLeaveTime = 700;
+	tagLeaveTime = 800;
 	lockByDefault = true;
 	retriesBeforeReconnect = 25;
-	tagArriveTime = 0;
+	tagArriveTime = 500;
 }
 
 

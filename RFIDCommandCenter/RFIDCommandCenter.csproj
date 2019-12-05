@@ -59,6 +59,8 @@
     <Compile Include="Clients\Client.cs" />
     <Compile Include="Context\DataContext.cs" />
     <Compile Include="Context\TempDbContext.cs" />
+    <Compile Include="Logic\AltSaveAllowedLocations.cs" />
+    <Compile Include="Logic\DeleteAllowedLocations.cs" />
     <Compile Include="Logic\DeleteLocation.cs" />
     <Compile Include="Logic\DeleteSystemUser.cs" />
     <Compile Include="Logic\DeleteTag.cs" />
@@ -100,6 +102,7 @@
     <Compile Include="Clients\RFIDDeviceClient.cs" />
     <Compile Include="Clients\UIClient.cs" />
     <Compile Include="Network\SecureNetworkCommunication.cs" />
+    <Compile Include="ServiceThread.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

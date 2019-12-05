@@ -1,15 +1,3 @@
-C:\Users\David Jones\Documents\GitHub\Senior-Design-2\RFIDCommandCenter\bin\Debug\RFIDCommandCenter.exe.config
-C:\Users\David Jones\Documents\GitHub\Senior-Design-2\RFIDCommandCenter\bin\Debug\RFIDCommandCenter.exe
-C:\Users\David Jones\Documents\GitHub\Senior-Design-2\RFIDCommandCenter\bin\Debug\RFIDCommandCenter.pdb
-C:\Users\David Jones\Documents\GitHub\Senior-Design-2\RFIDCommandCenter\bin\Debug\EntityFramework.dll
-C:\Users\David Jones\Documents\GitHub\Senior-Design-2\RFIDCommandCenter\bin\Debug\EntityFramework.SqlServer.dll
-C:\Users\David Jones\Documents\GitHub\Senior-Design-2\RFIDCommandCenter\bin\Debug\EntityFramework.xml
-C:\Users\David Jones\Documents\GitHub\Senior-Design-2\RFIDCommandCenter\bin\Debug\EntityFramework.SqlServer.xml
-C:\Users\David Jones\Documents\GitHub\Senior-Design-2\RFIDCommandCenter\obj\Debug\RFIDCommandCenter.csproj.CoreCompileInputs.cache
-C:\Users\David Jones\Documents\GitHub\Senior-Design-2\RFIDCommandCenter\obj\Debug\RFIDCommandCenter.csproj.CopyComplete
-C:\Users\David Jones\Documents\GitHub\Senior-Design-2\RFIDCommandCenter\obj\Debug\RFIDCommandCenter.exe
-C:\Users\David Jones\Documents\GitHub\Senior-Design-2\RFIDCommandCenter\obj\Debug\RFIDCommandCenter.pdb
-C:\Users\David Jones\Documents\GitHub\Senior-Design-2\RFIDCommandCenter\obj\Debug\RFIDCommandCenter.csprojAssemblyReference.cache
 C:\Users\mrdav\source\repos\RFIDCommandCenter\RFIDCommandCenter\bin\Debug\RFIDCommandCenter.exe.config
 C:\Users\mrdav\source\repos\RFIDCommandCenter\RFIDCommandCenter\bin\Debug\RFIDCommandCenter.exe
 C:\Users\mrdav\source\repos\RFIDCommandCenter\RFIDCommandCenter\bin\Debug\RFIDCommandCenter.pdb
@@ -22,7 +10,33 @@ C:\Users\mrdav\source\repos\RFIDCommandCenter\RFIDCommandCenter\obj\Debug\RFIDCo
 C:\Users\mrdav\source\repos\RFIDCommandCenter\RFIDCommandCenter\obj\Debug\RFIDCommandCenter.csproj.CopyComplete
 C:\Users\mrdav\source\repos\RFIDCommandCenter\RFIDCommandCenter\obj\Debug\RFIDCommandCenter.exe
 C:\Users\mrdav\source\repos\RFIDCommandCenter\RFIDCommandCenter\obj\Debug\RFIDCommandCenter.pdb
-C:\Users\David Jones\Documents\GitHub\Senior-Design-2\RFIDCommandCenter\bin\Debug\SharedLib.dll
-C:\Users\David Jones\Documents\GitHub\Senior-Design-2\RFIDCommandCenter\bin\Debug\SharedLib.pdb
 C:\Users\mrdav\source\repos\RFIDCommandCenter\RFIDCommandCenter\bin\Debug\SharedLib.dll
 C:\Users\mrdav\source\repos\RFIDCommandCenter\RFIDCommandCenter\bin\Debug\SharedLib.pdb
+C:\Users\djones\Documents\GitHub\Senior-Design-2\RFIDCommandCenter\bin\Debug\RFIDCommandCenter.exe.config
+C:\Users\djones\Documents\GitHub\Senior-Design-2\RFIDCommandCenter\bin\Debug\RFIDCommandCenter.exe
+C:\Users\djones\Documents\GitHub\Senior-Design-2\RFIDCommandCenter\bin\Debug\RFIDCommandCenter.pdb
+C:\Users\djones\Documents\GitHub\Senior-Design-2\RFIDCommandCenter\bin\Debug\EntityFramework.dll
+C:\Users\djones\Documents\GitHub\Senior-Design-2\RFIDCommandCenter\bin\Debug\EntityFramework.SqlServer.dll
+C:\Users\djones\Documents\GitHub\Senior-Design-2\RFIDCommandCenter\bin\Debug\SharedLib.dll
+C:\Users\djones\Documents\GitHub\Senior-Design-2\RFIDCommandCenter\bin\Debug\SharedLib.pdb
+C:\Users\djones\Documents\GitHub\Senior-Design-2\RFIDCommandCenter\bin\Debug\EntityFramework.xml
+C:\Users\djones\Documents\GitHub\Senior-Design-2\RFIDCommandCenter\bin\Debug\EntityFramework.SqlServer.xml
+C:\Users\djones\Documents\GitHub\Senior-Design-2\RFIDCommandCenter\obj\Debug\RFIDCommandCenter.csprojResolveAssemblyReference.cache
+C:\Users\djones\Documents\GitHub\Senior-Design-2\RFIDCommandCenter\obj\Debug\RFIDCommandCenter.csproj.CoreCompileInputs.cache
+C:\Users\djones\Documents\GitHub\Senior-Design-2\RFIDCommandCenter\obj\Debug\RFIDCommandCenter.csproj.CopyComplete
+C:\Users\djones\Documents\GitHub\Senior-Design-2\RFIDCommandCenter\obj\Debug\RFIDCommandCenter.exe
+C:\Users\djones\Documents\GitHub\Senior-Design-2\RFIDCommandCenter\obj\Debug\RFIDCommandCenter.pdb
+C:\Users\David Jones\Documents\GitHub\Senior-Design-2\RFIDCommandCenter\bin\Debug\RFIDCommandCenter.exe.config
+C:\Users\David Jones\Documents\GitHub\Senior-Design-2\RFIDCommandCenter\bin\Debug\RFIDCommandCenter.exe
+C:\Users\David Jones\Documents\GitHub\Senior-Design-2\RFIDCommandCenter\bin\Debug\RFIDCommandCenter.pdb
+C:\Users\David Jones\Documents\GitHub\Senior-Design-2\RFIDCommandCenter\bin\Debug\EntityFramework.dll
+C:\Users\David Jones\Documents\GitHub\Senior-Design-2\RFIDCommandCenter\bin\Debug\EntityFramework.SqlServer.dll
+C:\Users\David Jones\Documents\GitHub\Senior-Design-2\RFIDCommandCenter\bin\Debug\SharedLib.dll
+C:\Users\David Jones\Documents\GitHub\Senior-Design-2\RFIDCommandCenter\bin\Debug\SharedLib.pdb
+C:\Users\David Jones\Documents\GitHub\Senior-Design-2\RFIDCommandCenter\bin\Debug\EntityFramework.xml
+C:\Users\David Jones\Documents\GitHub\Senior-Design-2\RFIDCommandCenter\bin\Debug\EntityFramework.SqlServer.xml
+C:\Users\David Jones\Documents\GitHub\Senior-Design-2\RFIDCommandCenter\obj\Debug\RFIDCommandCenter.csprojAssemblyReference.cache
+C:\Users\David Jones\Documents\GitHub\Senior-Design-2\RFIDCommandCenter\obj\Debug\RFIDCommandCenter.csproj.CoreCompileInputs.cache
+C:\Users\David Jones\Documents\GitHub\Senior-Design-2\RFIDCommandCenter\obj\Debug\RFIDCommandCenter.csproj.CopyComplete
+C:\Users\David Jones\Documents\GitHub\Senior-Design-2\RFIDCommandCenter\obj\Debug\RFIDCommandCenter.exe
+C:\Users\David Jones\Documents\GitHub\Senior-Design-2\RFIDCommandCenter\obj\Debug\RFIDCommandCenter.pdb

@@ -10,7 +10,9 @@ namespace RFIDDeviceController
 	{
 	public:
 		RFIDReader::ReaderErrors lastError = RFIDReader::ReaderErrors::NONE;
-		
+		Settings::DeviceSettings settings;
+
+		char const * serialNumber = nullptr;
 
 		DeviceController();
 		virtual ~DeviceController();
@@ -20,19 +22,21 @@ namespace RFIDDeviceController
 		static const int REMEMBERANCE_TAG_BUFFER_SIZE = 10 * 4 * TAG_BUFFER_SIZE;		//10 seconds* 4 times a second (250ms reader tick rate) * Estimated tags per read (per read tick rate)
 
 		//Runs until device is to shutdown
-		int run();
+		virtual int run();
 
+		virtual void setupDeviceSerial(char const * serial);
+
+		bool isVirtualDevice = false;
 	protected:
-		static const int ERROR_LED_NUMBER = 2;
-		static const int PING_LED_NUMBER = 1;
-		static const int READ_LED_NUMBER = 1;
+		static const int LOCK_LED_NUMBER = 2;
+		static const int UNLOCK_LED_NUMBER = 1;
+		static const int WRITE_LED_NUMBER = 1;
 		
 
 #pragma region HardwareControl
 
-
-		void turnOnLed(int ledNumber);
-		void turnOffLed(int ledNumber);
+		virtual void turnOnLed(int ledNumber);
+		virtual void turnOffLed(int ledNumber);
 		bool isLedOn(int ledNumber);
 		bool isLedOff(int ledNumber);
 		void unlockDoor();
@@ -41,14 +45,16 @@ namespace RFIDDeviceController
 		//Guarantees the reader starts and if it fails it contacts the server and handles. Return state is reader being able to read or the 
 		void startReader();
 
-		bool light1On;
-		bool light2On;
+		bool light1On = false;
+		bool light2On = false;
 		RFIDReader reader = RFIDReader(nullptr);
 #pragma endregion
 
 #pragma region NetworkControl
 
 		bool startConnection(bool dueToFault);
+
+		
 
 		void connectToCommandCenter(bool onFault);
 
@@ -75,7 +81,8 @@ namespace RFIDDeviceController
 
 		void sendWithoutAssurance();
 
-		void sendSerialNumberToServer();
+		
+		virtual void sendSerialNumberToServer();
 
 		Communication::GenericNetworkBytecode buffer;
 
@@ -98,7 +105,7 @@ namespace RFIDDeviceController
 
 		//Call check and execute instead for command to be received from server.
 		//Executes command only if expected command is non-zero or command matches. 
-		bool executeCommand(int expectedCommand);
+		virtual bool executeCommand(int expectedCommand);
 
 		//Handles response from server for device error. 
 		bool handleDeviceError();
@@ -110,10 +117,7 @@ namespace RFIDDeviceController
 		//the server as arriving, leaving
 		void updateTagsWithServer();
 
-		virtual void wait(int ms)
-		{
-			Sleep((DWORD)ms);
-		}
+		virtual void wait(int ms);
 		
 
 		//Array for easier offsetting of epc buffer when reading
@@ -155,17 +159,28 @@ namespace RFIDDeviceController
 
 		//Buffer for tag memory of the device
 		EPCRememberance epcMemoryBuffer[REMEMBERANCE_TAG_BUFFER_SIZE];
-		Settings::DeviceSettings settings;
+		
 		bool exitProgram = false;
-
+		int reason = 0;
 		//Tick and statistics
 		uint64_t currentTick = 0;
 		uint64_t ticksTillDead = 0;
 		uint64_t readTagCount = 0;
 		uint64_t sentTagCount = 0;
-		int realReadTickRate;
+		int realReadTickRate = 0;
 		
 #pragma endregion
+	};
+
+	class SimulatedDeviceController : public DeviceController
+	{
+	public:
+		int run() override;
+	protected:
+		void turnOnLed(int ledNumber) override;
+		void turnOffLed(int ledNumber) override;
+		bool executeCommand(int expectedCommand) override;
+		void sendSerialNumberToServer() override;
 	};
 
 }

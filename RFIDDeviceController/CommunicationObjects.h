@@ -35,7 +35,8 @@ namespace RFIDDeviceController
 			REBOOT_READER = 17,		
 			WAIT = 18,					//Wait for a response, pump alive packets
 			SERIAL_NUMBER = 19,          //Request device serial
-			START_READER = 20
+			START_READER = 20,
+			CHANGE_MODE = 21
 		};
 #pragma pack(1)
 		struct NetworkBytecode
@@ -215,10 +216,24 @@ namespace RFIDDeviceController
 			{
 				cmd = (int)CommandCodes::SERIAL_NUMBER;
 				payloadSize = sizeof(ReaderSerialNetParam) - sizeof(NetworkBytecode);
-				for (int i = 0; serialNumber[i]; i++)
+				int i;
+				for (i = 0; serialNumber[i]; i++)
 					devSerial[i] = serialNumber[i];
+				devSerial[i] = 0;
 			}
 		};
+
+		struct ChangeModeNetParam : public NetworkBytecode
+		{
+		public:
+			bool virtualMode;
+		protected:
+			ChangeModeNetParam()
+			{
+
+			};
+		};
+
 #pragma pack()
 	}
 }

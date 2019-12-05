@@ -11,6 +11,7 @@ namespace RFIDCommandCenter
         public DataContext()
             : base("name=DbContext")
         {
+            
         }
 
         public DbSet<Location> Locations { get; set; }

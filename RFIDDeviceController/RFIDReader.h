@@ -33,6 +33,11 @@ namespace RFIDDeviceController
 
 		bool readTags(char * epcBufferArray, int timeoutMs, int & totalTags);
 
+		void shutdown()
+		{
+			TMR_destroy(&reader);
+		}
+
 		void writeTag(char  const * epcBufferArray, int readTimeout, int writeTimeout)
 		{
 			TMR_TagData data;
@@ -48,10 +53,8 @@ namespace RFIDDeviceController
 			
 			if (TMR_writeTag(&reader, nullptr, &data) != TMR_SUCCESS)
 				return;
-			int j = 12;
 			op.epcptr = nullptr;
 			return;
-			
 		}
 
 		uint32_t getDefaultReadPower();
@@ -129,7 +132,7 @@ namespace RFIDDeviceController
 		TMR_Region supportedRegions[Settings::MAX_STRING_SIZE];	//List of regions supported by the reader
 		
 		char softwareVersion[Settings::MAX_STRING_SIZE];			//Software version of the reader
-		char model[Settings::MAX_STRING_SIZE];					//Model of the reader
+		char model[Settings::MAX_STRING_SIZE];						//Model of the reader
 		char hardwareVersion[Settings::MAX_STRING_SIZE];			//Hardware version of the reader
 		int32_t totalAntennas;
 		RFIDAntenna antennas[Settings::MAX_ANTENNAS];

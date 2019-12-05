@@ -18,8 +18,5 @@ namespace RFIDCommandCenter
         public byte[] Pass { get; set; }
 
         public int UserRole { get; set; }
-
-        [Required]
-        public bool Active { get; set; }
     }
 }

@@ -30,11 +30,11 @@
         {
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.usernameTextbox = new System.Windows.Forms.TextBox();
-            this.passwordTextbox = new System.Windows.Forms.TextBox();
-            this.roleCombobox = new System.Windows.Forms.ComboBox();
             this.usernameLabel = new System.Windows.Forms.Label();
-            this.passwordLabel = new System.Windows.Forms.Label();
+            this.roleCombobox = new System.Windows.Forms.ComboBox();
             this.roleLabel = new System.Windows.Forms.Label();
+            this.passwordLabel = new System.Windows.Forms.Label();
+            this.passwordTextbox = new System.Windows.Forms.TextBox();
             this.tableLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -71,15 +71,15 @@
             this.usernameTextbox.Size = new System.Drawing.Size(206, 25);
             this.usernameTextbox.TabIndex = 0;
             // 
-            // passwordTextbox
+            // usernameLabel
             // 
-            this.passwordTextbox.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.passwordTextbox.Location = new System.Drawing.Point(76, 37);
-            this.passwordTextbox.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.passwordTextbox.Name = "passwordTextbox";
-            this.passwordTextbox.Size = new System.Drawing.Size(206, 25);
-            this.passwordTextbox.TabIndex = 1;
-            this.passwordTextbox.UseSystemPasswordChar = true;
+            this.usernameLabel.Anchor = System.Windows.Forms.AnchorStyles.Right;
+            this.usernameLabel.AutoSize = true;
+            this.usernameLabel.Location = new System.Drawing.Point(3, 8);
+            this.usernameLabel.Name = "usernameLabel";
+            this.usernameLabel.Size = new System.Drawing.Size(67, 17);
+            this.usernameLabel.TabIndex = 3;
+            this.usernameLabel.Text = "Username";
             // 
             // roleCombobox
             // 
@@ -91,15 +91,15 @@
             this.roleCombobox.Size = new System.Drawing.Size(206, 25);
             this.roleCombobox.TabIndex = 2;
             // 
-            // usernameLabel
+            // roleLabel
             // 
-            this.usernameLabel.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.usernameLabel.AutoSize = true;
-            this.usernameLabel.Location = new System.Drawing.Point(3, 8);
-            this.usernameLabel.Name = "usernameLabel";
-            this.usernameLabel.Size = new System.Drawing.Size(67, 17);
-            this.usernameLabel.TabIndex = 3;
-            this.usernameLabel.Text = "Username";
+            this.roleLabel.Anchor = System.Windows.Forms.AnchorStyles.Right;
+            this.roleLabel.AutoSize = true;
+            this.roleLabel.Location = new System.Drawing.Point(36, 74);
+            this.roleLabel.Name = "roleLabel";
+            this.roleLabel.Size = new System.Drawing.Size(34, 17);
+            this.roleLabel.TabIndex = 5;
+            this.roleLabel.Text = "Role";
             // 
             // passwordLabel
             // 
@@ -111,15 +111,15 @@
             this.passwordLabel.TabIndex = 4;
             this.passwordLabel.Text = "Password";
             // 
-            // roleLabel
+            // passwordTextbox
             // 
-            this.roleLabel.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.roleLabel.AutoSize = true;
-            this.roleLabel.Location = new System.Drawing.Point(36, 74);
-            this.roleLabel.Name = "roleLabel";
-            this.roleLabel.Size = new System.Drawing.Size(34, 17);
-            this.roleLabel.TabIndex = 5;
-            this.roleLabel.Text = "Role";
+            this.passwordTextbox.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.passwordTextbox.Location = new System.Drawing.Point(76, 37);
+            this.passwordTextbox.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.passwordTextbox.Name = "passwordTextbox";
+            this.passwordTextbox.Size = new System.Drawing.Size(206, 25);
+            this.passwordTextbox.TabIndex = 1;
+            this.passwordTextbox.UseSystemPasswordChar = true;
             // 
             // SystemUserControl
             // 
@@ -127,6 +127,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.BackColor = System.Drawing.Color.Gainsboro;
             this.Controls.Add(this.tableLayoutPanel1);
             this.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);

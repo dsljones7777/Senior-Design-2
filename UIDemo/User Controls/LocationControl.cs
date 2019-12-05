@@ -59,9 +59,22 @@ namespace UIDemo
         private async void LocationControl_Load(object sender, EventArgs e)
         {
             GetUnconnectedDevicesRPC rpc = new GetUnconnectedDevicesRPC();
-            await rpc.executeAsync();
+            try
+            {
+                rpc = (GetUnconnectedDevicesRPC) await rpc.executeAsync();
+            }
+            catch(Exception x)
+            {
+                MessageBox.Show(this, x.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
             serialInCombo.DataSource = rpc.serialNumbers;
-            serialOutCombo.DataSource = rpc.serialNumbers;
+            if(rpc.serialNumbers != null)
+            {
+                var outSerials = rpc.serialNumbers.ToList();
+                outSerials.Insert(0, "");
+                serialOutCombo.DataSource = outSerials;
+            }
         }
     }
 }

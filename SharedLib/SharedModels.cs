@@ -25,6 +25,13 @@ namespace SharedLib
             public bool InLocation { get; set; }
             public bool LostTag { get; set; }
             public bool GuestTag { get; set; }
+
+
+
+            public override string ToString()
+            {
+                return BitConverter.ToString(TagNumber).Replace("-", "");
+            }
         }
 
         [Serializable]

@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using SharedLib.Network;
 
 namespace UIDemo.User_Controls
 {
@@ -16,9 +17,29 @@ namespace UIDemo.User_Controls
         {
             InitializeComponent();
             tagNameTextbox.Text = tagName;
-            tagDataTextbox.Text = tagBytes;
+            tagDataCombobox.DataSource = new List<string> { tagBytes ?? "" };
+            if (tagBytes != null)
+                tagDataCombobox.DataSource = new List<string>() { tagBytes };
             lostCheckbox.Checked = isLost;
             guestCheckbox.Checked = isGuest;
+        }
+
+        public async void loadPossibleNewTags()
+        {
+            ViewTagsRPC rpc = new ViewTagsRPC()
+            {
+                nonSystemTagsOnly = true
+            };
+            try
+            {
+                rpc = (ViewTagsRPC)await rpc.executeAsync();
+            }
+            catch (Exception except)
+            {
+                MessageBox.Show(this, except.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            tagDataCombobox.DataSource = rpc.tagList;
         }
 
         public string TagName
@@ -29,7 +50,7 @@ namespace UIDemo.User_Controls
             }
         }
 
-        byte[] hexStringToByteArray(string hexString)
+        internal static byte[] hexStringToByteArray(string hexString)
         {
             return Enumerable.Range(0, hexString.Length)
                              .Where(x => x % 2 == 0)
@@ -41,7 +62,7 @@ namespace UIDemo.User_Controls
         {
             get
             {
-                return tagDataTextbox.Text;
+                return tagDataCombobox.Text ;
             }
         }
 
@@ -49,9 +70,9 @@ namespace UIDemo.User_Controls
         {
             get
             {
-                if (String.IsNullOrWhiteSpace(tagDataTextbox.Text))
+                if (String.IsNullOrWhiteSpace(tagDataCombobox.Text))
                     return null;
-                return hexStringToByteArray(tagDataTextbox.Text);
+                return hexStringToByteArray(tagDataCombobox.Text);
             }
         }
 
@@ -74,11 +95,18 @@ namespace UIDemo.User_Controls
         public void hideLostOption()
         {
             lostCheckbox.Visible = false;
+            lostLabel.Visible = false;
         }
 
         public void disableTagByteEditing()
         {
-            tagDataTextbox.Enabled = false;
+            tagDataCombobox.Enabled = false;
+            refreshButton.Visible = false;
+        }
+
+        private void refreshButton_Click(object sender, EventArgs e)
+        {
+            loadPossibleNewTags();
         }
     }
 }
