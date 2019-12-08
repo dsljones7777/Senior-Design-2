@@ -1,10 +1,20 @@
 #pragma once
 #include <stdint.h>
-namespace Identification
+namespace RFIDDeviceController
 {
 	namespace Communication
 	{
-		enum class RPCCommands : uint32_t
+		enum class ErrorCodes : int
+		{
+			NONE = 0,
+			DEVICE_FAILED_TO_READ,
+			DEVICE_FAILED_TO_CONNECT,
+			DEVICE_FAILED_TO_START,
+			TAG_MEMORY_BUFFER_FULL,
+			TAG_TOO_LONG
+		};
+
+		enum class CommandCodes : uint32_t
 		{
 			UNLOCK = 1,		//Unlock the door
 			START = 2,		//Sending : device startup / indentification, Receiving : device start process loop
@@ -20,9 +30,15 @@ namespace Identification
 			WRITE_TAG = 12,					//Write data to the tag (reduce power, read to ensure only one tag is present, write)
 			ALIVE = 13,						//Send dummy frame every time to live
 			PING = 14,						//Turn device light on/off for the default read timeout rate
-			DEVICE_ERROR=15
+			DEVICE_ERROR=15,
+			CONFIRMATION_SYNC_TICK_COUNT = 16,
+			REBOOT_READER = 17,		
+			WAIT = 18,					//Wait for a response, pump alive packets
+			SERIAL_NUMBER = 19,          //Request device serial
+			START_READER = 20,
+			CHANGE_MODE = 21
 		};
-
+#pragma pack(1)
 		struct NetworkBytecode
 		{
 		public:
@@ -41,8 +57,6 @@ namespace Identification
 			char payload[MAX_PAYLOAD_SIZE];
 		};
 
-		
-
 		struct UnlockNetParam : public NetworkBytecode
 		{
 		};
@@ -52,7 +66,7 @@ namespace Identification
 		public:
 			StartNetParam()
 			{
-				cmd = (uint32_t)RPCCommands::START;
+				cmd = (uint32_t)CommandCodes::START;
 				payloadSize = 0;
 			}
 		};
@@ -104,7 +118,7 @@ namespace Identification
 		public:
 			TagArriveNetParam(char const * pEPC)
 			{
-				cmd = (uint32_t)RPCCommands::TAG_ARRIVE;
+				cmd = (uint32_t)CommandCodes::TAG_ARRIVE;
 				payloadSize = sizeof(TagArriveNetParam) - sizeof(NetworkBytecode);
 				for (int i = 0; i < 12; i++)
 					epc[i] = pEPC[i];
@@ -116,7 +130,7 @@ namespace Identification
 		public:
 			TagLeaveNetParam(char const * pEPC) : TagArriveNetParam(pEPC)
 			{
-				cmd = (uint32_t)RPCCommands::TAG_LEAVE;
+				cmd = (uint32_t)CommandCodes::TAG_LEAVE;
 			}
 		};
 
@@ -124,9 +138,9 @@ namespace Identification
 		{
 			char epc[12];
 		public:
-			TagPresentTooLongNetParam(char * pEPC) : TagArriveNetParam(pEPC)
+			TagPresentTooLongNetParam(char const * pEPC) : TagArriveNetParam(pEPC)
 			{
-				cmd = (uint32_t)RPCCommands::TAG_PRESENT_TOO_LONG;
+				cmd = (uint32_t)CommandCodes::TAG_PRESENT_TOO_LONG;
 			}
 		};
 
@@ -135,7 +149,7 @@ namespace Identification
 		public:
 			AliveNetParam()
 			{
-				cmd = (uint32_t)RPCCommands::ALIVE;
+				cmd = (uint32_t)CommandCodes::ALIVE;
 				payloadSize = sizeof(AliveNetParam) - sizeof(NetworkBytecode);
 			}
 		};
@@ -150,13 +164,77 @@ namespace Identification
 		{
 		public:
 			int errorCode;
+			bool abortOperation;
+			bool wait;
 			DeviceErrorNetParam(int errCode)
 			{
-				cmd = (uint32_t)RPCCommands::DEVICE_ERROR;
+				cmd = (uint32_t)CommandCodes::DEVICE_ERROR;
 				payloadSize = sizeof(DeviceErrorNetParam) - sizeof(NetworkBytecode);
 				errorCode = errCode;
 			}
 		};
+
+		struct ConfirmationNetParam : public NetworkBytecode
+		{
+		public:
+			int expectedNextCommand;		//Tells reader to wait for the specified command
+		private:
+			ConfirmationNetParam()
+			{
+				cmd = (uint32_t)CommandCodes::CONFIRMATION_SYNC_TICK_COUNT;
+				payloadSize = sizeof(ConfirmationNetParam) - sizeof(NetworkBytecode);
+				expectedNextCommand = 0;
+			}
+		};
+
+		struct WaitNetParam : public NetworkBytecode
+		{
+		public:
+			bool continueExecution;		//Tells reader to wait for the specified command
+		
+		private:
+			WaitNetParam()
+			{
+				
+			}
+		};
+
+		struct StartReaderNetParam : public NetworkBytecode
+		{
+		private:
+			StartReaderNetParam()
+			{
+
+			}
+		};
+
+		struct ReaderSerialNetParam : public NetworkBytecode
+		{
+		public:
+			char devSerial[65];
+			ReaderSerialNetParam(char const * serialNumber)
+			{
+				cmd = (int)CommandCodes::SERIAL_NUMBER;
+				payloadSize = sizeof(ReaderSerialNetParam) - sizeof(NetworkBytecode);
+				int i;
+				for (i = 0; serialNumber[i]; i++)
+					devSerial[i] = serialNumber[i];
+				devSerial[i] = 0;
+			}
+		};
+
+		struct ChangeModeNetParam : public NetworkBytecode
+		{
+		public:
+			bool virtualMode;
+		protected:
+			ChangeModeNetParam()
+			{
+
+			};
+		};
+
+#pragma pack()
 	}
 }
 

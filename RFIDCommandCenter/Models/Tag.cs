@@ -6,6 +6,7 @@ namespace RFIDCommandCenter
     using System.ComponentModel.DataAnnotations.Schema;
     using System.Data.Entity.Spatial;
 
+    [Serializable]
     [Table("Tag")]
     public partial class Tag
     {
@@ -23,7 +24,8 @@ namespace RFIDCommandCenter
 
         public bool? InLocation { get; set; }
 
-        [Required]
-        public bool Active { get; set; }
+        public bool LostTag { get; set; }
+
+        public bool Guest { get; set; }
     }
 }

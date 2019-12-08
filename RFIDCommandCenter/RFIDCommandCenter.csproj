@@ -9,7 +9,7 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>RFIDCommandCenter</RootNamespace>
     <AssemblyName>RFIDCommandCenter</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
     <TargetFrameworkProfile />
@@ -25,6 +25,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -34,49 +35,85 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <HintPath>..\packages\EntityFramework.6.3.0\lib\net40\EntityFramework.dll</HintPath>
+      <HintPath>..\packages\EntityFramework.6.3.0\lib\net45\EntityFramework.dll</HintPath>
     </Reference>
     <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <HintPath>..\packages\EntityFramework.6.3.0\lib\net40\EntityFramework.SqlServer.dll</HintPath>
+      <HintPath>..\packages\EntityFramework.6.3.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Security" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Clients\Client.cs" />
     <Compile Include="Context\DataContext.cs" />
+    <Compile Include="Context\TempDbContext.cs" />
+    <Compile Include="Logic\AltSaveAllowedLocations.cs" />
+    <Compile Include="Logic\DeleteAllowedLocations.cs" />
+    <Compile Include="Logic\DeleteLocation.cs" />
     <Compile Include="Logic\DeleteSystemUser.cs" />
     <Compile Include="Logic\DeleteTag.cs" />
+    <Compile Include="Logic\EditLocation.cs" />
+    <Compile Include="Logic\EditTag.cs" />
+    <Compile Include="Logic\EditUser.cs" />
+    <Compile Include="Logic\GetAllLocations.cs" />
     <Compile Include="Logic\GetAllowedLocationIdsByTagIds.cs" />
+    <Compile Include="Logic\GetAllUniqueSerialNumbers.cs" />
     <Compile Include="Logic\GetLocationsById.cs" />
+    <Compile Include="Logic\ViewGuestTags.cs" />
+    <Compile Include="Logic\ViewLostTags.cs" />
     <Compile Include="Logic\GetSystemUserByUsername.cs" />
     <Compile Include="Logic\GetTagByTagNumber.cs" />
     <Compile Include="Logic\GetTagIdsByLocationId.cs" />
+    <Compile Include="Logic\Login.cs" />
+    <Compile Include="Logic\RemoveAllConnectedDevices.cs" />
     <Compile Include="Logic\SaveAllowedTagLocation.cs" />
+    <Compile Include="Logic\SaveConnectedDevice.cs" />
+    <Compile Include="Logic\SaveLocation.cs" />
     <Compile Include="Logic\SaveSystemUser.cs" />
     <Compile Include="Logic\SaveTag.cs" />
+    <Compile Include="Logic\TagArrive.cs" />
+    <Compile Include="Logic\TagLeave.cs" />
+    <Compile Include="Logic\ViewAllowedLocations.cs" />
+    <Compile Include="Logic\ViewLocations.cs" />
+    <Compile Include="Logic\ViewTags.cs" />
+    <Compile Include="Logic\ViewUsers.cs" />
+    <Compile Include="Models\ConnectedDevice.cs" />
     <Compile Include="Models\Location.cs" />
     <Compile Include="Models\TagLocationBridge.cs" />
-    <Compile Include="NetworkCommunication.cs" />
+    <Compile Include="Network\NetworkCode.cs" />
+    <Compile Include="Network\NetworkCommunication.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Models\SystemUser.cs" />
     <Compile Include="Models\Tag.cs" />
+    <Compile Include="CommandCenterException.cs" />
+    <Compile Include="Clients\RFIDDeviceClient.cs" />
+    <Compile Include="Clients\UIClient.cs" />
+    <Compile Include="Network\SecureNetworkCommunication.cs" />
+    <Compile Include="ServiceThread.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\SharedLib\SharedLib.csproj">
+      <Project>{4d89947e-ed05-4821-93db-6f33e4d1cbfc}</Project>
+      <Name>SharedLib</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

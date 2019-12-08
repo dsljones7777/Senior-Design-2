@@ -1,6 +1,6 @@
 #pragma once
 #include "IClientToHostCommunication.h"
-namespace Identification
+namespace RFIDDeviceController
 {
 	namespace Communication
 	{

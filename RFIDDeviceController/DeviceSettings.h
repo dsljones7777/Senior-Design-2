@@ -1,22 +1,18 @@
 #pragma once
-#include "Settings.h"
-namespace Identification
+#include "ReaderSettings.h"
+#include "ClientSettings.h"
+namespace RFIDDeviceController
 {
 	namespace Settings
 	{
 		class DeviceSettings
 		{
 		public:
-			RFID::ReaderSettings * rdrSettings;
+			ReaderSettings * rdrSettings;
 			ClientSettings * clientSettings;
-			DeviceSettings()
-			{
-
-			}
-			virtual ~DeviceSettings()
-			{
-
-			}
+			AntennaSettings * antennaSettings;
+			DeviceSettings();
+			virtual ~DeviceSettings();
 		};
 	}
 }

@@ -45,7 +45,16 @@
     <ClInclude Include="DeviceSettings.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DefaultSettings.h">
+    <ClInclude Include="DeviceController.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ClientSettings.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ReaderSettings.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AntennaSettings.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -68,9 +77,6 @@
     <ClCompile Include="LinuxClientToHostCommunication.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Settings.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="RFIDReader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -83,7 +89,16 @@
     <ClCompile Include="DeviceSettings.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="DefaultSettings.cpp">
+    <ClCompile Include="DeviceController.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ClientSettings.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ReaderSettings.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="AntennaSettings.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

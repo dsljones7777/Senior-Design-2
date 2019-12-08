@@ -1,0 +1,14 @@
+C:\Users\David Jones\Documents\GitHub\Senior-Design-2\RFIDCommandCenter\bin\Release\RFIDCommandCenter.exe.config
+C:\Users\David Jones\Documents\GitHub\Senior-Design-2\RFIDCommandCenter\bin\Release\RFIDCommandCenter.exe
+C:\Users\David Jones\Documents\GitHub\Senior-Design-2\RFIDCommandCenter\bin\Release\RFIDCommandCenter.pdb
+C:\Users\David Jones\Documents\GitHub\Senior-Design-2\RFIDCommandCenter\bin\Release\EntityFramework.dll
+C:\Users\David Jones\Documents\GitHub\Senior-Design-2\RFIDCommandCenter\bin\Release\EntityFramework.SqlServer.dll
+C:\Users\David Jones\Documents\GitHub\Senior-Design-2\RFIDCommandCenter\bin\Release\SharedLib.dll
+C:\Users\David Jones\Documents\GitHub\Senior-Design-2\RFIDCommandCenter\bin\Release\SharedLib.pdb
+C:\Users\David Jones\Documents\GitHub\Senior-Design-2\RFIDCommandCenter\bin\Release\EntityFramework.xml
+C:\Users\David Jones\Documents\GitHub\Senior-Design-2\RFIDCommandCenter\bin\Release\EntityFramework.SqlServer.xml
+C:\Users\David Jones\Documents\GitHub\Senior-Design-2\RFIDCommandCenter\obj\Release\RFIDCommandCenter.csprojAssemblyReference.cache
+C:\Users\David Jones\Documents\GitHub\Senior-Design-2\RFIDCommandCenter\obj\Release\RFIDCommandCenter.csproj.CoreCompileInputs.cache
+C:\Users\David Jones\Documents\GitHub\Senior-Design-2\RFIDCommandCenter\obj\Release\RFIDCommandCenter.csproj.CopyComplete
+C:\Users\David Jones\Documents\GitHub\Senior-Design-2\RFIDCommandCenter\obj\Release\RFIDCommandCenter.exe
+C:\Users\David Jones\Documents\GitHub\Senior-Design-2\RFIDCommandCenter\obj\Release\RFIDCommandCenter.pdb

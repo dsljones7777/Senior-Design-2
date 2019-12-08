@@ -1,0 +1,5 @@
+C:\Users\David Jones\Documents\GitHub\Senior-Design-2\SharedLib\bin\Release\SharedLib.dll
+C:\Users\David Jones\Documents\GitHub\Senior-Design-2\SharedLib\bin\Release\SharedLib.pdb
+C:\Users\David Jones\Documents\GitHub\Senior-Design-2\SharedLib\obj\Release\SharedLib.csproj.CoreCompileInputs.cache
+C:\Users\David Jones\Documents\GitHub\Senior-Design-2\SharedLib\obj\Release\SharedLib.dll
+C:\Users\David Jones\Documents\GitHub\Senior-Design-2\SharedLib\obj\Release\SharedLib.pdb

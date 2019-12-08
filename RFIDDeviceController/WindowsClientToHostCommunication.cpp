@@ -2,32 +2,49 @@
 #include "WindowsClientToHostCommunication.h"
 
 #ifdef _WIN32
+
+#include "Settings.h"
 #include <WS2tcpip.h>
-Identification::Communication::WindowsClientToHostCommunication::WindowsClientToHostCommunication()
+using namespace RFIDDeviceController::Communication;
+
+RFIDDeviceController::Communication::WindowsClientToHostCommunication::WindowsClientToHostCommunication()
 {
 }
-Identification::Communication::WindowsClientToHostCommunication::~WindowsClientToHostCommunication()
+RFIDDeviceController::Communication::WindowsClientToHostCommunication::~WindowsClientToHostCommunication()
 {
 }
-bool Identification::Communication::WindowsClientToHostCommunication::connectTo(char const * host)
+bool RFIDDeviceController::Communication::WindowsClientToHostCommunication::connectTo(char const * host)
 {
+	
+	char hostBuffer[Settings::MAX_STRING_SIZE + 1];
+	strcpy_s(hostBuffer, Settings::MAX_STRING_SIZE, host);
 	addrinfo addrHint,* pAddr, *ptr;
 	memset(&addrHint, 0, sizeof(addrinfo));
 	addrHint.ai_family = AF_INET;
 	addrHint.ai_socktype = SOCK_STREAM;
 	addrHint.ai_protocol = IPPROTO_TCP;
-	char const * portStr = strchr(host, (int)' ');
-
+	char * portStr = strchr(hostBuffer, (int)' ');
+	portStr[0] = NULL; //Add null terminator to host to sep. port and ip
+	
 	//is port null or next character a null-terminator
 	if (!portStr || !*(++portStr))
 		return false;
-	portStr++;
-	if (!GetAddrInfoA(host, portStr, &addrHint, &pAddr))
+	if (GetAddrInfoA(hostBuffer, portStr, &addrHint, &pAddr))
 		return false;
 	for ( ptr = pAddr; ptr; ptr = ptr->ai_next)
 	{
 		clientSocket = socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
-		if (clientSocket != INVALID_SOCKET)
+		if (clientSocket == INVALID_SOCKET)
+			continue;
+		if (connect(clientSocket, ptr->ai_addr, (int)ptr->ai_addrlen))
+		{
+#ifdef _DEBUG
+			int err = WSAGetLastError();
+#endif
+			closesocket(clientSocket);
+			clientSocket = INVALID_SOCKET;
+		}
+		else
 			break;
 	}
 	if (clientSocket == INVALID_SOCKET)
@@ -35,37 +52,31 @@ bool Identification::Communication::WindowsClientToHostCommunication::connectTo(
 		freeaddrinfo(pAddr);
 		return false;
 	}
-	if (!connect(clientSocket, ptr->ai_addr, (int)ptr->ai_addrlen))
-	{
-		closesocket(clientSocket);
-		clientSocket = INVALID_SOCKET;
-		freeaddrinfo(pAddr);
-		return false;
-	}
+	
 	return true;
 }
 
-bool Identification::Communication::WindowsClientToHostCommunication::disconnect(char const * reason)
+bool RFIDDeviceController::Communication::WindowsClientToHostCommunication::disconnect(char const * reason)
 {
 	closesocket(clientSocket);
 	return true;
 }
 
-bool Identification::Communication::WindowsClientToHostCommunication::write(NetworkBytecode * what)
+bool RFIDDeviceController::Communication::WindowsClientToHostCommunication::write(NetworkBytecode * what)
 {
-	if (!send(clientSocket, (const char *)what, what->payloadSize + sizeof(NetworkBytecode), 0))
+	if (send(clientSocket, (const char *)what, what->payloadSize + sizeof(NetworkBytecode), 0) != what->payloadSize + sizeof(NetworkBytecode))
 		return false;
 	return true;
 }
 
-bool Identification::Communication::WindowsClientToHostCommunication::peek(int & totalBytes)
+bool RFIDDeviceController::Communication::WindowsClientToHostCommunication::peek(int & totalBytes)
 {
-	if(!ioctlsocket(clientSocket,FIONREAD,(u_long *)&totalBytes))
+	if(ioctlsocket(clientSocket,FIONREAD,(u_long *)&totalBytes))
 		return false;
 	return true;
 }
 
-bool Identification::Communication::WindowsClientToHostCommunication::read(GenericNetworkBytecode * where)
+bool RFIDDeviceController::Communication::WindowsClientToHostCommunication::read(GenericNetworkBytecode * where)
 {
 	int offset = 0, ttlBytesReceived = 0;
 	while (ttlBytesReceived < sizeof(NetworkBytecode))
@@ -90,16 +101,21 @@ bool Identification::Communication::WindowsClientToHostCommunication::read(Gener
 	return where->isValid();
 }
 
-bool Identification::Communication::WindowsClientToHostCommunication::flush()
+bool RFIDDeviceController::Communication::WindowsClientToHostCommunication::flush()
 {
 	return true;
 }
 
-bool Identification::Communication::WindowsClientToHostCommunication::init()
+bool RFIDDeviceController::Communication::WindowsClientToHostCommunication::init()
 {
 	
-	if(!WSAStartup(MAKEWORD(2, 2), &startupData))
+	if (WSAStartup(MAKEWORD(2, 2), &startupData))
+	{
+#ifdef _DEBUG
+		int err = WSAGetLastError();
+#endif
 		return false;
+	}
 	return true;
 }
 #endif

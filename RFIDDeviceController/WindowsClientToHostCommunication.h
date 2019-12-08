@@ -4,7 +4,7 @@
 #ifdef _WIN32
 
 #include <WinSock2.h>
-namespace Identification
+namespace RFIDDeviceController
 {
 	namespace Communication
 	{

@@ -9,14 +9,16 @@ namespace RFIDCommandCenter
     public partial class DataContext : DbContext
     {
         public DataContext()
-            : base("name=DataContext")
+            : base("name=DbContext")
         {
+            
         }
 
         public DbSet<Location> Locations { get; set; }
         public DbSet<SystemUser> SystemUsers { get; set; }
         public DbSet<Tag> Tags { get; set; }
         public DbSet<TagLocationBridge> AllowedLocations { get; set; }
+        public DbSet<ConnectedDevice> ConnectedDevices { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {

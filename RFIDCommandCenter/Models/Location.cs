@@ -5,7 +5,7 @@ namespace RFIDCommandCenter
     using System.ComponentModel.DataAnnotations;
     using System.ComponentModel.DataAnnotations.Schema;
     using System.Data.Entity.Spatial;
-
+    [Serializable]
     [Table("Location")]
     public partial class Location
     {
@@ -21,8 +21,5 @@ namespace RFIDCommandCenter
 
         [StringLength(50)]
         public string ReaderSerialOut { get; set; }
-
-        [Required]
-        public bool Active { get; set; }
     }
 }

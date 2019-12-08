@@ -5,7 +5,7 @@ namespace RFIDCommandCenter
     using System.ComponentModel.DataAnnotations;
     using System.ComponentModel.DataAnnotations.Schema;
     using System.Data.Entity.Spatial;
-
+    [Serializable]
     [Table("SystemUser")]
     public partial class SystemUser
     {
@@ -18,8 +18,5 @@ namespace RFIDCommandCenter
         public byte[] Pass { get; set; }
 
         public int UserRole { get; set; }
-
-        [Required]
-        public bool Active { get; set; }
     }
 }
