@@ -12,43 +12,15 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using UIDemo.User_Controls;
+using static SharedLib.Network.UIClientConnection;
 
 namespace UIDemo
 {
     public partial class MainWindow : Form
     {
-        
-        //DataTable locationTable = new DataTable()
-        //{
-        //    Columns =
-        //    {
-        //        new DataColumn("Location Name",typeof(string)),
-        //        new DataColumn("In RFID Reader Serial",typeof(string)),
-        //        new DataColumn("Out RFID Reader Serial",typeof(string))
-        //    }
-        //};
 
-        //DataTable deviceTabls = new DataTable()
-        //{
-        //    Columns =
-        //    {
-        //        new DataColumn("Device Serial",typeof(string)),
-        //        new DataColumn("Connected",typeof(bool)),
-        //        new DataColumn("Is System Device",typeof(bool))
-        //    }
-        //};
-
-        //DataTable allowedLocationTable = new DataTable()
-        //{
-        //    Columns =
-        //    {
-        //        new DataColumn("Location Name",typeof(string))
-        //    }
-        //};
-        
-
-       SystemUserControl userCtl;
-       bool showAdminFunctions = false;
+        SystemUserControl userCtl;
+        bool showAdminFunctions = false;
 
         public MainWindow(string usrname, bool allowAdminFunctions)
         {
@@ -59,20 +31,51 @@ namespace UIDemo
                 writeTagButton.Visible = false;
             }
         }
-        
+
+        class LocationEqualityComparer : IEqualityComparer<SharedLib.SharedModels.ViewAllowedLocationsModel>
+        {
+            public bool Equals(SharedModels.ViewAllowedLocationsModel x, SharedModels.ViewAllowedLocationsModel y)
+            {
+                return String.Equals(x.LocationName, y.LocationName, StringComparison.CurrentCultureIgnoreCase);
+            }
+
+            public int GetHashCode(SharedModels.ViewAllowedLocationsModel obj)
+            {
+                return obj.LocationName.GetHashCode();
+            }
+        }
+
+        private async Task<T> executeFunctionRPC<T>(T rpc) where T : UINetworkPacket
+        {
+            try
+            {
+                return (T)await rpc.executeAsync();
+            }
+            catch (Exception except)
+            {
+                MessageBox.Show(this, except.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return null;
+            }
+        }
+
+        private async void executeSubroutineRPC(UINetworkPacket rpc)
+        {
+            try
+            {
+                await rpc.executeAsync();
+            }
+            catch (Exception except)
+            {
+                MessageBox.Show(this, except.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
 
         private async void viewUsers_Click(object sender, EventArgs e)
         {
             ViewUserRPC rpc = new ViewUserRPC();
-            try
-            {
-                rpc = (ViewUserRPC)await rpc.executeAsync();
-            }
-            catch(Exception except)
-            {
-                MessageBox.Show(this, except.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            rpc = await executeFunctionRPC(rpc);
+            if (rpc == null)
                 return;
-            }
             DataTable userTable = new DataTable()
             {
                 Columns =
@@ -97,7 +100,7 @@ namespace UIDemo
             usersGridControl.load(userTable, addNewUser, editUser, removeUser);
         }
 
-        private async void addNewUser(object sender, EventArgs e)
+        private void addNewUser(object sender, EventArgs e)
         {
             if (!showAdminFunctions)
                 return;
@@ -121,18 +124,11 @@ namespace UIDemo
                 password = userCtl.Password,
                 role = (int)userCtl.UserRole
             };
-            try
-            {
-                await rpc.executeAsync();
-            }
-            catch(Exception except)
-            {
-                MessageBox.Show(this, except.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+            executeSubroutineRPC(rpc);
             viewUsers_Click(null, null);
         }
 
-        private async void removeUser(object sender, EventArgs e)
+        private void removeUser(object sender, EventArgs e)
         {
             if (!showAdminFunctions)
                 return;
@@ -148,19 +144,12 @@ namespace UIDemo
                 {
                     username = user["User Name"] as string
                 };
-                try
-                {
-                    await rpc.executeAsync();
-                }
-                catch (Exception except)
-                {
-                    MessageBox.Show(this, except.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
+                executeSubroutineRPC(rpc);
             }
             viewUsers_Click(null, null);
         }
 
-        private async void editUser(object sender, EventArgs e)
+        private void editUser(object sender, EventArgs e)
         {
             if (!showAdminFunctions)
                 return;
@@ -186,29 +175,16 @@ namespace UIDemo
                 return;
             NetworkLib.Role newRole = ctl.UserRole;
             EditUserRPC rpc = new EditUserRPC(ctl.Username, ctl.Password, newRole, newRole != usrRole);
-            try
-            {
-                await rpc.executeAsync();
-            }
-            catch (Exception except)
-            {
-                MessageBox.Show(this, except.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+            executeSubroutineRPC(rpc);
             viewUsers_Click(null, null);
         }
 
         private async void viewTagsButton_Clock(object sender, EventArgs e)
         {
             ViewTagsRPC rpc = new ViewTagsRPC();
-            try
-            {
-                rpc = (ViewTagsRPC)await rpc.executeAsync();
-            }
-            catch (Exception except)
-            {
-                MessageBox.Show(this, except.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            rpc = await executeFunctionRPC(rpc);
+            if (rpc == null)
                 return;
-            }
             DataTable tagTable = new DataTable()
             {
                 Columns =
@@ -230,7 +206,7 @@ namespace UIDemo
             tagsGridControl.load(tagTable, addNewTag, editTag, removeTags);
         }
 
-        private async void addNewTag(object sender, EventArgs e)
+        private void addNewTag(object sender, EventArgs e)
         {
             TagControl tagCtl = new TagControl("",null,false,false);
             tagCtl.hideLostOption();
@@ -261,19 +237,11 @@ namespace UIDemo
                 tagNumber = tagCtl.TagData,
                 guest = tagCtl.IsGuest
             };
-            try
-            {
-                await rpc.executeAsync();
-                
-            }
-            catch (Exception except)
-            {
-                MessageBox.Show(this, except.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+            executeSubroutineRPC(rpc);
             viewTagsButton_Clock(null, null);
         }
-
-        private async void removeTags(object sender, EventArgs e)
+        
+        private void removeTags(object sender, EventArgs e)
         {
             DataRow[] tags = tagsGridControl.getSelectedItems();
             if (tags == null || tags.Length == 0)
@@ -287,20 +255,12 @@ namespace UIDemo
                 {
                     name = tag["Tag Name"] as string
                 };
-                try
-                {
-                    await rpc.executeAsync();
-                }
-                catch (Exception except)
-                {
-                    MessageBox.Show(this, except.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    break;
-                }
+                executeSubroutineRPC(rpc);
             };
             viewTagsButton_Clock(null, null);
         }
 
-        private async void editTag(object sender, EventArgs e)
+        private void editTag(object sender, EventArgs e)
         {
             DataRow[] tags = tagsGridControl.getSelectedItems();
             if (tags == null || tags.Length == 0)
@@ -325,14 +285,7 @@ namespace UIDemo
                 rpc.guest = tagCtl.IsGuest;
             if (isLost != tagCtl.IsLost)
                 rpc.lost = tagCtl.IsLost;
-            try
-            {
-                await rpc.executeAsync();
-            }
-            catch (Exception except)
-            {
-                MessageBox.Show(this, except.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+            executeSubroutineRPC(rpc);
             viewTagsButton_Clock(null, null);
         }
 
@@ -348,22 +301,16 @@ namespace UIDemo
                 }
             };
             ViewLocationsRPC rpc = new ViewLocationsRPC();
-            try
-            {
-                rpc = (ViewLocationsRPC)await rpc.executeAsync();
-            }
-            catch (Exception except)
-            {
-                MessageBox.Show(this, except.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            rpc = await executeFunctionRPC(rpc);
+            if (rpc == null)
                 return;
-            }
             foreach (var x in rpc.locationList)
                 locationTable.Rows.Add(x.LocationName, x.ReaderSerialIn, x.ReaderSerialOut ?? "");
             locationGridControl.init(true, false,showAdminFunctions, showAdminFunctions,false);
             locationGridControl.load(locationTable, addNewLocation, editLocation, removeLocation);
         }
 
-        private async void addNewLocation(object sender, EventArgs e)
+        private void addNewLocation(object sender, EventArgs e)
         {
             if (!showAdminFunctions)
                 return;
@@ -378,18 +325,11 @@ namespace UIDemo
                 readerSerialIn = locationCtl.SerialIn,
                 readerSerialOut = locationCtl.SerialOut
             };
-            try
-            {
-                await rpc.executeAsync();
-            }
-            catch (Exception except)
-            {
-                MessageBox.Show(this, except.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+            executeSubroutineRPC(rpc);
             viewLocationsButton_Click(null, null);
         }
 
-        private async void removeLocation(object sender, EventArgs e)
+        private void removeLocation(object sender, EventArgs e)
         {
             if (!showAdminFunctions)
                 return;
@@ -405,19 +345,12 @@ namespace UIDemo
                 {
                     locationName = loc["Location Name"] as string
                 };
-                try
-                {
-                    await rpc.executeAsync();
-                }
-                catch (Exception except)
-                {
-                    MessageBox.Show(this, except.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
+                executeSubroutineRPC(rpc);
             }
             viewLocationsButton_Click(null, null);
         }
 
-        private async void editLocation(object sender, EventArgs e)
+        private void editLocation(object sender, EventArgs e)
         {
             if (!showAdminFunctions)
                 return;
@@ -439,14 +372,7 @@ namespace UIDemo
                 readerSerialIn = String.IsNullOrWhiteSpace(locationCtl.SerialIn) ? null : locationCtl.SerialIn,
                 readerSerialOut = String.IsNullOrWhiteSpace(locationCtl.SerialOut) ? null : locationCtl.SerialOut
             };
-            try
-            {
-                await rpc.executeAsync();
-            }
-            catch (Exception except)
-            {
-                MessageBox.Show(this, except.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+            executeSubroutineRPC(rpc);
             viewLocationsButton_Click(null, null);
         }
 
@@ -458,15 +384,9 @@ namespace UIDemo
         private async void viewDevicesTab_Click(object sender, EventArgs e)
         {
             GetAllDevicesRPC rpc = new GetAllDevicesRPC();
-            try
-            {
-                rpc = (GetAllDevicesRPC)await rpc.executeAsync();
-            }
-            catch (Exception except)
-            {
-                MessageBox.Show(this, except.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            rpc = await executeFunctionRPC(rpc);
+            if (rpc == null)
                 return;
-            }
             DataTable deviceTables = new DataTable()
             {
                 Columns =
@@ -484,7 +404,8 @@ namespace UIDemo
             devicesGridControl.load(deviceTables,null,swapVirtualMode,null);
             createVirtualButton.Visible = showAdminFunctions;
         }
-        private async void swapVirtualMode(object sender, EventArgs e)
+
+        private void swapVirtualMode(object sender, EventArgs e)
         {
             if (!showAdminFunctions)
                 return;
@@ -503,41 +424,16 @@ namespace UIDemo
                 deviceSerial = devices[0]["Device Serial"] as string,
                 virtualMode = !isVirtual
             };
-            try
-            {
-                await rpc.executeAsync();
-            }
-            catch(Exception except)
-            {
-                MessageBox.Show(this, except.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
+            executeSubroutineRPC(rpc);
             viewDevicesTab_Click(sender, e);
         }
-        class LocationEqualityComparer : IEqualityComparer<SharedLib.SharedModels.ViewAllowedLocationsModel>
-        {
-            public bool Equals(SharedModels.ViewAllowedLocationsModel x, SharedModels.ViewAllowedLocationsModel y)
-            {
-                return String.Equals(x.LocationName, y.LocationName, StringComparison.CurrentCultureIgnoreCase);
-            }
 
-            public int GetHashCode(SharedModels.ViewAllowedLocationsModel obj)
-            {
-                return obj.LocationName.GetHashCode();
-            }
-        }
         private async void allowedLocations_Click(object sender, EventArgs e)
         {
             ViewTagsRPC rpc = new ViewTagsRPC();
-            try
-            {
-                rpc = (ViewTagsRPC)await rpc.executeAsync();
-            }
-            catch (Exception except)
-            {
-                MessageBox.Show(this, except.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            rpc = await executeFunctionRPC(rpc);
+            if (rpc == null)
                 return;
-            }
             DataTable tagTable = new DataTable()
             {
                 Columns =
@@ -589,15 +485,9 @@ namespace UIDemo
             {
                 TagName = selected[0]["Tag Name"] as string
             };
-            try
-            {
-                rpc = (ViewAllowedLocationsRPC)await rpc.executeAsync();
-            }
-            catch (Exception except)
-            {
-                MessageBox.Show(this, except.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            rpc = await executeFunctionRPC(rpc);
+            if (rpc == null)
                 return;
-            }
             foreach (var location in rpc.allowedLocationList)
                 allowedTable.Rows.Add(location.LocationName);
             allowedLocationsGridControl.init(true, false, false, false, false, "Allowed");
@@ -627,7 +517,7 @@ namespace UIDemo
             allowedLocationTagNameLabel.Visible = false;
         }
 
-        private async void AllowedLocationsOkButton_Click(object sender, EventArgs e)
+        private void AllowedLocationsOkButton_Click(object sender, EventArgs e)
         {
             DataRow[] selectedRows = allowedLocationsGridControl.getSelectedItems();
             
@@ -640,14 +530,7 @@ namespace UIDemo
                 foreach (var row in selectedRows)
                     if ((bool)row["Allowed"])
                         rpc.locationNames.Add(row["Location Name"] as string);
-            try
-            {
-                await rpc.executeAsync();
-            }
-            catch (Exception except)
-            {
-                MessageBox.Show(this, except.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+            executeSubroutineRPC(rpc);
             allowedLocationsTabChangedCleanup(null, null);
             allowedLocations_Click(null, null);
         }
@@ -658,7 +541,7 @@ namespace UIDemo
             allowedLocations_Click(null, null);
         }
 
-        private async void writeTagButton_Click(object sender, EventArgs e)
+        private void writeTagButton_Click(object sender, EventArgs e)
         {
             if (!showAdminFunctions)
                 return;
@@ -680,18 +563,8 @@ namespace UIDemo
                 Array.Copy(rpc.newTagBytes, tmp, rpc.newTagBytes.Length);
                 rpc.newTagBytes = tmp;
             }
-            try
-            {
-                await rpc.executeAsync();
-            }
-            catch(Exception except)
-            {
-                MessageBox.Show(this, except.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
+            executeSubroutineRPC(rpc);
         }
-
-        
 
         private void tabControl1_TabIndexChanged(object sender, EventArgs e)
         {
@@ -717,15 +590,9 @@ namespace UIDemo
         private async void guestTab_Click(object sender, EventArgs e)
         {
             ViewTagsRPC rpc = new ViewTagsRPC();
-            try
-            {
-                rpc = (ViewTagsRPC)await rpc.executeAsync();
-            }
-            catch (Exception except)
-            {
-                MessageBox.Show(this, except.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            rpc = await executeFunctionRPC(rpc);
+            if (rpc == null)
                 return;
-            }
             DataTable tagTable = new DataTable()
             {
                 Columns =
@@ -745,18 +612,13 @@ namespace UIDemo
             guestTagsGridControl.init(true, false, false, false, true);
             guestTagsGridControl.load(tagTable, addNewTag, editTag, removeTags);
         }
+
         private async void lostTab_Click(object sender, EventArgs e)
         {
             ViewTagsRPC rpc = new ViewTagsRPC();
-            try
-            {
-                rpc = (ViewTagsRPC)await rpc.executeAsync();
-            }
-            catch (Exception except)
-            {
-                MessageBox.Show(this, except.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            rpc = await executeFunctionRPC(rpc);
+            if (rpc == null)
                 return;
-            }
             DataTable tagTable = new DataTable()
             {
                 Columns =

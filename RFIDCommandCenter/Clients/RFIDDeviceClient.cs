@@ -51,9 +51,9 @@ namespace RFIDCommandCenter
             CONFIRMATION_SYNC_TICK_COUNT = 16,
             REBOOT_READER = 17,
             WAIT = 18,					        //Wait for a response, pump alive packets
-            SERIAL_NUMBER = 19,                 //Request device serial
+            SERIAL_NUMBER = 19,                 //Request / Send device serial
             START_READER = 20,
-            CHANGE_MODE = 21
+            CHANGE_MODE = 21                    //Virtual or real mode
         }
 
         public enum ErrorCodes
@@ -99,6 +99,7 @@ namespace RFIDCommandCenter
                     //get a packet from the client. An alive packet should come
                     if (!receivePacket(bufferPacket, NETWORK_TIMEOUT * 1000))
                            reportError("Device Timeout: Alive packet not sent");
+                    
                     if (bufferPacket.command != (int)CommandCodes.SERIAL_NUMBER)
                         reportCommandInfo(bufferPacket,deviceSerialNumber ?? "NO SERIAL");
                     executePacketRequest(bufferPacket);
@@ -122,6 +123,7 @@ namespace RFIDCommandCenter
                 return;
             if (pendingDeviceCommand == CommandCodes.CHANGE_MODE)
             {
+                //TODO: add connection string, port, serial number parameters
                 sendCommand(packet, pendingDeviceCommand, NETWORK_TIMEOUT * 1000,false, true, inVirtualMode);
                 pendingDeviceCommand = CommandCodes.NONE;
                 exit = true;
@@ -147,42 +149,12 @@ namespace RFIDCommandCenter
                 switch (cmdPacket.command)
                 {
                     case (int)CommandCodes.TAG_ARRIVE:
-                        Array.Copy(cmdPacket.payload, tagNumber, 12);
-                        cmdPacket.command = (int)CommandCodes.LOCK;
-                        if (isSystemDevice)
-                        {
-                            var tagArrive = new Logic.TagArrive();
-                            if(tagArrive.Execute(tagNumber, deviceSerialNumber, context))
-                                cmdPacket.command = (int)CommandCodes.UNLOCK;
-                        }
-                        else
-                        {
-                            
-                            lock(readTags)
-                            {
-                                readTags.Add(tagNumber);
-                            }
-                        }
+                        handleTagArrive(cmdPacket, tagNumber, context);
                         break;
                     case (int)CommandCodes.TAG_LEAVE:
-                        cmdPacket.command = (int)CommandCodes.LOCK;
-                        Array.Copy(cmdPacket.payload, tagNumber, 12);
-                        if(!isSystemDevice)
-                        {
-                            lock(readTags)
-                            {
-                                for(int i = 0; i < readTags.Count; i ++)
-                                {
-                                    if (!isByteArrayEqual(readTags[i], tagNumber))
-                                        continue;
-                                    readTags.RemoveAt(i);
-                                    break;
-                                }
-                            }
-                        }
+                        handleTagLeave(cmdPacket, tagNumber);
                         break;
                     case (int)CommandCodes.ALIVE:
-                        
                         break;
                     case (int)CommandCodes.TAG_PRESENT_TOO_LONG:
                         //Write to db
@@ -191,17 +163,60 @@ namespace RFIDCommandCenter
                         handleDeviceError(cmdPacket);
                         break;
                     case (int)CommandCodes.SERIAL_NUMBER:
-                        StringBuilder builder = new StringBuilder();
-                        for(int i = 0; cmdPacket.payload[i] != 0; i ++)
-                            builder.Append((char)cmdPacket.payload[i]);
-                        deviceSerialNumber = builder.ToString();
-                        pauseExecution = true;
-                        while (pauseExecution)
-                            Thread.Yield();
+                        handleSerialNumber(cmdPacket);
                         break;
                 }
             }
-                
+        }
+
+        private void handleSerialNumber(NetworkCode cmdPacket)
+        {
+            StringBuilder builder = new StringBuilder();
+            for (int i = 0; cmdPacket.payload[i] != 0; i++)
+                builder.Append((char)cmdPacket.payload[i]);
+            deviceSerialNumber = builder.ToString();
+            pauseExecution = true;
+            while (pauseExecution)
+                Thread.Yield();
+        }
+
+        private void handleTagLeave(NetworkCode cmdPacket, byte[] tagNumber)
+        {
+            cmdPacket.command = (int)CommandCodes.LOCK;
+            Array.Copy(cmdPacket.payload, tagNumber, 12);
+            if (!isSystemDevice)
+            {
+                lock (readTags)
+                {
+                    for (int i = 0; i < readTags.Count; i++)
+                    {
+                        if (!isByteArrayEqual(readTags[i], tagNumber))
+                            continue;
+                        readTags.RemoveAt(i);
+                        break;
+                    }
+                }
+            }
+        }
+
+        private void handleTagArrive(NetworkCode cmdPacket, byte[] tagNumber, DataContext context)
+        {
+            Array.Copy(cmdPacket.payload, tagNumber, 12);
+            cmdPacket.command = (int)CommandCodes.LOCK;
+            if (isSystemDevice)
+            {
+                var tagArrive = new Logic.TagArrive();
+                if (tagArrive.Execute(tagNumber, deviceSerialNumber, context))
+                    cmdPacket.command = (int)CommandCodes.UNLOCK;
+            }
+            else
+            {
+
+                lock (readTags)
+                {
+                    readTags.Add(tagNumber);
+                }
+            }
         }
 
         private void sendCommand(NetworkCode cmdPacket, CommandCodes cmd, int timeoutUs, bool assured, bool shouldReportError,params object[] cmdParams)
@@ -214,26 +229,7 @@ namespace RFIDCommandCenter
             //Serialize each parameter into the payload
             if(cmdParams != null)
                 foreach(object param in cmdParams)
-                {
-                    if (param.GetType() == typeof(int))
-                    {
-                        byte[] bytes = BitConverter.GetBytes((int)param);
-                        bytes.CopyTo(cmdPacket.payload, cmdPacket.payloadSize);
-                        cmdPacket.payloadSize += bytes.Length;
-                    }
-                    else if(param.GetType() == typeof(bool))
-                    {
-                        cmdPacket.payload[cmdPacket.payloadSize] = (byte)( (bool)param ? 1 : 0);
-                        cmdPacket.payloadSize++;
-                    }
-                    else if(param.GetType() == typeof(byte[]))
-                    {
-                        Array.Copy((byte[])param, 0, cmdPacket.payload, cmdPacket.payloadSize, ((byte[])param).Length);
-                        cmdPacket.payloadSize += ((byte[])param).Length;
-                    }
-                    else
-                        throw new CommandCenterException("Command packet parameter is an invalid type",null);
-                }
+                    serializeParameter(cmdPacket, param);
             //Send the command to the device until the command is sent, exit is specifed and msg is not assurred 
             do
             {
@@ -250,6 +246,28 @@ namespace RFIDCommandCenter
                         reportError(e.Message);
                 }
             } while (!exit && assured);
+        }
+
+        private static void serializeParameter(NetworkCode cmdPacket, object param)
+        {
+            if (param.GetType() == typeof(int))
+            {
+                byte[] bytes = BitConverter.GetBytes((int)param);
+                bytes.CopyTo(cmdPacket.payload, cmdPacket.payloadSize);
+                cmdPacket.payloadSize += bytes.Length;
+            }
+            else if (param.GetType() == typeof(bool))
+            {
+                cmdPacket.payload[cmdPacket.payloadSize] = (byte)((bool)param ? 1 : 0);
+                cmdPacket.payloadSize++;
+            }
+            else if (param.GetType() == typeof(byte[]))
+            {
+                Array.Copy((byte[])param, 0, cmdPacket.payload, cmdPacket.payloadSize, ((byte[])param).Length);
+                cmdPacket.payloadSize += ((byte[])param).Length;
+            }
+            else
+                throw new CommandCenterException("Command packet parameter is an invalid type", null);
         }
 
         private void provideResponse(NetworkCode cmdPacket)
@@ -307,78 +325,40 @@ namespace RFIDCommandCenter
             //Tell device to continue and whether or not to continue execution
             sendCommand(new NetworkCode(), CommandCodes.DEVICE_ERROR, NETWORK_TIMEOUT * 1000, true,true, (int)0,continueAfterDeviceError,false);
         }
+
         static object consoleLock = new object();
         private void reportCommandInfo(NetworkCode cmdPacket,string serial)
         {
             lock(consoleLock)
             {
-                Console.ForegroundColor = ConsoleColor.White;
-                Console.Write("Device [");
-                Console.Write(serial);
-                Console.Write("] ");
+                writeSerialNumberToLog(serial);
                 byte[] epcBytes;
                 switch (cmdPacket.command)
                 {
 
                     case (int)CommandCodes.SERIAL_NUMBER:
-                        Console.ForegroundColor = ConsoleColor.Green;
-                        Console.Write("Connected @");
-                        Console.WriteLine(DateTime.Now.ToString("hh:mm:ss.FFF"));
+                        writeConnectedInfoToLog();
                         break;
                     case (int)CommandCodes.TAG_ARRIVE:
-                        Console.ForegroundColor = ConsoleColor.Green;
-                        Console.WriteLine("Tag Arrive @ " + DateTime.Now.ToString("hh:mm:ss.FFF"));
-                        Console.WriteLine("Device Tick = " + cmdPacket.tickTime + "ms");
-                        Console.Write("EPC: ");
-                        for (int i = 0; i < 12; i++)
-                            Console.Write(String.Format("{0:x2}", cmdPacket.payload[i]));
-                        Console.WriteLine();
-                        epcBytes = new byte[12];
-                        Array.Copy(cmdPacket.payload, 0, epcBytes, 0, 12);
-                        using (DataContext context = new DataContext())
-                        {
-                            var name = context.Tags.Where(t => t.TagNumber == epcBytes).SingleOrDefault()?.Name;
-                            Console.WriteLine("Tag Name = " + name ?? "[Unknown]");
-                        }
+                        epcBytes = writeTagArriveToLog(cmdPacket);
                         break;
                     case (int)CommandCodes.TAG_LEAVE:
-                        Console.ForegroundColor = ConsoleColor.Yellow;
-                        Console.WriteLine("Tag Leave @ " + DateTime.Now.ToString("hh:mm:ss.FFF"));
-                        Console.WriteLine("Device Tick = " + cmdPacket.tickTime + "ms");
-                        Console.Write("EPC: ");
-                        for (int i = 0; i < 12; i++)
-                            Console.Write(String.Format("{0:x2}", cmdPacket.payload[i]));
-                        epcBytes = new byte[12];
-                        Array.Copy(cmdPacket.payload, 0, epcBytes, 0, 12);
-                        Console.WriteLine();
+                        epcBytes = writeTagLeaveToLog(cmdPacket);
                         break;
                     case (int)CommandCodes.ALIVE:
-                        Console.ForegroundColor = ConsoleColor.DarkGray;
-                        Console.WriteLine("Reader Alive Packet: " + DateTime.Now.ToString("hh:mm:ss.FFF"));
-                        Console.WriteLine("Device Tick = " + cmdPacket.tickTime + "ms");
+                        writeAliveToLog(cmdPacket);
                         break;
                     case (int)CommandCodes.TAG_PRESENT_TOO_LONG:
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine("Tag Present Too Long @ " + DateTime.Now.ToString("hh:mm:ss.FFF"));
-                        Console.WriteLine("Device Tick = " + cmdPacket.tickTime + "ms");
-                        Console.Write("EPC: ");
-                        for (int i = 0; i < 12; i++)
-                            Console.Write(String.Format("{0:x2}", cmdPacket.payload[i]));
-                        Console.WriteLine();
+                        writeTagPresentTooLongToLog(cmdPacket);
                         break;
                     case (int)CommandCodes.DEVICE_ERROR:
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine("Device Error @ " + DateTime.Now.ToString("hh:mm:ss.FFF"));
-                        Console.WriteLine("Device Tick = " + cmdPacket.tickTime + "ms");
-                        Console.WriteLine("ErrCode: " + BitConverter.ToInt32(cmdPacket.payload, 0).ToString());
+                        writeDeviceErrorToLog(cmdPacket);
                         break;
                     case (int)CommandCodes.LOCK:
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine("Door Locked");
+                        writeLockToLog();
                         break;
                     case (int)CommandCodes.UNLOCK:
-                        Console.ForegroundColor = ConsoleColor.Yellow;
-                        Console.WriteLine("Door Unlocked");
+                        writeUnlockToLog();
                         break;
 
                 }
@@ -387,7 +367,96 @@ namespace RFIDCommandCenter
                 Console.WriteLine("Tick Diff(Server) = " + (serverTicks - (long)cmdPacket.tickTime).ToString() + "ms");
                 Console.WriteLine();
             }
-            
+
+        }
+
+        private static void writeUnlockToLog()
+        {
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine("Door Unlocked");
+        }
+
+        private static void writeLockToLog()
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine("Door Locked");
+        }
+
+        private static void writeDeviceErrorToLog(NetworkCode cmdPacket)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine("Device Error @ " + DateTime.Now.ToString("hh:mm:ss.FFF"));
+            Console.WriteLine("Device Tick = " + cmdPacket.tickTime + "ms");
+            Console.WriteLine("ErrCode: " + BitConverter.ToInt32(cmdPacket.payload, 0).ToString());
+        }
+
+        private static void writeTagPresentTooLongToLog(NetworkCode cmdPacket)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine("Tag Present Too Long @ " + DateTime.Now.ToString("hh:mm:ss.FFF"));
+            Console.WriteLine("Device Tick = " + cmdPacket.tickTime + "ms");
+            Console.Write("EPC: ");
+            for (int i = 0; i < 12; i++)
+                Console.Write(String.Format("{0:x2}", cmdPacket.payload[i]));
+            Console.WriteLine();
+        }
+
+        private static void writeAliveToLog(NetworkCode cmdPacket)
+        {
+            Console.ForegroundColor = ConsoleColor.DarkGray;
+            Console.WriteLine("Reader Alive Packet: " + DateTime.Now.ToString("hh:mm:ss.FFF"));
+            Console.WriteLine("Device Tick = " + cmdPacket.tickTime + "ms");
+        }
+
+        private static byte[] writeTagLeaveToLog(NetworkCode cmdPacket)
+        {
+            byte[] epcBytes;
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine("Tag Leave @ " + DateTime.Now.ToString("hh:mm:ss.FFF"));
+            Console.WriteLine("Device Tick = " + cmdPacket.tickTime + "ms");
+            Console.Write("EPC: ");
+            for (int i = 0; i < 12; i++)
+                Console.Write(String.Format("{0:x2}", cmdPacket.payload[i]));
+            epcBytes = new byte[12];
+            Array.Copy(cmdPacket.payload, 0, epcBytes, 0, 12);
+            Console.WriteLine();
+            return epcBytes;
+        }
+
+        private static byte[] writeTagArriveToLog(NetworkCode cmdPacket)
+        {
+            byte[] epcBytes;
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("Tag Arrive @ " + DateTime.Now.ToString("hh:mm:ss.FFF"));
+            Console.WriteLine("Device Tick = " + cmdPacket.tickTime + "ms");
+            Console.Write("EPC: ");
+            for (int i = 0; i < 12; i++)
+                Console.Write(String.Format("{0:x2}", cmdPacket.payload[i]));
+            Console.WriteLine();
+            epcBytes = new byte[12];
+            Array.Copy(cmdPacket.payload, 0, epcBytes, 0, 12);
+            using (DataContext context = new DataContext())
+            {
+                var name = context.Tags.Where(t => t.TagNumber == epcBytes).SingleOrDefault()?.Name;
+                Console.WriteLine("Tag Name = " + name ?? "[Unknown]");
+            }
+
+            return epcBytes;
+        }
+
+        private static void writeSerialNumberToLog(string serial)
+        {
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.Write("Device [");
+            Console.Write(serial);
+            Console.WriteLine("] ");
+        }
+
+        private static void writeConnectedInfoToLog()
+        {
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.Write("Connected @");
+            Console.WriteLine(DateTime.Now.ToString("hh:mm:ss.FFF"));
         }
 
         private void reportError(string error)

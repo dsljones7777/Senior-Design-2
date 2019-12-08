@@ -18,3 +18,23 @@ C:\Users\David Jones\Documents\GitHub\Senior-Design-2\UIDemo\obj\Release\UIDemo.
 C:\Users\David Jones\Documents\GitHub\Senior-Design-2\UIDemo\obj\Release\UIDemo.csproj.CopyComplete
 C:\Users\David Jones\Documents\GitHub\Senior-Design-2\UIDemo\obj\Release\UIDemo.exe
 C:\Users\David Jones\Documents\GitHub\Senior-Design-2\UIDemo\obj\Release\UIDemo.pdb
+C:\Users\mrdav\source\repos\RFIDCommandCenter\UIDemo\bin\Release\UIDemo.exe.config
+C:\Users\mrdav\source\repos\RFIDCommandCenter\UIDemo\bin\Release\UIDemo.exe
+C:\Users\mrdav\source\repos\RFIDCommandCenter\UIDemo\bin\Release\UIDemo.pdb
+C:\Users\mrdav\source\repos\RFIDCommandCenter\UIDemo\bin\Release\SharedLib.dll
+C:\Users\mrdav\source\repos\RFIDCommandCenter\UIDemo\bin\Release\SharedLib.pdb
+C:\Users\mrdav\source\repos\RFIDCommandCenter\UIDemo\obj\Release\UIDemo.csprojAssemblyReference.cache
+C:\Users\mrdav\source\repos\RFIDCommandCenter\UIDemo\obj\Release\UIDemo.DialogWindow.resources
+C:\Users\mrdav\source\repos\RFIDCommandCenter\UIDemo\obj\Release\UIDemo.LocationControl.resources
+C:\Users\mrdav\source\repos\RFIDCommandCenter\UIDemo\obj\Release\UIDemo.GridControl.resources
+C:\Users\mrdav\source\repos\RFIDCommandCenter\UIDemo\obj\Release\UIDemo.LoginScreen.resources
+C:\Users\mrdav\source\repos\RFIDCommandCenter\UIDemo\obj\Release\UIDemo.MainWindow.resources
+C:\Users\mrdav\source\repos\RFIDCommandCenter\UIDemo\obj\Release\UIDemo.Properties.Resources.resources
+C:\Users\mrdav\source\repos\RFIDCommandCenter\UIDemo\obj\Release\UIDemo.User_Controls.SystemUserControl.resources
+C:\Users\mrdav\source\repos\RFIDCommandCenter\UIDemo\obj\Release\UIDemo.User_Controls.TagControl.resources
+C:\Users\mrdav\source\repos\RFIDCommandCenter\UIDemo\obj\Release\UIDemo.User_Controls.WriteTag.resources
+C:\Users\mrdav\source\repos\RFIDCommandCenter\UIDemo\obj\Release\UIDemo.csproj.GenerateResource.cache
+C:\Users\mrdav\source\repos\RFIDCommandCenter\UIDemo\obj\Release\UIDemo.csproj.CoreCompileInputs.cache
+C:\Users\mrdav\source\repos\RFIDCommandCenter\UIDemo\obj\Release\UIDemo.csproj.CopyComplete
+C:\Users\mrdav\source\repos\RFIDCommandCenter\UIDemo\obj\Release\UIDemo.exe
+C:\Users\mrdav\source\repos\RFIDCommandCenter\UIDemo\obj\Release\UIDemo.pdb

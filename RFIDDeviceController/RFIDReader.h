@@ -103,9 +103,9 @@ namespace RFIDDeviceController
 
 		bool setLedState(int led, bool high);
 
-		bool turnOnLed2();
-
 	protected:
+
+		virtual bool initMode();
 
 		//Initializes the version info contained by this object by getting the information from the rfid device
 		//Override to allow more information to be obtained

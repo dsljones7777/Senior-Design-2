@@ -32,6 +32,8 @@ bool RFIDDeviceController::RFIDReader::initialize(ReaderSettings * devSettings)
 		return false;
 	if (!initGPIO(devSettings))
 		return false;
+	if (!initMode())
+		return false;
 	initialized = true;
 	return true;
 }
@@ -222,6 +224,24 @@ bool RFIDDeviceController::RFIDReader::setLedState(int led, bool high)
 	return true;
 }
 
+bool RFIDDeviceController::RFIDReader::initMode()
+{
+	TMR_ReadPlan readPlan;
+	memset(&readPlan, 0, sizeof(TMR_ReadPlan));
+	TMR_uint8List antennaList;
+	readPlan.enableAutonomousRead = false;
+	readPlan.type = TMR_ReadPlanType::TMR_READ_PLAN_TYPE_SIMPLE;
+	readPlan.weight = 1;
+	readPlan.u.simple.antennas.len = 1;
+	readPlan.u.simple.antennas.list = &antennas[1].antennaPort;
+	readPlan.u.simple.antennas.max = 1;
+	readPlan.u.simple.protocol = TMR_TAG_PROTOCOL_GEN2;
+	if (TMR_paramSet(&reader, TMR_Param::TMR_PARAM_READ_PLAN, (void*)&readPlan) != TMR_SUCCESS)
+		return false;
+	return true;
+
+}
+
 //Initializes the version info contained by this object by getting the information from the rfid device
 //Override to allow more information to be obtained
 
@@ -355,7 +375,7 @@ bool RFIDDeviceController::RFIDReader::initAntennas(Settings::ReaderSettings * d
 				break;
 			}
 		antennas[i].state = found ? RFIDAntenna::AntennaState::ON : RFIDAntenna::AntennaState::OFF;
-
+		
 		//Find the return lost value for the current antenna
 		for (int j = 0; j < maxIndex; j++)
 			if (returnLossesList.list[j].port == antennas[i].antennaPort)
@@ -372,6 +392,7 @@ bool RFIDDeviceController::RFIDReader::initAntennas(Settings::ReaderSettings * d
 				antennas[i].readPower = readPowerList.list[j].value;
 				break;
 			}
+
 		//if a readpower was not found then read power is the device default
 		if (antennas[i].readPower == -1)
 		{
@@ -387,12 +408,14 @@ bool RFIDDeviceController::RFIDReader::initAntennas(Settings::ReaderSettings * d
 				antennas[i].writePower = writePowerList.list[j].value;
 				break;
 			}
+
 		//if a write power was not found then write power is the device default
 		if (antennas[i].writePower == -1)
 		{
 			antennas[i].writePower = writePower;
 			antennas[i].isWritePwrDefault = true;
 		}
+
 	}
 
 	return true;
