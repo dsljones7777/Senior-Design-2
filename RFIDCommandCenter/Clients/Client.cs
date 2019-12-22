@@ -1,65 +1,131 @@
 ﻿using System;
+using System.IO;
 using System.Net.Sockets;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace RFIDCommandCenter
 {
+    interface ICommandPacket
+    {
+        void serialize(Stream outputStream);
+        void deserialize(Stream inputStream);
+    }
     abstract class Client
     {
-        byte[] networkCache = new byte[NetworkCode.HEADER_SIZE];
-        protected Socket clientSocket;
-        protected NetworkCommunication netCommObject;
-        public bool receivePacket(NetworkCode data,int waitTimeUs)
+        public enum ClientType
+        {
+            DEVICE = 1,
+            UI = 2
+        }
+
+        public abstract ClientType getTypeOfClient
+        {
+            get;
+        }
+
+        public abstract string identifier
+        {
+            get;
+            set;
+        }
+
+        protected abstract void serverThreadRoutine(Object state);
+
+        protected abstract void serverThreadOnStart(Object state);
+
+        public bool exit
+        {
+            get
+            {
+                return m_exit;
+            }
+            set
+            {
+                m_exit = value;
+            }
+        }
+
+        public bool pauseExecution
+        {
+            get
+            {
+                return m_pauseExecution;
+            }
+            set
+            {
+                m_pauseExecution = value;
+            }
+        }
+
+        public string serverErrorMessage
+        {
+            get
+            {
+                return m_serverError;
+            }
+            set
+            {
+                m_serverError = value;
+            }
+        }
+
+        public bool hasExited
+        {
+            get
+            {
+                return m_exited;
+            }
+            set
+            {
+                m_exited = value;
+            }
+        }
+
+        public void clientThreadEntry(Object state)
+        {
+            try
+            {
+                serverThreadOnStart(state);
+                while (!exit)
+                    serverThreadRoutine(state);
+            }
+            catch(Exception e)
+            {
+                serverErrorMessage = e.Message;
+            }
+            hasExited = true;
+        }
+
+        public bool receivePacket(ICommandPacket data, int waitTimeUs)
         {
             if (!clientSocket.Poll(waitTimeUs, SelectMode.SelectRead))
                 return false;
-            int ttlBytesRecv = netCommObject.readFrom(clientSocket,networkCache,NetworkCode.HEADER_SIZE);
-            if (ttlBytesRecv != NetworkCode.HEADER_SIZE)
-                throw new CommandCenterException("The specified network packet was too small", null);
-            data.command = BitConverter.ToInt32(networkCache, 0);
-            data.payloadSize = BitConverter.ToInt32(networkCache, 4);
-            data.tickTime = BitConverter.ToUInt64(networkCache, 8);
-            if(data.payloadSize > NetworkCode.MAX_PAYLOAD_SIZE)
-                throw new CommandCenterException("The specified network packet size is incorrect", null);
-            if (data.payloadSize > 0)
-            {
-                if(netCommObject.readFrom(clientSocket, data.payload, data.payloadSize) != data.payloadSize)
-                    throw new CommandCenterException("The specified network packet size is incorrect", null);
-            }
+            data.deserialize(clientStream);
             return true;
         }
-        public bool sendPacket(NetworkCode data, int timeoutUs)
+
+        public bool sendPacket(ICommandPacket data, int waitTimeUs)
         {
-            if (!clientSocket.Poll(timeoutUs, SelectMode.SelectWrite))
+            if (!clientSocket.Poll(waitTimeUs, SelectMode.SelectWrite))
                 return false;
-            if(netCommObject.writeTo(clientSocket, BitConverter.GetBytes(data.command),4) != 4)
-                throw new CommandCenterException("Falied to write command bytes", null);
-            if (netCommObject.writeTo(clientSocket, BitConverter.GetBytes(data.payloadSize), 4) != 4)
-                throw new CommandCenterException("Failed to write command bytes", null);
-            if (netCommObject.writeTo(clientSocket, BitConverter.GetBytes(data.tickTime), 8) != 8)
-                throw new CommandCenterException("Falied to write command bytes", null);
-            if (data.payloadSize != 0)
-                if (netCommObject.writeTo(clientSocket, data.payload, data.payloadSize) != data.payloadSize)
-                    throw new CommandCenterException("Falied to write command bytes", null);
+            data.serialize(clientStream);
             return true;
         }
-        public abstract void serverThreadRoutine(Object state);
-        //public bool sendStream(byte[] data,int timeoutUs,int size)
-        //{
 
-        //}
-
-        //public int receiveStream(byte[]data,int waitTimeUs,int size)
-        //{
-        //    if (!clientSocket.Poll(waitTimeUs, SelectMode.SelectRead))
-        //        return 0;
-        //    int ttlBytesRecv = netCommObject.readFrom(clientSocket, data,size);
-
-        //}
-
-        protected Client(Socket who,NetworkCommunication netObject)
+        protected Client(Socket who)
         {
             clientSocket = who;
-            netCommObject = netObject;
+            clientStream = new NetworkStream(clientSocket);
         }
+
+        private volatile bool m_exit = false;
+        private volatile bool m_pauseExecution = false;
+        private volatile string m_serverError = null;
+        private volatile bool m_exited = false;
+        protected Socket clientSocket;
+        protected NetworkStream clientStream;
     }
+
+    
 }

@@ -23,12 +23,9 @@ namespace RFIDCommandCenter
         long tickRateOffset;
         internal volatile bool inVirtualMode = false;
         internal volatile CommandCodes pendingDeviceCommand;
-        internal volatile bool isSystemDevice;              //Does the device exist in the database
-        internal volatile bool exit;
-        internal volatile bool pauseExecution;
+        internal volatile bool isSystemDevice; 
         internal volatile int deviceError;
         internal volatile bool continueAfterDeviceError;
-        internal volatile string serverErrorMessage;
         internal string deviceSerialNumber;
         internal List<byte[]> readTags = new List<byte[]>();
         internal volatile byte[] tagToWrite = null;
@@ -82,39 +79,28 @@ namespace RFIDCommandCenter
             this.clientSocket.Dispose();
         }
         
-        public override void serverThreadRoutine(Object state)
+        protected override void serverThreadOnStart(Object state)
         {
             //Create packet to tell client to start, start it's reader, lock the door and give up it's serial number
-            
             NetworkCode bufferPacket = new NetworkCode();
             sendCommand(bufferPacket, CommandCodes.START, NETWORK_TIMEOUT * 1000, true, true);
             sendCommand(bufferPacket, CommandCodes.START_READER, NETWORK_TIMEOUT * 1000, true, true);
             sendCommand(bufferPacket, CommandCodes.LOCK, NETWORK_TIMEOUT * 1000, false, true);
-            sendCommand(bufferPacket, CommandCodes.SERIAL_NUMBER, NETWORK_TIMEOUT * 1000, true, true,new byte[65]);
-            //program loop, run until we are told to exit
-            while (!exit)
-            {
-                try
-                {
-                    //get a packet from the client. An alive packet should come
-                    if (!receivePacket(bufferPacket, NETWORK_TIMEOUT * 1000))
-                           reportError("Device Timeout: Alive packet not sent");
-                    
-                    if (bufferPacket.command != (int)CommandCodes.SERIAL_NUMBER)
-                        reportCommandInfo(bufferPacket,deviceSerialNumber ?? "NO SERIAL");
-                    executePacketRequest(bufferPacket);
-                    if (bufferPacket.command == (int)CommandCodes.SERIAL_NUMBER)
-                        reportCommandInfo(bufferPacket, deviceSerialNumber ?? "NO SERIAL");
-                    provideResponse(bufferPacket);
-                    decipherAndSendPendingDeviceCommand(bufferPacket);
-                    
-                }
-                catch (Exception e)
-                {
-                    reportError(e.Message);
-                    continue;
-                }
-            }
+            sendCommand(bufferPacket, CommandCodes.SERIAL_NUMBER, NETWORK_TIMEOUT * 1000, true, true, new byte[65]);
+        }
+
+        protected override void serverThreadRoutine(Object state)
+        {
+            NetworkCode bufferPacket = new NetworkCode();
+            if (!receivePacket(bufferPacket, NETWORK_TIMEOUT * 1000))
+                reportError("Device Timeout: Alive packet not sent");
+            if (bufferPacket.command != (int)CommandCodes.SERIAL_NUMBER)
+                reportCommandInfo(bufferPacket, deviceSerialNumber ?? "NO SERIAL");
+            executePacketRequest(bufferPacket);
+            if (bufferPacket.command == (int)CommandCodes.SERIAL_NUMBER)
+                reportCommandInfo(bufferPacket, deviceSerialNumber ?? "NO SERIAL");
+            provideResponse(bufferPacket);
+            decipherAndSendPendingDeviceCommand(bufferPacket);
         }
 
         private void decipherAndSendPendingDeviceCommand(NetworkCode packet)
